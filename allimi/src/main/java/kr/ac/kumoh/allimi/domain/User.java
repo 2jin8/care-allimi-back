@@ -9,7 +9,7 @@ public class User {
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long user_id;
+    private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Facility facility;
