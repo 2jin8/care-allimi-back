@@ -2,11 +2,15 @@ package kr.ac.kumoh.allimi.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Generated;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Facility {
     @Id
-    private double id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
     private String address;
