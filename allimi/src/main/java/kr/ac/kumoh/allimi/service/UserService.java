@@ -23,15 +23,28 @@ public class UserService {
                 .orElseThrow(() -> new UserException());
 
         if (user != null) {
-            return user.getUser_id();
+            return user.getUserId();
 
         }
 
         return null;
+    }
+
+    public void logout(Long user_id) {
+        userRepository.deleteUserByUserId(user_id)
+                .orElseThrow(() -> new UserException());
 
     }
 
+    @Transactional(readOnly = true)
+    public User findUser(Long user_id) {
+        User user = userRepository.findUserByUserId(user_id)
+                .orElseThrow(() -> new UserException());
 
+        if (user != null) {
+            return user;
+        }
 
-
+        return null;
+    }
 }
