@@ -1,6 +1,7 @@
 package kr.ac.kumoh.allimi.controller;
 
 import kr.ac.kumoh.allimi.domain.Notice;
+import kr.ac.kumoh.allimi.dto.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
 import kr.ac.kumoh.allimi.service.NoticeService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class NoticeController {
@@ -47,7 +49,31 @@ public class NoticeController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+
+    @PatchMapping("/v1/notices")
+    public ResponseEntity noticeEdit(@RequestBody NoticeEditDto dto) {
+
+        Notice editNotice = noticeService.edit(dto);
+        if (editNotice == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+
+    @DeleteMapping("/v1/notices")
+    public ResponseEntity noticeDelete(@RequestBody Map<String, Long> notice) {
+
+        Long deletedCnt = noticeService.delete(notice.get("notice_id"));
+
+        if (deletedCnt == 0)
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
 

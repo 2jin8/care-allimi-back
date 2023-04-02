@@ -45,5 +45,10 @@ public class Notice {
 
         return ntc;
     }
+
+    public Notice editNotice(Long noticeId, Facility facility, User user, User target, NoticeContent content) {
+        Notice notice = new Notice(noticeId, facility, user, target, content);
+        return notice;
+    }
 }
 

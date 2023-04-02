@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,18 +21,21 @@ public class UserService {
     @Transactional(readOnly = true)
     public Long login(String userId, String password) {
         User user = userRepository.findByIdAndPassword(userId, password)
-                .orElseThrow(() -> new UserException());
+                .orElseThrow(() -> new UserException("user not found"));
 
         if (user != null) {
             return user.getUserId();
         }
-
         return null;
     }
 
-    public void logout(Long user_id) {
-        userRepository.deleteUserByUserId(user_id)
-                .orElseThrow(() -> new UserException());
+    public boolean logout(Long user_id) {
+
+        List<User> users = userRepository.deleteUserByUserId(user_id);
+        if (users.size() == 0)
+            return false;
+
+        return true;
 
     }
 

@@ -36,6 +36,11 @@ public class NoticeContent {
         return nc;
     }
 
+    public NoticeContent editNoticeContent(Long ncId, String contents, String subContents) {
+        NoticeContent noticeContent = new NoticeContent(ncId, contents, subContents, this.getCreateDate());
+        return noticeContent;
+    }
+
 }
 
 

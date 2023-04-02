@@ -4,6 +4,7 @@ import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.Notice;
 import kr.ac.kumoh.allimi.domain.NoticeContent;
 import kr.ac.kumoh.allimi.domain.User;
+import kr.ac.kumoh.allimi.dto.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.UserException;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -49,10 +51,10 @@ public class NoticeService {
 
         NoticeContent content = NoticeContent.newNoticeContent(dto.getContents(), dto.getSubContents(), dto.getCreateDate());
 
-        User targetUser = userRepository.findByUserId(dto.getTarget())
+        User targetUser = userRepository.findUserByUserId(dto.getTarget())
                 .orElseThrow(() -> new UserException("target user not found"));
 
-        User user = userRepository.findByUserId(dto.getUserId())
+        User user = userRepository.findUserByUserId(dto.getUserId())
                 .orElseThrow(() -> new UserException("user not found"));
 
         Facility facility = facilityRepository.findById(dto.getFacilityId())
@@ -65,6 +67,37 @@ public class NoticeService {
 
         return noticeRepository.save(notice);
     }
+
+    public Notice edit(NoticeEditDto editDto) {
+        NoticeContent noticeContent = new NoticeContent().editNoticeContent(editDto.getNcId(), editDto.getContent(), editDto.getSubContent());
+
+        Facility facility = facilityRepository.findById(editDto.getFacilityId())
+                .orElseThrow(() -> new UserException("facility not found"));
+
+        User user = userRepository.findUserByUserId(editDto.getUserId())
+                .orElseThrow(() -> new UserException("user not found"));
+
+        User target = userRepository.findUserByUserId(editDto.getTargetId())
+                .orElseThrow(() -> new UserException("target not found"));
+
+        Optional<Notice> checkNotice = noticeRepository.findById(editDto.getNoticeId());
+        if (checkNotice.isEmpty()) {
+            return null;
+        }
+
+        noticeRepository.findById(editDto.getNoticeId())
+                .orElseThrow(() -> new UserException("notice not found"));
+
+        Notice notice = new Notice().editNotice(editDto.getNoticeId(), facility, user, target, noticeContent);
+        return noticeRepository.save(notice);
+    }
+
+    public Long delete(Long notice_id) {
+//        List<Notice> notices = noticeRepository.deleteNoticeByNoticeId(notice_id);
+        Long deleted = noticeRepository.deleteNoticeByNoticeId(notice_id);
+        return deleted;
+    }
+
 
     //    private Long noticeId;
     //    private Facility facility;
