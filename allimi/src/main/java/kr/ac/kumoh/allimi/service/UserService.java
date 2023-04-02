@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.service;
 
 
 import kr.ac.kumoh.allimi.domain.User;
+import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.exception.UserException;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,15 @@ public class UserService {
         }
 
         return null;
+    }
+
+    public UserRole getUserRole(Long userId) {
+
+        User user = userRepository.findUserByUserId(userId)
+                .orElseThrow(()-> new UserException());
+
+        return user.getUserRole();
+
     }
 
     public void logout(Long user_id) {
