@@ -6,6 +6,7 @@ import kr.ac.kumoh.allimi.domain.NoticeContent;
 import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.dto.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
+import kr.ac.kumoh.allimi.exception.NoticeException;
 import kr.ac.kumoh.allimi.exception.UserException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.NoticeRepository;
@@ -14,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -34,36 +37,77 @@ public class NoticeService {
     public List<NoticeResponse> noticeList() {
         List<Notice> notices = noticeRepository.findAll();
 
-        List<NoticeResponse> noticeResponses = new ArrayList();
+        List<NoticeResponse> noticeListRespons = new ArrayList();
 
         for (Notice notice : notices) {
             NoticeContent noticeContent = notice.getContent();
-            noticeResponses.add(new NoticeResponse(noticeContent.getCreateDate(), noticeContent.getContents()));
-            System.out.println(notice.getContent().getCreateDate());
+
+            NoticeResponse nr = NoticeResponse.builder()
+                    .noticeId(notice.getNoticeId())
+                    .create_date(noticeContent.getCreateDate())
+                    .content(noticeContent.getContents()).build();
+
+            noticeListRespons.add(nr);
         }
 
-        return noticeResponses;
+        return noticeListRespons;
     }
 
     public Notice write(NoticeWriteDto dto) {
 
-        NoticeContent content = NoticeContent.newNoticeContent(dto.getContents(), dto.getSubContents(), dto.getCreateDate());
+        NoticeContent content = NoticeContent.newNoticeContent(dto.getContents(), dto.getSubContents(), LocalDateTime.now());
 
-        User targetUser = userRepository.findByUserId(dto.getTarget())
+        User targetUser = userRepository.findUserByUserId(dto.getTarget())
                 .orElseThrow(() -> new UserException("target user not found"));
 
-        User user = userRepository.findByUserId(dto.getUserId())
+        User user = userRepository.findUserByUserId(dto.getUserId())
                 .orElseThrow(() -> new UserException("user not found"));
 
         Facility facility = facilityRepository.findById(dto.getFacilityId())
                 .orElseThrow(() -> new UserException("user not found"));
 
-        System.out.println(content.getContents());
-
         Notice notice = Notice.newNotice(facility, user, targetUser, content);
 
 
         return noticeRepository.save(notice);
+    }
+
+    public List<NoticeResponse> userNoticeList(Long userId) {
+
+        User user = userRepository.findUserByUserId(userId)
+                .orElseThrow(() -> new UserException("user가 없습니다"));
+
+        List<Notice> userNotice = noticeRepository.findByTarget(user)
+                .orElseGet(() -> new ArrayList<Notice>());
+
+        List<NoticeResponse> userNoticeResponsLists = new ArrayList<>();
+
+        for (Notice notice : userNotice) {
+            NoticeContent noticeContent = notice.getContent();
+
+            NoticeResponse nr = NoticeResponse.builder()
+                    .noticeId(notice.getNoticeId())
+                    .create_date(noticeContent.getCreateDate())
+                    .content(noticeContent.getContents()).build();
+
+            userNoticeResponsLists.add(nr);
+        }
+
+        return userNoticeResponsLists;
+    }
+
+    public NoticeResponse findNotice(Long noticeId) {
+
+        Notice notice = noticeRepository.findByNoticeId(noticeId)
+                .orElseThrow(() -> new NoticeException("해당 게시글이 없습니다"));
+
+        NoticeContent nContent = notice.getContent();
+
+        return NoticeResponse.builder().create_date(nContent.getCreateDate())
+                .noticeId(notice.getNoticeId())
+                .subContent(nContent.getSubContents())
+                .content(nContent.getContents())
+                .build();
     }
 
     //    private Long noticeId;

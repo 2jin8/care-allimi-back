@@ -1,14 +1,12 @@
 package kr.ac.kumoh.allimi.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @RequiredArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notice {
     @Id
     @Column(name = "notice_id")
@@ -24,21 +22,12 @@ public class Notice {
     private User user;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "target")
     private User target;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="nc_id")
     private NoticeContent content;
-
-
-    private Notice(Long noticeId, Facility facility, User user, User target, NoticeContent content) {
-        this.noticeId = noticeId;
-        this.facility = facility;
-        this.user = user;
-        this.target = target;
-        this.content = content;
-    }
 
     public static Notice newNotice(Facility facility, User user, User target, NoticeContent content) {
         Notice ntc = new Notice(null, facility, user, target, content);

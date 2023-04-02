@@ -11,6 +11,4 @@ public class NoticeWriteDto {
     private Long facilityId;
     private String contents;
     private String subContents;
-    private LocalDateTime createDate;
-
 }
