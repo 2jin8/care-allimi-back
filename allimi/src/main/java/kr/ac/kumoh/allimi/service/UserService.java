@@ -24,7 +24,6 @@ public class UserService {
 
         if (user != null) {
             return user.getUserId();
-
         }
 
         return null;
