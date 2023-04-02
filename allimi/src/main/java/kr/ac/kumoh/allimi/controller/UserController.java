@@ -1,21 +1,21 @@
 package kr.ac.kumoh.allimi.controller;
-
+import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.dto.LoginDTO;
+import kr.ac.kumoh.allimi.dto.UserListDTO;
+import lombok.RequiredArgsConstructor;
 import kr.ac.kumoh.allimi.service.UserService;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @PostMapping("/v1/login")
     public ResponseEntity login(@RequestBody LoginDTO dto) {
@@ -39,7 +39,23 @@ public class UserController {
     }
 
 
+    @PostMapping("/v1/logout")
+    public ResponseEntity logout(@RequestBody Map<String, Long> user) {
+        userService.logout(user.get("user_id"));
+        return new ResponseEntity(HttpStatus.OK);
+    }
 
+    @GetMapping("/v1/users/{user_id}")
+    public ResponseEntity user_list(@PathVariable Long user_id) {
+        if (user_id == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
 
+        User user = userService.findUser(user_id);
 
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new UserListDTO(user.getFacility().getName(), user.getName(), user.getProtectorName(), user.getRole())
+        );
+    }
 }
+
