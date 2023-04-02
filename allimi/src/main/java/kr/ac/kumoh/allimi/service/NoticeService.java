@@ -4,6 +4,7 @@ import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.Notice;
 import kr.ac.kumoh.allimi.domain.NoticeContent;
 import kr.ac.kumoh.allimi.domain.User;
+import kr.ac.kumoh.allimi.dto.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.NoticeException;
@@ -70,6 +71,35 @@ public class NoticeService {
 
 
         return noticeRepository.save(notice);
+    }
+
+    public Notice edit(NoticeEditDto editDto) {
+        NoticeContent noticeContent = new NoticeContent().editNoticeContent(editDto.getNcId(), editDto.getContent(), editDto.getSubContent());
+
+        Facility facility = facilityRepository.findById(editDto.getFacilityId())
+                .orElseThrow(() -> new UserException("facility not found"));
+
+        User user = userRepository.findUserByUserId(editDto.getUserId())
+                .orElseThrow(() -> new UserException("user not found"));
+
+        User target = userRepository.findUserByUserId(editDto.getTargetId())
+                .orElseThrow(() -> new UserException("target not found"));
+
+        Optional<Notice> checkNotice = noticeRepository.findById(editDto.getNoticeId());
+        if (checkNotice.isEmpty()) {
+            return null;
+        }
+
+        noticeRepository.findById(editDto.getNoticeId())
+                .orElseThrow(() -> new UserException("notice not found"));
+
+        Notice notice = new Notice().editNotice(editDto.getNoticeId(), facility, user, target, noticeContent);
+        return noticeRepository.save(notice);
+    }
+
+    public Long delete(Long notice_id) {
+        Long deleted = noticeRepository.deleteNoticeByNoticeId(notice_id);
+        return deleted;
     }
 
     public List<NoticeResponse> userNoticeList(Long userId) {
