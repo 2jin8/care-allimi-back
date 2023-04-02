@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,7 +20,6 @@ public class UserController {
 
     @PostMapping("/v1/login")
     public ResponseEntity login(@RequestBody LoginDTO dto) {
-
         Long user_id = userService.login(dto.getId(), dto.getPassword());
 
         if(user_id == null) {
@@ -61,5 +61,15 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(userListDTO);
     }
+
+    @GetMapping("/v1/users/protectors")
+    public ResponseEntity protectors_list() {
+
+        List<UserListDTO> protectorDtos = userService.getProtectors();
+
+        return ResponseEntity.status(HttpStatus.OK).body(protectorDtos);
+    }
 }
+
+
 
