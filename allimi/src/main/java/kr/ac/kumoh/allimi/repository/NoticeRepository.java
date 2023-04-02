@@ -14,4 +14,5 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     Optional<Notice> findByNoticeId(Long noticeId);
 
+    Long deleteNoticeByNoticeId(Long notice_id);
 }

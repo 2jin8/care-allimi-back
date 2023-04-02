@@ -23,7 +23,7 @@ public class UserController {
         Long user_id = userService.login(dto.getId(), dto.getPassword());
 
         if(user_id == null) {
-            return new ResponseEntity(HttpStatus.FORBIDDEN);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseLogin(user_id));
@@ -39,16 +39,20 @@ public class UserController {
     }
 
 
-    @PostMapping("/v1/logout")
+    @PostMapping("/v1/logout") // 실제로는 회원 탈퇴
     public ResponseEntity logout(@RequestBody Map<String, Long> user) {
-        userService.logout(user.get("user_id"));
-        return new ResponseEntity(HttpStatus.OK);
+
+        boolean logout = userService.logout(user.get("user_id"));
+        if (logout) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping("/v1/users/{user_id}")
     public ResponseEntity user_list(@PathVariable Long user_id) {
         if (user_id == null) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         User user = userService.findUser(user_id);
