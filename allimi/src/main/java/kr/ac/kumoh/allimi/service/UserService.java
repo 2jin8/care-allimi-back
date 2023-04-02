@@ -2,13 +2,14 @@ package kr.ac.kumoh.allimi.service;
 
 
 import kr.ac.kumoh.allimi.domain.User;
+import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.exception.UserException;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @Transactional
@@ -20,20 +21,29 @@ public class UserService {
     @Transactional(readOnly = true)
     public Long login(String userId, String password) {
         User user = userRepository.findByIdAndPassword(userId, password)
-                .orElseThrow(() -> new UserException());
+                .orElseThrow(() -> new UserException("user not found"));
 
         if (user != null) {
             return user.getUserId();
-
         }
-
         return null;
     }
 
-    public void logout(Long user_id) {
-        userRepository.deleteUserByUserId(user_id)
-                .orElseThrow(() -> new UserException());
+    public boolean logout(Long user_id) {
 
+        List<User> users = userRepository.deleteUserByUserId(user_id);
+        if (users.size() == 0)
+            return false;
+
+        return true;
+    }
+
+    public UserRole getUserRole(Long userId) {
+
+        User user = userRepository.findUserByUserId(userId)
+                .orElseThrow(()-> new UserException());
+
+        return user.getUserRole();
     }
 
     @Transactional(readOnly = true)

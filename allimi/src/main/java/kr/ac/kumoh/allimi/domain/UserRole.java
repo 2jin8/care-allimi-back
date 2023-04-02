@@ -1,7 +1,5 @@
 package kr.ac.kumoh.allimi.domain;
 
-import jakarta.persistence.Enumerated;
-
-public enum Role {
+public enum UserRole {
     PROTECTOR, WORKER, MANAGER
 }

@@ -1,40 +1,15 @@
 package kr.ac.kumoh.allimi.controller;
-
-import kr.ac.kumoh.allimi.domain.Role;
 import kr.ac.kumoh.allimi.domain.User;
+import kr.ac.kumoh.allimi.dto.LoginDTO;
+import kr.ac.kumoh.allimi.dto.UserListDTO;
+import lombok.RequiredArgsConstructor;
 import kr.ac.kumoh.allimi.service.UserService;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-
-
-@Getter
-@ToString
-class LoginDTO {
-    private String id;
-    private String password;
-}
-
-@Getter
-@ToString
-class UserListDTO{
-    private String facility_name;
-    private String user_name;
-    private String user_protector_name;
-    private Role role;
-
-    public UserListDTO(String facility_name, String user_name, String user_protector_name, Role role) {
-        this.facility_name = facility_name;
-        this.user_name = user_name;
-        this.user_protector_name = user_protector_name;
-        this.role = role;
-    }
-}
 
 @RestController
 @RequiredArgsConstructor
@@ -47,12 +22,9 @@ public class UserController {
 
         Long user_id = userService.login(dto.getId(), dto.getPassword());
 
-        if (user_id == null) {
-            System.out.println("@@@@배고파");
-            return new ResponseEntity(HttpStatus.FORBIDDEN);
+        if(user_id == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
-        System.out.println("@@@@배만히고파");
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseLogin(user_id));
     }
@@ -67,23 +39,31 @@ public class UserController {
     }
 
 
-    @PostMapping("/v1/logout")
+    @PostMapping("/v1/logout") // 실제로는 회원 탈퇴
     public ResponseEntity logout(@RequestBody Map<String, Long> user) {
-        userService.logout(user.get("user_id"));
-        return new ResponseEntity(HttpStatus.OK);
+
+        boolean logout = userService.logout(user.get("user_id"));
+        if (logout) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping("/v1/users/{user_id}")
     public ResponseEntity user_list(@PathVariable Long user_id) {
         if (user_id == null) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         User user = userService.findUser(user_id);
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new UserListDTO(user.getFacility().getName(), user.getName(), user.getProtector_name(), user.getRole())
-        );
+        String userName = user.getName() == null ? "":user.getName();
+        String protectorName = user.getProtectorName() == null ? "":user.getProtectorName();
+        String facilityName = user.getFacility() == null ? "" : user.getFacility().getName();
+
+        UserListDTO userListDTO = new UserListDTO(facilityName, userName, protectorName, user.getUserRole());
+
+        return ResponseEntity.status(HttpStatus.OK).body(userListDTO);
     }
 }
 
