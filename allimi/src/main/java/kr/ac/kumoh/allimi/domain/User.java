@@ -30,6 +30,6 @@ public class User {
     private String tel;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private UserRole userRole;
 
 }

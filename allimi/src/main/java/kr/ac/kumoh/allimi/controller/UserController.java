@@ -23,7 +23,6 @@ public class UserController {
         Long user_id = userService.login(dto.getId(), dto.getPassword());
 
         if(user_id == null) {
-//            return new ResponseEntity(HttpStatus.FORBIDDEN);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -58,9 +57,13 @@ public class UserController {
 
         User user = userService.findUser(user_id);
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                new UserListDTO(user.getFacility().getName(), user.getName(), user.getProtectorName(), user.getRole())
-        );
+        String userName = user.getName() == null ? "":user.getName();
+        String protectorName = user.getProtectorName() == null ? "":user.getProtectorName();
+        String facilityName = user.getFacility() == null ? "" : user.getFacility().getName();
+
+        UserListDTO userListDTO = new UserListDTO(facilityName, userName, protectorName, user.getUserRole());
+
+        return ResponseEntity.status(HttpStatus.OK).body(userListDTO);
     }
 }
 

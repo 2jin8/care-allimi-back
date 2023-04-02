@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.service;
 
 
 import kr.ac.kumoh.allimi.domain.User;
+import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.exception.UserException;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -36,7 +36,14 @@ public class UserService {
             return false;
 
         return true;
+    }
 
+    public UserRole getUserRole(Long userId) {
+
+        User user = userRepository.findUserByUserId(userId)
+                .orElseThrow(()-> new UserException());
+
+        return user.getUserRole();
     }
 
     @Transactional(readOnly = true)
