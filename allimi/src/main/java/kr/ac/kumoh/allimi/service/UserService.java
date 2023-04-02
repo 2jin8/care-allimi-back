@@ -22,16 +22,10 @@ public class UserService {
         User user = userRepository.findByIdAndPassword(userId, password)
                 .orElseThrow(() -> new UserException());
 
-        if (user != null) {
-            return user.getUser_id();
-
+        if (user == null) {
+            return null;
         }
 
-        return null;
-
+        return user.getUserId();
     }
-
-
-
-
 }
