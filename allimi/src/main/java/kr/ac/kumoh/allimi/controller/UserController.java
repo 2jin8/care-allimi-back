@@ -1,6 +1,8 @@
 package kr.ac.kumoh.allimi.controller;
 import kr.ac.kumoh.allimi.domain.User;
+import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.LoginDTO;
+import kr.ac.kumoh.allimi.dto.SignUpDTO;
 import kr.ac.kumoh.allimi.dto.UserListDTO;
 import lombok.RequiredArgsConstructor;
 import kr.ac.kumoh.allimi.service.UserService;
@@ -16,6 +18,15 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+
+    @PostMapping("/v1/users")
+    public ResponseEntity signUp(@RequestBody SignUpDTO dto) {
+        Long userId = userService.signUp(dto);
+        if (userId == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseLogin(userId));
+    }
 
     @PostMapping("/v1/login")
     public ResponseEntity login(@RequestBody LoginDTO dto) {
