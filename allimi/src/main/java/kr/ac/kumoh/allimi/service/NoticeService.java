@@ -39,7 +39,9 @@ public class NoticeService {
             NoticeResponse nr = NoticeResponse.builder()
                     .noticeId(notice.getNoticeId())
                     .create_date(noticeContent.getCreateDate())
-                    .content(noticeContent.getContents()).build();
+                    .content(noticeContent.getContents())
+                    .subContent(noticeContent.getSubContents())
+                    .build();
 
             noticeListRespons.add(nr);
         }
@@ -109,7 +111,9 @@ public class NoticeService {
             NoticeResponse nr = NoticeResponse.builder()
                     .noticeId(notice.getNoticeId())
                     .create_date(noticeContent.getCreateDate())
-                    .content(noticeContent.getContents()).build();
+                    .content(noticeContent.getContents())
+                    .subContent(noticeContent.getSubContents())
+                    .build();
 
             userNoticeResponsLists.add(nr);
         }

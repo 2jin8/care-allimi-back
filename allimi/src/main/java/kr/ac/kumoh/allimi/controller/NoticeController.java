@@ -23,16 +23,16 @@ public class NoticeController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/v1/notices")
-    public ResponseEntity noticeList() {
-        List<NoticeResponse> noticeListRespons = noticeService.noticeList();
-
-        for (NoticeResponse nr : noticeListRespons) {
-            System.out.println(nr.getContent());
-        }
-
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeListRespons.toArray());
-    }
+//    @GetMapping("/v1/notices")
+//    public ResponseEntity noticeList() {
+//        List<NoticeResponse> noticeListRespons = noticeService.noticeList();
+//
+//        for (NoticeResponse nr : noticeListRespons) {
+//            System.out.println(nr.getContent());
+//        }
+//
+//        return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeListRespons.toArray());
+//    }
 
     @GetMapping("/v1/notices/{user_id}")
     public ResponseEntity noticeList(@PathVariable Long user_id) {
@@ -40,9 +40,9 @@ public class NoticeController {
 
         List<NoticeResponse> noticeListResponse;
 
-        if (userRole != UserRole.PROTECTOR && userRole != UserRole.MANAGER) {
+        if (userRole == UserRole.PROTECTOR) { // 보호자인 경우
             noticeListResponse = noticeService.userNoticeList(user_id);
-        } else {
+        } else { // 직원, 시설장인 경우
             noticeListResponse = noticeService.noticeList();
         }
 
