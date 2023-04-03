@@ -18,7 +18,7 @@ public class Notice {
     private Facility facility;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", updatable = false, insertable = false)
+    @JoinColumn(name = "user_id", updatable = false)
     private User user;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -35,9 +35,9 @@ public class Notice {
         return ntc;
     }
 
-    public Notice editNotice(Long noticeId, Facility facility, User user, User target, NoticeContent content) {
-        Notice notice = new Notice(noticeId, facility, user, target, content);
-        return notice;
+    public void editNotice(User target, String contents, String subContents) {
+        this.target = target;
+        this.content.editNoticeContent(contents, subContents);
     }
 }
 

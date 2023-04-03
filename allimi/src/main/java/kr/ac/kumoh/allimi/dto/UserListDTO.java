@@ -2,11 +2,13 @@ package kr.ac.kumoh.allimi.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import kr.ac.kumoh.allimi.domain.UserRole;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserListDTO{
     private String facility_name;

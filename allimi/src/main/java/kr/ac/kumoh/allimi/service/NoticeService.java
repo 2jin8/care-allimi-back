@@ -1,25 +1,18 @@
 package kr.ac.kumoh.allimi.service;
 
-import kr.ac.kumoh.allimi.domain.Facility;
-import kr.ac.kumoh.allimi.domain.Notice;
-import kr.ac.kumoh.allimi.domain.NoticeContent;
-import kr.ac.kumoh.allimi.domain.User;
+import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.NoticeException;
 import kr.ac.kumoh.allimi.exception.UserException;
-import kr.ac.kumoh.allimi.repository.FacilityRepository;
-import kr.ac.kumoh.allimi.repository.NoticeRepository;
-import kr.ac.kumoh.allimi.repository.UserRepository;
+import kr.ac.kumoh.allimi.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -65,36 +58,34 @@ public class NoticeService {
                 .orElseThrow(() -> new UserException("user not found"));
 
         Facility facility = facilityRepository.findById(dto.getFacilityId())
-                .orElseThrow(() -> new UserException("user not found"));
+                .orElseThrow(() -> new UserException("facility not found"));
 
         Notice notice = Notice.newNotice(facility, user, targetUser, content);
-
 
         return noticeRepository.save(notice);
     }
 
-    public Notice edit(NoticeEditDto editDto) {
-        NoticeContent noticeContent = new NoticeContent().editNoticeContent(editDto.getNcId(), editDto.getContent(), editDto.getSubContent());
+    public void edit(NoticeEditDto editDto) {
+        Notice checkNotice = noticeRepository.findById(editDto.getNoticeId())
+                .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
 
-        Facility facility = facilityRepository.findById(editDto.getFacilityId())
-                .orElseThrow(() -> new UserException("facility not found"));
+        User writer = checkNotice.getUser();
 
         User user = userRepository.findUserByUserId(editDto.getUserId())
-                .orElseThrow(() -> new UserException("user not found"));
+                .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다"));
 
-        User target = userRepository.findUserByUserId(editDto.getTargetId())
-                .orElseThrow(() -> new UserException("target not found"));
-
-        Optional<Notice> checkNotice = noticeRepository.findById(editDto.getNoticeId());
-        if (checkNotice.isEmpty()) {
-            return null;
+        if (user == null) {
+            throw new UserException("권한이 없는 사용자 입니다");
         }
 
-        noticeRepository.findById(editDto.getNoticeId())
-                .orElseThrow(() -> new UserException("notice not found"));
+        if (writer.getUserId() != editDto.getUserId() && user.getUserRole() != UserRole.MANAGER) {
+            throw new UserException("권한이 없는 사용자 입니다");
+        }
 
-        Notice notice = new Notice().editNotice(editDto.getNoticeId(), facility, user, target, noticeContent);
-        return noticeRepository.save(notice);
+        User targetUser = userRepository.findUserByUserId(editDto.getTargetId())
+                .orElseThrow(() -> new UserException("target을 찾을 수 없습니다"));
+
+        checkNotice.editNotice(targetUser, editDto.getContent(), editDto.getSubContent());
     }
 
     public Long delete(Long notice_id) {
@@ -139,18 +130,5 @@ public class NoticeService {
                 .content(nContent.getContents())
                 .build();
     }
-
-    //    private Long noticeId;
-    //    private Facility facility;
-    //    private User user;
-    //    private User target;
-    //    private NoticeContent content;
-
-
-    //    private Long user_id;
-//    private Long target;
-//    private String contents;
-//    private String sub_contents;
-//    private LocalDateTime create_date;
 
 }
