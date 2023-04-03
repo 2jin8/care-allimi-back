@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 
@@ -63,11 +62,7 @@ public class NoticeController {
 
     @PatchMapping("/v1/notices")
     public ResponseEntity noticeEdit(@RequestBody NoticeEditDto dto) {
-
-        Notice editNotice = noticeService.edit(dto);
-        if (editNotice == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        noticeService.edit(dto);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }

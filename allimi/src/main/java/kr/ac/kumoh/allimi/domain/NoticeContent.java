@@ -38,9 +38,18 @@ public class NoticeContent {
         return nc;
     }
 
-    public NoticeContent editNoticeContent(Long ncId, String contents, String subContents) {
-        NoticeContent noticeContent = new NoticeContent(ncId, contents, subContents, this.getCreateDate());
-        return noticeContent;
+    public void editNoticeContent(String contents, String subContents) {
+
+        this.contents = contents;
+        this.subContents = subContents;
+
+//        NoticeContent noticeContent = new NoticeContent(contents, subContents, this.getCreateDate());
+//        return noticeContent;
+    }
+
+    public static NoticeContent newNoticeContent(String contents, String subContents) {
+        NoticeContent nc = new NoticeContent(null, contents, subContents, null);
+        return nc;
     }
 
 }
