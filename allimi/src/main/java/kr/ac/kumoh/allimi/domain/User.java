@@ -14,6 +14,7 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "facility_id", referencedColumnName = "facility_id")
+    @NotNull
     private Facility facility;
 
     private String name;
