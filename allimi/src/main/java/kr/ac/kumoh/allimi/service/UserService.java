@@ -2,28 +2,57 @@ package kr.ac.kumoh.allimi.service;
 
 
 import kr.ac.kumoh.allimi.domain.Facility;
+import kr.ac.kumoh.allimi.dto.SignUpDTO;
 import kr.ac.kumoh.allimi.domain.Notice;
 import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.UserListDTO;
 import kr.ac.kumoh.allimi.exception.UserException;
+import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final FacilityRepository facilityRepository;
 
-    @Transactional(readOnly = true)
+
+    @Transactional
+    public Long addUser(SignUpDTO dto) {
+
+        // ID 중복 체크
+        User checkUser = userRepository.findUserById(dto.getId()).orElse(null);
+        if (checkUser != null) return null;
+
+        Facility facility = facilityRepository.findById(dto.getFacility_id())
+                .orElseThrow(() -> new UserException("facility not found"));
+
+        User user = new User(facility, dto.getName(), dto.getProtector_name(), dto.getId(), dto.getPassword(), dto.getTel(), dto.getRole());
+
+        User saved = userRepository.save(user);
+
+        return saved.getUserId();
+    }
+
+    @Transactional
+    public Long deleteUser(Long user_id) { // 회원탈퇴
+        User user = userRepository.findUserByUserId(user_id).orElse(null);
+
+        if (user == null)
+            return null;
+
+        Long deletedNum = userRepository.deleteUserByUserId(user_id);
+        return deletedNum;
+    }
+
     public Long login(String userId, String password) {
         User user = userRepository.findByIdAndPassword(userId, password)
                 .orElseThrow(() -> new UserException("user not found"));
@@ -34,18 +63,6 @@ public class UserService {
         return null;
     }
 
-    public boolean logout(Long user_id) {
-//
-//        User users = userRepository.deleteUserByUserId(user_id)
-//                .orElseGet(()-> null);
-//
-//        if (users == null)
-//            return false;
-
-        return true;
-    }
-
-    @Transactional(readOnly = true)
     public UserRole getUserRole(Long userId) {
 
         User user = userRepository.findUserByUserId(userId)
@@ -54,7 +71,6 @@ public class UserService {
         return user.getUserRole();
     }
 
-    @Transactional(readOnly = true)
     public User findUser(Long user_id) {
         User user = userRepository.findUserByUserId(user_id)
                 .orElseThrow(() -> new UserException());
@@ -66,7 +82,6 @@ public class UserService {
         return null;
     }
 
-    @Transactional(readOnly = true)
     public List<UserListDTO> getProtectors() {
         List<User> users = userRepository.findByUserRole(UserRole.PROTECTOR)
                 .orElseGet(() -> new ArrayList<User>());
