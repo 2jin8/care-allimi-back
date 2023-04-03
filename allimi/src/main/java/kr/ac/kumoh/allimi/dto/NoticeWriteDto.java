@@ -1,10 +1,10 @@
 package kr.ac.kumoh.allimi.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
+@Builder
 public class NoticeWriteDto {
     private Long userId;
     private Long target;
