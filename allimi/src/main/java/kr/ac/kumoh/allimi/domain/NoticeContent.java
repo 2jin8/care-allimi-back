@@ -18,7 +18,7 @@ public class NoticeContent {
     @Lob
     @Column(columnDefinition = "TEXT CHARACTER SET UTF8")
     private String contents;
-//columnDefinition = "VARCHAR(255) CHARACTER SET UTF8"
+    //columnDefinition = "VARCHAR(255) CHARACTER SET UTF8"
     @Lob
     @Column(name = "sub_content", columnDefinition = "TEXT CHARACTER SET UTF8")
     private String subContents;

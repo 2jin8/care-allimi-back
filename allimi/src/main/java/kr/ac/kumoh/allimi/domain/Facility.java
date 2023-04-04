@@ -15,9 +15,5 @@ public class Facility {
     private String name;
     private String address;
     private String tel;
-    @NotNull
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", referencedColumnName = "user_id")
-    private User owner;
 
 }

@@ -8,6 +8,14 @@ import lombok.*;
 @RequiredArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notice {
+
+    /**
+     * notice_id
+     * Target_id
+     * User_id
+     * Facility_id
+     */
+
     @Id
     @Column(name = "notice_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,4 +48,3 @@ public class Notice {
         this.content.editNoticeContent(contents, subContents);
     }
 }
-
