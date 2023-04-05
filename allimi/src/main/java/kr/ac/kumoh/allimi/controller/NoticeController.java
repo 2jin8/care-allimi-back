@@ -28,7 +28,7 @@ public class NoticeController {
 //        List<NoticeResponse> noticeListRespons = noticeService.noticeList();
 //
 //        for (NoticeResponse nr : noticeListRespons) {
-//            System.out.println(nr.getContent());
+//            System.out.println(nr.getContents());
 //        }
 //
 //        return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeListRespons.toArray());

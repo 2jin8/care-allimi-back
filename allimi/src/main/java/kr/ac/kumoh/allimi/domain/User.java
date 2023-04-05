@@ -4,15 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 public class User {
     /**
      * user_id
-     * Id
+     * id
      * Password
      * Tel
      * name
@@ -23,13 +20,6 @@ public class User {
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facility_id", referencedColumnName = "facility_id")
-    @NotNull
-    private Facility facility;
-    @Column(name = "protector_name")
-    private String protectorName;
 
     @NotNull
     private String id;
@@ -43,23 +33,14 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
+    public User(String id, String password, String tel, String name) {
+        this.id = id;
+        this.password = password;
+        this.tel = tel;
+        this.name = name;
+    }
+
     public User() {
-    }
 
-    public User(String id, String password, String tel, String name, UserRole userRole) {
-        this.id = id;
-        this.password = password;
-        this.tel = tel;
-        this.name = name;
-        this.userRole = userRole;
-    }
-
-    // # 삭제할 것
-    public User(Facility facility, String name, String protectorName, String id, String password, String tel, UserRole userRole) {
-        this.name = name;
-        this.id = id;
-        this.password = password;
-        this.tel = tel;
-        this.userRole = userRole;
     }
 }

@@ -19,18 +19,18 @@ public class Notice {
     @Id
     @Column(name = "notice_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long noticeId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facility_id")
+    @JoinColumn(name = "facility_id", referencedColumnName = "facility_id")
     private Facility facility;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", updatable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", updatable = false)
     private User user;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "target")
+    @JoinColumn(name = "target_id", referencedColumnName = "user_id")
     private User target;
 
     @OneToOne(cascade = CascadeType.ALL)

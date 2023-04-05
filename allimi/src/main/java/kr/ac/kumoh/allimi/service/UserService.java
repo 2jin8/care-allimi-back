@@ -3,7 +3,6 @@ package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.dto.SignUpDTO;
-import kr.ac.kumoh.allimi.domain.Notice;
 import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.UserListDTO;
@@ -32,10 +31,12 @@ public class UserService {
         User checkUser = userRepository.findUserById(dto.getId()).orElse(null);
         if (checkUser != null) return null;
 
-        Facility facility = facilityRepository.findById(dto.getFacility_id())
-                .orElseThrow(() -> new UserException("facility not found"));
+//        Facility facility = facilityRepository.findById(dto.getFacility_id())
+//                .orElseThrow(() -> new UserException("facility not found"));
 
-        User user = new User(facility, dto.getName(), dto.getProtector_name(), dto.getId(), dto.getPassword(), dto.getTel(), dto.getRole());
+        // 일단 수정함 -> 다시 확인해야 할 듯
+        User user = new User(dto.getId(), dto.getPassword(), dto.getTel(), dto.getName());
+//        User user = new User(dto.getName(), dto.getId(), dto.getPassword(), dto.getTel(), dto.getRole());
 
         User saved = userRepository.save(user);
 
@@ -91,13 +92,13 @@ public class UserService {
 
         for (User user: users) {
             System.out.println(user.getUserId());
-            Facility facility = user.getFacility();
+//            Facility facility = user.getFacility();
 
             UserListDTO dto = UserListDTO.builder()
                     .userRole(user.getUserRole())
                     .user_name(user.getName())
-                    .user_protector_name(user.getProtectorName())
-                    .facility_name(facility.getName())
+//                    .user_protector_name(user.getProtectorName())
+//                    .facility_name(facility.getName())
                     .build();
 
             usersDto.add(dto);

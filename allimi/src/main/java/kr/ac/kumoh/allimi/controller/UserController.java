@@ -74,10 +74,13 @@ public class UserController {
         User user = userService.findUser(user_id);
 
         String userName = user.getName() == null ? "":user.getName();
-        String protectorName = user.getProtectorName() == null ? "":user.getProtectorName();
-        String facilityName = user.getFacility() == null ? "" : user.getFacility().getName();
+//        String protectorName = user.getProtectorName() == null ? "":user.getProtectorName();
+//        String facilityName = user.getFacility() == null ? "" : user.getFacility().getName();
 
-        UserListDTO userListDTO = new UserListDTO(facilityName, userName, protectorName, user.getUserRole());
+        // 일단 수정함 -> 다시 확인해야 할 듯
+        UserListDTO userListDTO = new UserListDTO("", userName, "", user.getUserRole());
+
+//        UserListDTO userListDTO = new UserListDTO(facilityName, userName, protectorName, user.getUserRole());
 
         return ResponseEntity.status(HttpStatus.OK).body(userListDTO);
     }
