@@ -37,9 +37,9 @@ public class NoticeService {
             NoticeContent noticeContent = notice.getContent();
 
             NoticeResponse nr = NoticeResponse.builder()
-                    .noticeId(notice.getNoticeId())
+                    .noticeId(notice.getId())
                     .create_date(noticeContent.getCreateDate())
-                    .content(noticeContent.getContents())
+                    .content(noticeContent.getContent())
                     .subContent(noticeContent.getSubContents())
                     .build();
 
@@ -109,9 +109,9 @@ public class NoticeService {
             NoticeContent noticeContent = notice.getContent();
 
             NoticeResponse nr = NoticeResponse.builder()
-                    .noticeId(notice.getNoticeId())
+                    .noticeId(notice.getId())
                     .create_date(noticeContent.getCreateDate())
-                    .content(noticeContent.getContents())
+                    .content(noticeContent.getContent())
                     .subContent(noticeContent.getSubContents())
                     .build();
 
@@ -129,9 +129,9 @@ public class NoticeService {
         NoticeContent nContent = notice.getContent();
 
         return NoticeResponse.builder().create_date(nContent.getCreateDate())
-                .noticeId(notice.getNoticeId())
+                .noticeId(notice.getId())
                 .subContent(nContent.getSubContents())
-                .content(nContent.getContents())
+                .content(nContent.getContent())
                 .build();
     }
 

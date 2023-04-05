@@ -1,17 +1,23 @@
 package kr.ac.kumoh.allimi.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Entity
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserFacility {
+@Table(name = "nhresident")
+public class NHResident {
+
+    /**
+     * facility_id
+     * User_id
+     * Name
+     * Health_info
+     * birth
+     */
 
     @Id
-    @Column(name = "nf_id")
+    @Column(name = "resident_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -24,11 +30,7 @@ public class UserFacility {
     private User user;
 
     private String name;
-    private String Health_info;
+    private String health_info;
     private String birth;
 
-
-    public UserFacility() { // # 수정
-
-    }
 }
