@@ -17,7 +17,7 @@ public class NoticeContent {
 
     @Lob
     @Column(columnDefinition = "TEXT CHARACTER SET UTF8")
-    private String content;
+    private String contents;
 //columnDefinition = "VARCHAR(255) CHARACTER SET UTF8"
     @Lob
     @Column(name = "sub_content", columnDefinition = "TEXT CHARACTER SET UTF8")
@@ -27,29 +27,25 @@ public class NoticeContent {
     @Column(name = "create_date")
     private LocalDateTime createDate;
 
-    public static NoticeContent newNoticeContent(String content, String subContents, LocalDateTime createDate) {
+    public static NoticeContent newNoticeContent(String contents, String subContents, LocalDateTime createDate) {
         //json으로_변경할_스트링.replace("\n", "\\r\\n"); 나중에 안되면 ㄱ
 //        System.out.println("@@@@@" + contents);
 //        String replaceContents = contents.replace("\n", "\\r\\n");
 //        System.out.println("$$$$$" + contents);
 
-        NoticeContent nc = new NoticeContent(null, content, subContents, createDate);
+        NoticeContent nc = new NoticeContent(null, contents, subContents, createDate);
 
         return nc;
     }
 
-    public void editNoticeContent(String content, String subContents) {
+    public static NoticeContent newNoticeContent(String contents, String subContents) {
+        NoticeContent nc = new NoticeContent(null, contents, subContents, null);
+        return nc;
+    }
 
-        this.content = content;
+    public void editNoticeContent(String contents, String subContents) {
+        this.contents = contents;
         this.subContents = subContents;
-
-//        NoticeContent noticeContent = new NoticeContent(contents, subContents, this.getCreateDate());
-//        return noticeContent;
-    }
-
-    public static NoticeContent newNoticeContent(String content, String subContents) {
-        NoticeContent nc = new NoticeContent(null, content, subContents, null);
-        return nc;
     }
 
 }
