@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.NoticeEditDto;
+import kr.ac.kumoh.allimi.dto.NoticeListDTO;
 import kr.ac.kumoh.allimi.dto.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.NoticeException;
@@ -27,26 +28,67 @@ public class NoticeService {
     @Autowired
     private FacilityRepository facilityRepository;
 
-    // List<Notice> notices = noticeService.noticeList();
-    public List<NoticeResponse> noticeList() {
-        List<Notice> notices = noticeRepository.findAll();
+    @Autowired
+    private NHResidentRepository nhResidentRepository;
 
-        List<NoticeResponse> noticeListRespons = new ArrayList();
+    public List<NoticeListDTO> noticeList(Long userId) { // 직원, 시설장인 경우: 시설 알림장 모두 확인 가능
 
-        for (Notice notice : notices) {
-            NoticeContent noticeContent = notice.getContent();
-
-            NoticeResponse nr = NoticeResponse.builder()
-                    .noticeId(notice.getId())
-                    .create_date(noticeContent.getCreateDate())
-                    .content(noticeContent.getContent())
-                    .subContent(noticeContent.getSubContents())
-                    .build();
-
-            noticeListRespons.add(nr);
+        User user = userRepository.findUserByUserId(userId).orElse(null);
+        if (user == null) {
+            return new ArrayList<>();
         }
 
-        return noticeListRespons;
+        NHResident nhResident = nhResidentRepository.findByUser(user).orElse(null);
+        if (nhResident == null) {
+            return new ArrayList<>();
+        }
+
+        // 시설 알림장 목록
+        List<Notice> notices = noticeRepository.findAllByFacility(nhResident.getFacility()).orElse(new ArrayList<Notice>());
+
+        // Response
+        List<NoticeListDTO> noticeList = new ArrayList<>();
+
+        for (Notice notice : notices) {
+            NoticeContent content = notice.getContent();
+
+            NoticeListDTO dto = NoticeListDTO.builder()
+                    .noticeId(content.getId())
+                    .create_date(content.getCreateDate())
+                    .content(content.getContents())
+                    .build();
+
+            noticeList.add(dto);
+        }
+        return noticeList;
+
+    }
+
+    public List<NoticeListDTO> userNoticeList(Long userId) { // 보호자인 경우: 개별 알림장만 확인 가능
+
+        User user = userRepository.findUserByUserId(userId).orElse(null);
+        if (user == null) {
+            return new ArrayList<>();
+        }
+
+        // 개별 알림장 목록
+        List<Notice> notices = noticeRepository.findAllByTarget(user).orElse(new ArrayList<Notice>());
+
+        // Response
+        List<NoticeListDTO> noticeList = new ArrayList<>();
+
+        for (Notice notice : notices) {
+            NoticeContent content = notice.getContent();
+
+            NoticeListDTO dto = NoticeListDTO.builder()
+                    .noticeId(content.getId())
+                    .create_date(content.getCreateDate())
+                    .content(content.getContents())
+                    .build();
+            noticeList.add(dto);
+        }
+
+        return noticeList;
     }
 
     public Notice write(NoticeWriteDto dto) {
@@ -68,10 +110,10 @@ public class NoticeService {
     }
 
     public void edit(NoticeEditDto editDto) {
-        Notice checkNotice = noticeRepository.findById(editDto.getNoticeId())
+        Notice notice = noticeRepository.findById(editDto.getNoticeId())
                 .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
 
-        User writer = checkNotice.getUser();
+        User writer = notice.getUser();
 
         User user = userRepository.findUserByUserId(editDto.getUserId())
                 .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다"));
@@ -87,51 +129,27 @@ public class NoticeService {
         User targetUser = userRepository.findUserByUserId(editDto.getTargetId())
                 .orElseThrow(() -> new UserException("target을 찾을 수 없습니다"));
 
-        checkNotice.editNotice(targetUser, editDto.getContent(), editDto.getSubContent());
+        notice.editNotice(targetUser, editDto.getContent(), editDto.getSubContent());
     }
 
     public Long delete(Long notice_id) {
-        Long deleted = noticeRepository.deleteNoticeByNoticeId(notice_id);
+        Long deleted = noticeRepository.deleteNoticeById(notice_id);
         return deleted;
-    }
-
-    public List<NoticeResponse> userNoticeList(Long userId) {
-
-        User user = userRepository.findUserByUserId(userId)
-                .orElseThrow(() -> new UserException("user가 없습니다"));
-
-        List<Notice> userNotice = noticeRepository.findByTarget(user)
-                .orElseGet(() -> new ArrayList<Notice>());
-
-        List<NoticeResponse> userNoticeResponsLists = new ArrayList<>();
-
-        for (Notice notice : userNotice) {
-            NoticeContent noticeContent = notice.getContent();
-
-            NoticeResponse nr = NoticeResponse.builder()
-                    .noticeId(notice.getId())
-                    .create_date(noticeContent.getCreateDate())
-                    .content(noticeContent.getContent())
-                    .subContent(noticeContent.getSubContents())
-                    .build();
-
-            userNoticeResponsLists.add(nr);
-        }
-
-        return userNoticeResponsLists;
     }
 
     public NoticeResponse findNotice(Long noticeId) {
 
-        Notice notice = noticeRepository.findByNoticeId(noticeId)
-                .orElseThrow(() -> new NoticeException("해당 게시글이 없습니다"));
+        Notice notice = noticeRepository.findById(noticeId).orElse(null);
+        if (notice == null)
+            return null;
 
         NoticeContent nContent = notice.getContent();
 
-        return NoticeResponse.builder().create_date(nContent.getCreateDate())
+        return NoticeResponse.builder()
+                .create_date(nContent.getCreateDate())
                 .noticeId(notice.getId())
                 .subContent(nContent.getSubContents())
-                .content(nContent.getContent())
+                .content(nContent.getContents())
                 .build();
     }
 
