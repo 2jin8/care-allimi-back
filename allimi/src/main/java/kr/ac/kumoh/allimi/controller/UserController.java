@@ -1,9 +1,7 @@
 package kr.ac.kumoh.allimi.controller;
-import kr.ac.kumoh.allimi.domain.User;
-import kr.ac.kumoh.allimi.domain.UserRole;
-import kr.ac.kumoh.allimi.dto.LoginDTO;
-import kr.ac.kumoh.allimi.dto.SignUpDTO;
-import kr.ac.kumoh.allimi.dto.UserListDTO;
+import kr.ac.kumoh.allimi.dto.*;
+import kr.ac.kumoh.allimi.exception.UserIdDuplicateException;
+import kr.ac.kumoh.allimi.service.NHResidentService;
 import lombok.RequiredArgsConstructor;
 import kr.ac.kumoh.allimi.service.UserService;
 import lombok.Getter;
@@ -19,32 +17,68 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final NHResidentService nhResidentService;
+
+    //새 입소자 추가
+    @PostMapping("/v1/nhResident")
+    public ResponseEntity addNHResident(@RequestBody NHResidentDTO dto) {
+
+        try {
+            userService.addNHResident(dto);
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
 
     @PostMapping("/v1/users")  // 회원 가입
     public ResponseEntity addUser(@RequestBody SignUpDTO dto) {
-        Long userId = userService.addUser(dto);
-        if (userId == null)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        Long userId;
+
+        try {
+            userId = userService.addUser(dto);
+        } catch(UserIdDuplicateException exception) { //중복된 이름
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch(Exception exception) { //그냥 에러
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).build();
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseLogin(userId));
     }
 
-    @DeleteMapping("/v1/users") // 회원 탈퇴
-    public ResponseEntity deleteUser(@RequestBody Map<String, Long> user) {
-        Long deleted = userService.deleteUser(user.get("user_id"));
-        if (deleted == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
 
     @PostMapping("/v1/login") // 로그인
     public ResponseEntity login(@RequestBody LoginDTO dto) {
-        Long user_id = userService.login(dto.getId(), dto.getPassword());
-        if(user_id == null)
+        Long user_id;
+
+        try {
+            user_id = userService.login(dto.getId(), dto.getPassword());
+        } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ResponseLogin(user_id));
+    }
+
+    @Getter
+    public class ResponseLogin {
+        private Long user_id;
+
+        public ResponseLogin(Long user_id) {
+            this.user_id = user_id;
+        }
+    }
+
+    @DeleteMapping("/v1/users") // 회원 탈퇴
+    public ResponseEntity deleteUser(@RequestBody Map<String, Long> user) {
+        try {
+            userService.deleteUser(user.get("user_id"));
+        }catch (Exception exception) { //user를 찾을 수 없을 때
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/v1/logout") // 로그아웃
@@ -55,43 +89,36 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @Getter
-    public class ResponseLogin {
-
-        private Long user_id;
-
-        public ResponseLogin(Long user_id) {
-            this.user_id = user_id;
-        }
-    }
-
     @GetMapping("/v1/users/{user_id}") // 사용자 정보 조회
     public ResponseEntity user_list(@PathVariable Long user_id) {
         if (user_id == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        User user = userService.findUser(user_id);
+        UserListDTO userListDTO;
 
-        String userName = user.getName() == null ? "":user.getName();
-//        String protectorName = user.getProtectorName() == null ? "":user.getProtectorName();
-//        String facilityName = user.getFacility() == null ? "" : user.getFacility().getName();
-
-        // 일단 수정함 -> 다시 확인해야 할 듯
-        UserListDTO userListDTO = new UserListDTO("", userName, "", user.getUserRole());
-
-//        UserListDTO userListDTO = new UserListDTO(facilityName, userName, protectorName, user.getUserRole());
+        try {
+            userListDTO = userService.getUserInfo(user_id);
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(userListDTO);
     }
 
-    @GetMapping("/v1/users/protectors") // 보호자 정보 조회
-    public ResponseEntity protectors_list() {
+    @GetMapping("/v1/nhresdients/{facility_id}") // 입소자 모두 출력
+    public ResponseEntity nhresidentList(@PathVariable("facility_id") Long facilityId) {
+        List<NHResidentResponse> nhResidentResponses;
+        try {
+            nhResidentResponses = nhResidentService.getList(facilityId);
+        } catch (Exception exception) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
-        List<UserListDTO> protectorDtos = userService.getProtectors();
-
-        return ResponseEntity.status(HttpStatus.OK).body(protectorDtos);
+        return ResponseEntity.status(HttpStatus.OK).body(nhResidentResponses);
     }
+
+
 }
 
 

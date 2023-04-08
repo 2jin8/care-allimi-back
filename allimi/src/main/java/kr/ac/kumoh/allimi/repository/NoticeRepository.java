@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
-
-
     Optional<List> findAllByFacility(Facility facility);
     Optional<List> findByUser(User user);
 

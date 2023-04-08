@@ -6,15 +6,8 @@ import lombok.*;
 @Entity
 @Getter
 @RequiredArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notice {
-
-    /**
-     * notice_id
-     * Target_id
-     * User_id
-     * Facility_id
-     */
 
     @Id
     @Column(name = "notice_id")
@@ -22,11 +15,11 @@ public class Notice {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facility_id", referencedColumnName = "facility_id")
+    @JoinColumn(name = "facility_id")
     private Facility facility;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", updatable = false)
+    @JoinColumn(name = "user_id", updatable = false)
     private User user;
 
     @OneToOne(fetch = FetchType.LAZY)
