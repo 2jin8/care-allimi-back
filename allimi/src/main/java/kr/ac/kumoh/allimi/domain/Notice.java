@@ -24,19 +24,19 @@ public class Notice {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_id", referencedColumnName = "user_id")
-    private User target;
+    private NHResident target;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="nc_id")
     private NoticeContent content;
 
-    public static Notice newNotice(Facility facility, User user, User target, NoticeContent content) {
+    public static Notice newNotice(Facility facility, User user, NHResident target, NoticeContent content) {
         Notice ntc = new Notice(null, facility, user, target, content);
 
         return ntc;
     }
 
-    public void editNotice(User target, String contents, String subContents) {
+    public void editNotice(NHResident target, String contents, String subContents) {
         this.target = target;
         this.content.editNoticeContent(contents, subContents);
     }
