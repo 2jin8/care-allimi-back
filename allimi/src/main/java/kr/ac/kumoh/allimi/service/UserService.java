@@ -30,11 +30,6 @@ public class UserService {
 
     @Transactional
     public void addNHResident(NHResidentDTO dto) throws Exception {
-//    Long user_id;
-//    Long facility_id;
-//    String name;
-//    UserRole userRole;
-
         for (UserRole ur: UserRole.values()) {
             if (!ur.name().equals(dto.getUserRole())) {
                 new UserException("UserRole이 올바르지 않습니다");
@@ -113,31 +108,4 @@ public class UserService {
 
         return user;
     }
-
-//    public List<UserListDTO> getProtectors() {
-//        List<User> users = userRepository.findByUserRole(UserRole.PROTECTOR)
-//                .orElseGet(() -> new ArrayList<User>());
-//
-//
-//        List<UserListDTO> usersDto = new ArrayList();
-//
-//        for (User user: users) {
-//            System.out.println(user.getUserId());
-////            Facility facility = user.getFacility();
-//
-//            UserListDTO dto = UserListDTO.builder()
-//                    .userRole(user.getUserRole())
-//                    .user_name(user.getName())
-////                    .user_protector_name(user.getProtectorName())
-////                    .facility_name(facility.getName())
-//                    .build();
-//
-//            usersDto.add(dto);
-//        }
-//
-//        return usersDto;
-//    }
-//
-//
-
 }
