@@ -1,3 +1,7 @@
+-- desc users;
+-- use allimi;
+
+-- drop table facility, nhresident, notice, notice_content, users;
 
     create table facility (
        facility_id bigint not null auto_increment,
@@ -35,5 +39,6 @@
         name varchar(255),
         password varchar(255) not null,
         tel varchar(255),
+        current_nhresident integer default 0,
         primary key (user_id)
     ) engine=InnoDB;

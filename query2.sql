@@ -1,3 +1,5 @@
+use allimi;
+
 alter table nhresident 
    add column facility_id bigint;                    
 
@@ -46,4 +48,11 @@ alter table notice
    foreign key (user_id) 
    references users (user_id);
    
-   
+-- select * from nhresident;
+-- select * from facility;
+-- select * from notice;
+-- select * from notice_content;
+--    
+-- desc facility;
+
+insert into facility (address, name, tel) values ("양호동" , "주효림", "01090343053");

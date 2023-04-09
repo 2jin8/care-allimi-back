@@ -5,152 +5,126 @@ import kr.ac.kumoh.allimi.dto.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.NoticeListDTO;
 import kr.ac.kumoh.allimi.dto.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
+import kr.ac.kumoh.allimi.exception.FacilityException;
+import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.NoticeException;
 import kr.ac.kumoh.allimi.exception.UserException;
 import kr.ac.kumoh.allimi.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class NoticeService {
 
-    @Autowired
-    private NoticeRepository noticeRepository;
+  private final NoticeRepository noticeRepository;
+  private final UserRepository userRepository;
+  private final FacilityRepository facilityRepository;
+  private final NHResidentRepository nhResidentRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+  public Notice write(NoticeWriteDto dto) throws Exception {
+    NoticeContent content = NoticeContent.newNoticeContent(dto.getContents(), dto.getSubContents());
 
-    @Autowired
-    private FacilityRepository facilityRepository;
+    User user = userRepository.findUserByUserId(dto.getUserId())
+            .orElseThrow(() -> new UserException("user not found"));
 
-    @Autowired
-    private NHResidentRepository nhResidentRepository;
+    NHResident targetResident = nhResidentRepository.findByUser(user)
+            .orElseThrow(() -> new NHResidentException("target user not found"));
 
-    public List<NoticeListDTO> noticeList(Long userId) { // 직원, 시설장인 경우: 시설 알림장 모두 확인 가능
+    Facility facility = facilityRepository.findById(dto.getFacilityId())
+            .orElseThrow(() -> new FacilityException("facility not found"));
 
-        User user = userRepository.findUserByUserId(userId).orElse(null);
-        if (user == null) {
-            return new ArrayList<>();
-        }
+    Notice notice = Notice.newNotice(facility, user, targetResident, content);
 
-        NHResident nhResident = nhResidentRepository.findByUser(user).orElse(null);
-        if (nhResident == null) {
-            return new ArrayList<>();
-        }
+    return noticeRepository.save(notice);
+  }
 
-        // 시설 알림장 목록
-        List<Notice> notices = noticeRepository.findAllByFacility(nhResident.getFacility()).orElse(new ArrayList<Notice>());
+  //알림장 목록보기
+  public List<NoticeListDTO> noticeList(Long userId) throws Exception {
+    User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new UserException("user not found"));
+    NHResident nhResident = user.getNhResident().get(user.getCurrentNHResident());
 
-        // Response
-        List<NoticeListDTO> noticeList = new ArrayList<>();
+    List<Notice> notices;
 
-        for (Notice notice : notices) {
-            NoticeContent content = notice.getContent();
-
-            NoticeListDTO dto = NoticeListDTO.builder()
-                    .noticeId(content.getId())
-                    .create_date(content.getCreateDate())
-                    .content(content.getContents())
-                    .build();
-
-            noticeList.add(dto);
-        }
-        return noticeList;
-
+    UserRole userRole = user.getUserRole();
+    if (userRole == UserRole.MANAGER || userRole == UserRole.WORKER) {
+      notices = managerNoticeList(nhResident);
+    } else {
+      notices = userNoticeList(nhResident);
     }
 
-    public List<NoticeListDTO> userNoticeList(Long userId) { // 보호자인 경우: 개별 알림장만 확인 가능
+    // Response
+    List<NoticeListDTO> noticeList = new ArrayList<>();
 
-        User user = userRepository.findUserByUserId(userId).orElse(null);
-        if (user == null) {
-            return new ArrayList<>();
-        }
+    for (Notice notice : notices) {
+      NoticeContent content = notice.getContent();
 
-        // 개별 알림장 목록
-        List<Notice> notices = noticeRepository.findAllByTarget(user).orElse(new ArrayList<Notice>());
-
-        // Response
-        List<NoticeListDTO> noticeList = new ArrayList<>();
-
-        for (Notice notice : notices) {
-            NoticeContent content = notice.getContent();
-
-            NoticeListDTO dto = NoticeListDTO.builder()
-                    .noticeId(content.getId())
-                    .create_date(content.getCreateDate())
-                    .content(content.getContents())
-                    .build();
-            noticeList.add(dto);
-        }
-
-        return noticeList;
+      NoticeListDTO dto = NoticeListDTO.builder()
+              .noticeId(content.getId())
+              .create_date(content.getCreateDate())
+              .content(content.getContents())
+              .build();
+      noticeList.add(dto);
     }
 
-    public Notice write(NoticeWriteDto dto) {
+    return noticeList;
+  }
 
-        NoticeContent content = NoticeContent.newNoticeContent(dto.getContents(), dto.getSubContents(), LocalDateTime.now());
+  public List<Notice> managerNoticeList(NHResident nhResident) { // 직원, 시설장인 경우: 시설 알림장 모두 확인 가능
+    Facility facility = nhResident.getFacility();
+    // 시설 알림장 목록
+    List<Notice> notices = noticeRepository.findAllByFacility(facility).orElse(new ArrayList<Notice>());
 
-        User targetUser = userRepository.findUserByUserId(dto.getTarget())
-                .orElseThrow(() -> new UserException("target user not found"));
+    return notices;
+  }
 
-        User user = userRepository.findUserByUserId(dto.getUserId())
-                .orElseThrow(() -> new UserException("user not found"));
+  public List<Notice> userNoticeList(NHResident nhResident) {
+    // 보호자인 경우: 개별 알림장만 확인 가능
+    // 개별 알림장 목록
+    List<Notice> notices = noticeRepository.findAllByTarget(nhResident).orElse(new ArrayList<Notice>());
 
-        Facility facility = facilityRepository.findById(dto.getFacilityId())
-                .orElseThrow(() -> new UserException("facility not found"));
+    return notices;
+  }
 
-        Notice notice = Notice.newNotice(facility, user, targetUser, content);
+  //알림장 상세보기
+  public NoticeResponse findNotice(Long noticeId) throws Exception {
+    Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException("해당 알림장을 찾을 수 없습니다"));
 
-        return noticeRepository.save(notice);
+    NoticeContent nContent = notice.getContent();
+
+    return NoticeResponse.builder()
+            .create_date(nContent.getCreateDate())
+            .noticeId(notice.getId())
+            .subContent(nContent.getSubContents())
+            .content(nContent.getContents())
+            .build();
+  }
+
+  public void edit(NoticeEditDto editDto) throws Exception {
+    Notice notice = noticeRepository.findById(editDto.getNoticeId())
+            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
+
+    User writer = notice.getUser();
+
+    User user = userRepository.findUserByUserId(editDto.getUserId())
+            .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다"));
+
+    if (writer.getUserId() != editDto.getUserId() && user.getUserRole() != UserRole.MANAGER) {
+      throw new UserException("권한이 없는 사용자 입니다");
     }
 
-    public void edit(NoticeEditDto editDto) {
-        Notice notice = noticeRepository.findById(editDto.getNoticeId())
-                .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
+    NHResident targetResident = nhResidentRepository.findById(editDto.getTargetId())
+            .orElseThrow(() -> new NHResidentException("target을 찾을 수 없습니다"));
 
-        User writer = notice.getUser();
+    notice.editNotice(targetResident, editDto.getContent(), editDto.getSubContent());
+  }
 
-        User user = userRepository.findUserByUserId(editDto.getUserId())
-                .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다"));
-
-        if (user == null) {
-            throw new UserException("권한이 없는 사용자 입니다");
-        }
-
-        if (writer.getUserId() != editDto.getUserId() && user.getUserRole() != UserRole.MANAGER) {
-            throw new UserException("권한이 없는 사용자 입니다");
-        }
-
-        User targetUser = userRepository.findUserByUserId(editDto.getTargetId())
-                .orElseThrow(() -> new UserException("target을 찾을 수 없습니다"));
-
-        notice.editNotice(targetUser, editDto.getContent(), editDto.getSubContent());
-    }
-
-    public Long delete(Long notice_id) {
-        Long deleted = noticeRepository.deleteNoticeById(notice_id);
-        return deleted;
-    }
-
-    public NoticeResponse findNotice(Long noticeId) {
-
-        Notice notice = noticeRepository.findById(noticeId).orElse(null);
-        if (notice == null)
-            return null;
-
-        NoticeContent nContent = notice.getContent();
-
-        return NoticeResponse.builder()
-                .create_date(nContent.getCreateDate())
-                .noticeId(notice.getId())
-                .subContent(nContent.getSubContents())
-                .content(nContent.getContents())
-                .build();
-    }
-
+  public Long delete(Long notice_id) {
+    Long deleted = noticeRepository.deleteNoticeById(notice_id);
+    return deleted;
+  }
 }

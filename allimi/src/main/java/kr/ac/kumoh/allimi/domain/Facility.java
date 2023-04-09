@@ -9,21 +9,17 @@ import lombok.Getter;
 @Entity
 @Getter
 public class Facility {
-
-    /**
-     * facility_id
-     * Name
-     * Address
-     * Tel
-     */
-
     @Id
     @Column(name = "facility_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private String name;
-    private String address;
-    private String tel;
 
+    @NotNull
+    private String address;
+
+    @NotNull
+    private String tel;
 }
