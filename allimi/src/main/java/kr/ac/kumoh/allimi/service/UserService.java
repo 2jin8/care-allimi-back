@@ -1,12 +1,9 @@
 package kr.ac.kumoh.allimi.service;
 
 
-import kr.ac.kumoh.allimi.domain.Facility;
-import kr.ac.kumoh.allimi.domain.NHResident;
+import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.NHResidentDTO;
 import kr.ac.kumoh.allimi.dto.SignUpDTO;
-import kr.ac.kumoh.allimi.domain.User;
-import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.UserListDTO;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.UserException;
@@ -18,6 +15,11 @@ import kr.ac.kumoh.allimi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.traversal.NodeIterator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -76,7 +78,19 @@ public class UserService {
     @Transactional
     public void deleteUser(Long user_id) throws Exception { // 회원탈퇴
         //user가 있는지 확인
-        userRepository.findUserByUserId(user_id).orElseThrow(() -> new UserException("해당 user가 없습니다"));
+        User user = userRepository.findUserByUserId(user_id)
+                .orElseThrow(() -> new UserException("해당 user가 없습니다"));
+
+        NHResident target = nhResidentRepository.findByUser(user)
+                .orElseThrow(() -> new UserException("해당 target이 없습니다."));
+
+        List<Notice> noticeList = noticeRepository.findByUserOrTarget(user, target).orElse(new ArrayList<Notice>());
+//        List<Long> idList = noticeList.stream().map(Notice::getId).collect(Collectors.toList());
+//        noticeRepository.deleteByIdIn(idList);
+
+        for (Notice notice : noticeList) {
+            noticeRepository.delete(notice);
+        }
         userRepository.deleteById(user_id);
     }
 
