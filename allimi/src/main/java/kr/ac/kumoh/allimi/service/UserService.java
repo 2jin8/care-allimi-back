@@ -4,7 +4,6 @@ package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.dto.NHResidentDTO;
-import kr.ac.kumoh.allimi.dto.NHResidentResponse;
 import kr.ac.kumoh.allimi.dto.SignUpDTO;
 import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.domain.UserRole;
@@ -14,6 +13,7 @@ import kr.ac.kumoh.allimi.exception.UserException;
 import kr.ac.kumoh.allimi.exception.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;
+import kr.ac.kumoh.allimi.repository.NoticeRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,20 +25,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final NoticeRepository noticeRepository;
     private final FacilityRepository facilityRepository;
     private final NHResidentRepository nhResidentRepository;
 
     @Transactional
     public void addNHResident(NHResidentDTO dto) throws Exception {
-        for (UserRole ur: UserRole.values()) {
-            if (!ur.name().equals(dto.getUserRole())) {
-                new UserException("UserRole이 올바르지 않습니다");
-            }
-        }
+
+//        for (UserRole ur: UserRole.values()) {
+//            if (!ur.name().equals(dto.getUserRole())) {
+//                throw new UserException("UserRole이 올바르지 않습니다");
+//            }
+//        }
 
         User user = userRepository.findUserByUserId(dto.getUser_id()).orElseThrow(() -> new UserException("해당 user가 없습니다"));
         Facility facility = facilityRepository.findById(dto.getFacility_id()).orElseThrow(() ->
-            new FacilityException("시설을 찾을 수 없습니다")
+                new FacilityException("시설을 찾을 수 없습니다")
         );
 
         NHResident nhResident = NHResident.newNHResident(user, dto.getName(), facility, dto.getUserRole());
@@ -50,7 +52,7 @@ public class UserService {
 
         // ID 중복 체크
         if (isDuplicateId(dto.getId()))
-            new UserIdDuplicateException("중복된 아이디 입니다");
+            throw new UserIdDuplicateException("중복된 아이디 입니다");
 
         User user = User.newUser(dto.getId(), dto.getPassword(), dto.getName(), dto.getTel());
         User saved = userRepository.save(user);
@@ -61,7 +63,7 @@ public class UserService {
     public Boolean isDuplicateId(String userId) {
         User user = userRepository.findUserById(userId).orElse(null);
 
-        return (user == null)?false:true;
+        return (user == null) ? false : true;
     }
 
     public Long login(String userId, String password) throws Exception {

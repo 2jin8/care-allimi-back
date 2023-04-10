@@ -32,7 +32,7 @@ public class NoticeService {
     User user = userRepository.findUserByUserId(dto.getUserId())
             .orElseThrow(() -> new UserException("user not found"));
 
-    NHResident targetResident = nhResidentRepository.findByUser(user)
+    NHResident targetResident = nhResidentRepository.findById(dto.getTarget())
             .orElseThrow(() -> new NHResidentException("target user not found"));
 
     Facility facility = facilityRepository.findById(dto.getFacilityId())
