@@ -3,6 +3,7 @@ package kr.ac.kumoh.allimi.repository;
 import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.Notice;
+import kr.ac.kumoh.allimi.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     Long deleteNoticeById(Long noticeId);
 
+    void deleteByIdIn(List<Long> ids);
+    Optional<List> findByUserOrTarget(User user, NHResident target);
 }
