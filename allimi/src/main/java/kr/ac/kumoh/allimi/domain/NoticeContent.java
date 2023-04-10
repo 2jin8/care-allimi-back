@@ -5,9 +5,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table
+@Table(name = "notice_content")
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @RequiredArgsConstructor
 public class NoticeContent {
     @Id
@@ -18,28 +18,19 @@ public class NoticeContent {
     @Lob
     @Column(columnDefinition = "TEXT CHARACTER SET UTF8")
     private String contents;
-//columnDefinition = "VARCHAR(255) CHARACTER SET UTF8"
+
     @Lob
-    @Column(name = "sub_content", columnDefinition = "TEXT CHARACTER SET UTF8")
+    @Column(name = "sub_contents", columnDefinition = "TEXT CHARACTER SET UTF8")
     private String subContents;
 
     @CreationTimestamp
     @Column(name = "create_date")
     private LocalDateTime createDate;
 
-    public static NoticeContent newNoticeContent(String contents, String subContents, LocalDateTime createDate) {
-        //json으로_변경할_스트링.replace("\n", "\\r\\n"); 나중에 안되면 ㄱ
-//        System.out.println("@@@@@" + contents);
-//        String replaceContents = contents.replace("\n", "\\r\\n");
-//        System.out.println("$$$$$" + contents);
-
-        NoticeContent nc = new NoticeContent(null, contents, subContents, createDate);
-
-        return nc;
-    }
-
     public static NoticeContent newNoticeContent(String contents, String subContents) {
+        //json으로_변경할_스트링.replace("\n", "\\r\\n"); 나중에 안되면 ㄱ
         NoticeContent nc = new NoticeContent(null, contents, subContents, null);
+
         return nc;
     }
 
@@ -47,7 +38,6 @@ public class NoticeContent {
         this.contents = contents;
         this.subContents = subContents;
     }
-
 }
 
 

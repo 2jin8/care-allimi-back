@@ -4,61 +4,61 @@
 //import kr.ac.kumoh.allimi.domain.Notice;
 //import kr.ac.kumoh.allimi.domain.NoticeContent;
 //import kr.ac.kumoh.allimi.domain.User;
-//import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
-//import kr.ac.kumoh.allimi.repository.NoticeRepository;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.DisplayName;
+//import kr.ac.kumoh.allimi.handler.NoticeDataHandler;
+//import kr.ac.kumoh.allimi.handler.impl.NoticeDataHandlerImpl;
+//import org.junit.jupiter.api.Assertions;
 //import org.junit.jupiter.api.Test;
 //import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+//import org.mockito.Mockito;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.test.mock.mockito.MockBean;
+//import org.springframework.context.annotation.Import;
+//import org.springframework.test.context.junit.jupiter.SpringExtension;
 //
-//@ExtendWith(MockitoExtension.class)
-//class NoticeServiceTest {
+//import static org.mockito.Mockito.verify;
 //
-//    @InjectMocks
-//    private NoticeService noticeService;
+//// 내가 어느 객체 가져올지 모르겟다 -> @SpringBootTest(classes = {ProductDataHandlerImpl.class, ~~}) 매개변수가 없을 때만 전체 bean 로딩함.
+//// 매개변수 넣어주면 이거대한 빈값 로딩 ㅇㅇ
+//@ExtendWith(SpringExtension.class)  // 다른방식 ~ 필요한 내용만 갖다 쓴 거
+//@Import({NoticeDataHandler.class, NoticeService.class})
+//public class NoticeServiceTest {
 //
-//    @Mock
-//    private NoticeRepository noticeRepository;
+//    @MockBean
+//    NoticeDataHandlerImpl noticeDataHandler;
 //
-//    @DisplayName("회원 가입")
+//    @Autowired
+//    NoticeService noticeService; //컨트롤러 관련 테스트가 아님. webmvcteat아님. test관련 객체 주입받아줘야한다.
+//
 //    @Test
-//    void signUp() {
-//        // given
-//        SignUpRequest request = signUpRequest();
-//        String encryptedPw = encoder.encode(request.getPw());
+//    void saveProductTest() {
+//        //given
+//        Mockito.when(noticeDataHandler.saveNotice(new Facility(), new User(), new User(), new NoticeContent()))
+//                .thenReturn(new Notice());
+//        //NoticeContent.newNoticeContent(dto.getContents(), dto.getSubContents(), LocalDateTime.now());
 //
-//        doReturn(new User(request.getEmail(), encryptedPw, UserRole.ROLE_USER)).when(userRepository)
-//                .save(any(User.class));
+//        ProductDto productDto = noticeService.write(123,"pen", 2000, 3000);
 //
-//        // when
-//        UserResponse user = userService.signUp(request);
+//        Assertions.assertEquals(productDto.getProductId(), 123);
+//        Assertions.assertEquals(productDto.getProductName(), "pen");
+//        Assertions.assertEquals(productDto.getProductPrice(), 2000);
+//        Assertions.assertEquals(productDto.getProductStock(), 3000);
 //
-//        // then
-//        assertThat(user.getEmail()).isEqualTo(request.getEmail());
-//        assertThat(encoder.matches(signUpDTO.getPw(), user.getPw())).isTrue();
-//
-//        // verify
-//        verify(userRepository, times(1)).save(any(User.class));
-//        verify(passwordEncoder, times(1)).encode(any(String.class));
+//        verify(noticeDataHandler).saveNotice(123, "pen", 2000, 3000);
 //    }
 //
-//    private SignUpRequest signUpRequest() {
-//        return SignUpRequest.builder()
-//                .email("test@test.test")
-//                .pw("test")
-//                .build();
+//    @Test
+//    void getProductTest() {
+//        //given 다른방식 구현
+//        Mockito.when(noticeDataHandler.getNotice(123))
+//                .thenReturn(new Notice(123, "pen", 2000, 3000));
+//
+//        ProductDto productDto = noticeService.getProduct(123);
+//
+//        Assertions.assertEquals(productDto.getProductId(), 123);
+//        Assertions.assertEquals(productDto.getProductPrice(), 2000);
+//
+//        verify(noticeDataHandler).getNotice(123);
 //    }
 //
-//    private UserResponse userResponse() {
-//        return UserResponse.builder()
-//                .email("test@test.test")
-//                .pw("test")
-//                .role(UserRole.ROLE_USER)
-//                .build();
-//    }
+//
 //}
