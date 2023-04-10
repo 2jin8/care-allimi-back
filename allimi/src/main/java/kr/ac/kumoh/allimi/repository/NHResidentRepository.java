@@ -10,9 +10,10 @@ import java.util.Optional;
 
 public interface NHResidentRepository extends JpaRepository<NHResident, Long> {
 
-    Optional<NHResident> findByUser(User user);
-
+//    Optional<NHResident> findByUser(User user);
 //    Optional<List> findByFacilityId(Long facilityId);
+
+    Optional<NHResident> findById(Long targetId);
 
     @Query("select nhr from NHResident nhr where nhr.userRole = 'PROTECTOR' and nhr.facility.id = ?1")
     Optional<List> findProtectorByFacilityId(Long facilityId);
