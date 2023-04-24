@@ -123,8 +123,8 @@ public class NoticeService {
     notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), editDto.getImage_url());
   }
 
-//  public Long delete(Long notice_id) {
-//    Long deleted = noticeRepository.deleteNoticeById(notice_id);
-//    return deleted;
-//  }
+  public Long delete(Long notice_id) {
+    Long deleted = noticeRepository.deleteNoticeById(notice_id);
+    return deleted;
+  }
 }

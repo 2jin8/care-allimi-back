@@ -1,4 +1,5 @@
 package kr.ac.kumoh.allimi.controller;
+import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.*;
 import kr.ac.kumoh.allimi.exception.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.service.NHResidentService;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,26 +35,23 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseLogin(userId));
+        Map<String, Long> map = new HashMap<>();
+        map.put("user_id", userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
     @PostMapping("/v2/login") // 로그인
     public ResponseEntity login(@RequestBody LoginDTO dto) {
-        Long user_id;
+        ResponseLogin responseLogin;
 
         try {
-            user_id = userService.login(dto.getId(), dto.getPassword());
+            responseLogin = userService.login(dto.getId(), dto.getPassword());
         } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); //해당 id password 일치하는 게 없음
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseLogin(user_id));
-    }
-
-    @Getter
-    @AllArgsConstructor
-    public class ResponseLogin {
-        private Long user_id;
+        return ResponseEntity.status(HttpStatus.OK).body(responseLogin);
     }
 
     // 사용자의 입소자 리스트 출력

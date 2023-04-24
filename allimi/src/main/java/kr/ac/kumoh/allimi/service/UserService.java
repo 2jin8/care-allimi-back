@@ -1,5 +1,7 @@
 package kr.ac.kumoh.allimi.service;
 
+import kr.ac.kumoh.allimi.controller.ResponseLogin;
+import kr.ac.kumoh.allimi.controller.UserController;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.*;
 import kr.ac.kumoh.allimi.exception.FacilityException;
@@ -87,11 +89,11 @@ public class UserService {
         return (user == null) ? false : true;
     }
 
-    public Long login(String userId, String password) throws Exception {
+    public ResponseLogin login(String userId, String password) throws Exception {
         User user = userRepository.findByIdAndPasswords(userId, password)
                 .orElseThrow(() -> new UserException("user not found"));
 
-        return user.getUserId();
+        return new ResponseLogin(user.getUserId(), user.getUserRole());
     }
 
     @Transactional

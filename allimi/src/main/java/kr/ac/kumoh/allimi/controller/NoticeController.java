@@ -1,6 +1,5 @@
 package kr.ac.kumoh.allimi.controller;
 
-import kr.ac.kumoh.allimi.domain.Notice;
 import kr.ac.kumoh.allimi.dto.*;
 import kr.ac.kumoh.allimi.service.NoticeService;
 import kr.ac.kumoh.allimi.service.UserService;
@@ -9,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,6 +46,9 @@ public class NoticeController {
   public ResponseEntity noticeDetail(@PathVariable("notice_id") Long noticeId) {
     NoticeResponse noticeResponse;
 
+    if (noticeId == null)
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
     try {
       noticeResponse = noticeService.getDetail(noticeId);
     } catch (Exception e) {
@@ -66,14 +69,19 @@ public class NoticeController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-//  @DeleteMapping("/v1/notices") // 알림장 삭제
-//  public ResponseEntity noticeDelete(@RequestBody IdDTO dto) {
-//    Long deletedCnt = noticeService.delete(dto.getId());
-//
-//    if (deletedCnt == 0)
-//      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
-//
-//    return ResponseEntity.status(HttpStatus.OK).build();
-//  }
+  @DeleteMapping("/v2/notices") // 알림장 삭제
+  public ResponseEntity noticeDelete(@RequestBody Map<String, Long> notice) {
+    Long noticeId = notice.get("notice_id");
+
+    if (noticeId == null)
+      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+
+    Long deletedCnt = noticeService.delete(notice.get("notice_id"));
+
+    if (deletedCnt == 0)
+      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
 }
 
