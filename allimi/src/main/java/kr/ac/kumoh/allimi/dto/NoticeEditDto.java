@@ -5,9 +5,10 @@ import lombok.Getter;
 
 @Getter
 public class NoticeEditDto {
-    private Long userId;
-    private Long noticeId;
-    private Long targetId;
+    private Long notice_id;
+    private Long user_id; //수정을 시도하는 사용자 id
+    private Long resident_id;
     private String content;
-    private String subContent;
+    private String sub_content;
+    private String image_url;
 }

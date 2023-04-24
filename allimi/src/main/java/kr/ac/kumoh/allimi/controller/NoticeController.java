@@ -55,17 +55,17 @@ public class NoticeController {
     return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeResponse);
   }
 
-//  @PatchMapping("/v1/notices") // 알림장 수정
-//  public ResponseEntity noticeEdit(@RequestBody NoticeEditDto dto) {
-//    try {
-//      noticeService.edit(dto);
-//    } catch (Exception e) {
-//      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//    }
-//
-//    return ResponseEntity.status(HttpStatus.OK).build();
-//  }
-//
+  @PatchMapping("/v2/notices") // 알림장 수정
+  public ResponseEntity noticeEdit(@RequestBody NoticeEditDto dto) {
+    try {
+      noticeService.edit(dto);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
 //  @DeleteMapping("/v1/notices") // 알림장 삭제
 //  public ResponseEntity noticeDelete(@RequestBody IdDTO dto) {
 //    Long deletedCnt = noticeService.delete(dto.getId());
