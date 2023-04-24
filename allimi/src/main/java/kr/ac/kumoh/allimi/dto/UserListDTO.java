@@ -11,15 +11,13 @@ import lombok.ToString;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserListDTO{
-    private String facility_name;
     private String user_name;
-    private String user_protector_name;
-    private UserRole userRole;
+    private String tel;
+    private String id;
 
-    public UserListDTO(String facility_name, String user_name, String user_protector_name, UserRole userRole) {
-        this.facility_name = facility_name;
+    public UserListDTO(String user_name, String tel, String id) {
         this.user_name = user_name;
-        this.user_protector_name = user_protector_name;
-        this.userRole = userRole;
+        this.tel = tel;
+        this.id = id;
     }
 }

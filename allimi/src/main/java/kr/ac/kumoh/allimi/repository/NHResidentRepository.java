@@ -14,8 +14,9 @@ public interface NHResidentRepository extends JpaRepository<NHResident, Long> {
 
     Optional<NHResident> findById(Long targetId);
 
-    Optional<NHResident> findByUser(User user);
+    @Query(value="select * from user where user_id = ?1", nativeQuery = true)
+    Optional<List<NHResident>> findByUserId(Long userId);
 
-    @Query("select nhr from NHResident nhr where nhr.userRole = 'PROTECTOR' and nhr.facility.id = ?1")
-    Optional<List> findProtectorByFacilityId(Long facilityId);
+//    @Query("select nhr from NHResident nhr where nhr.userRole = 'PROTECTOR' and nhr.facility.id = ?1")
+//    Optional<List> findProtectorByFacilityId(Long facilityId);
 }
