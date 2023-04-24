@@ -51,15 +51,5 @@ public class NHResident {
         user.addNHResident(nhResident);
         return nhResident;
     }
-
-    public static NHResident newManagerNHResident(User user, Facility facility, UserRole userRole) {
-        NHResident nhResident = new NHResident();
-        nhResident.setFacility(facility);
-        nhResident.setUser(user);
-        nhResident.setUserRole(userRole);
-
-        user.addNHResident(nhResident);
-        return nhResident;
-    }
 }
 

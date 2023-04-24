@@ -1,4 +1,4 @@
-package kr.ac.kumoh.allimi.controller;
+package kr.ac.kumoh.allimi.controller.response;
 
 import kr.ac.kumoh.allimi.domain.UserRole;
 import lombok.AllArgsConstructor;

@@ -1,14 +1,11 @@
 package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.domain.*;
-import kr.ac.kumoh.allimi.dto.NoticeEditDto;
-import kr.ac.kumoh.allimi.dto.NoticeListDTO;
-import kr.ac.kumoh.allimi.dto.NoticeResponse;
-import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
-import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
-import kr.ac.kumoh.allimi.exception.NoticeException;
-import kr.ac.kumoh.allimi.exception.UserException;
+import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
+import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
+import kr.ac.kumoh.allimi.dto.notice.NoticeResponse;
+import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
+import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +25,10 @@ public class NoticeService {
   public void write(NoticeWriteDto dto) throws Exception {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
+
+    if (user.getUserRole() != UserRole.MANAGER && user.getUserRole() != UserRole.WORKER) {
+      new UserAuthException("권한이 없는 사용자 입니다.");
+    }
 
     NHResident targetResident = nhResidentRepository.findById(dto.getTarget_id())
             .orElseThrow(() -> new NHResidentException("target resident not found"));

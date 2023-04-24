@@ -1,4 +1,4 @@
-package kr.ac.kumoh.allimi.dto;
+package kr.ac.kumoh.allimi.dto.notice;
 
 import kr.ac.kumoh.allimi.domain.User;
 import lombok.Getter;

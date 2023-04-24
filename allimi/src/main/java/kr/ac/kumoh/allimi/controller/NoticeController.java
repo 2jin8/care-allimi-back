@@ -1,8 +1,10 @@
 package kr.ac.kumoh.allimi.controller;
 
-import kr.ac.kumoh.allimi.dto.*;
+import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
+import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
+import kr.ac.kumoh.allimi.dto.notice.NoticeResponse;
+import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.service.NoticeService;
-import kr.ac.kumoh.allimi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +17,6 @@ import java.util.Map;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class NoticeController {
   private final NoticeService noticeService;
-  private final UserService userService;
 
   @PostMapping("/v2/notices") // 알림장 작성
   public ResponseEntity noticeWrite(@RequestBody NoticeWriteDto dto) {
