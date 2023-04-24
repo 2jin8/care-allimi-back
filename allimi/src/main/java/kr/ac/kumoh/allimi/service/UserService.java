@@ -1,8 +1,12 @@
 package kr.ac.kumoh.allimi.service;
 
+import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.*;
+import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
+import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
 import kr.ac.kumoh.allimi.exception.FacilityException;
+import kr.ac.kumoh.allimi.exception.UserAuthException;
 import kr.ac.kumoh.allimi.exception.UserException;
 import kr.ac.kumoh.allimi.exception.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
@@ -25,18 +29,6 @@ public class UserService {
 
     @Transactional
     public void addNHResident(NHResidentDTO dto) throws Exception {
-        User user = userRepository.findUserByUserId(dto.getUser_id()).orElseThrow(() -> new UserException("해당 user가 없습니다"));
-
-        Facility facility = facilityRepository.findById(dto.getFacility_id()).orElseThrow(() ->
-                new FacilityException("시설을 찾을 수 없습니다")
-        );
-
-        NHResident nhResident = NHResident.newNHResident(user, dto.getResident_name(), facility, dto.getUser_role(), dto.getBirth(), dto.getHealth_info());
-        nhResidentRepository.save(nhResident);
-    }
-
-    @Transactional
-    public void addManagerNHResident(ManagerNHResidentDTO dto) throws Exception {
         User user = userRepository.findUserByUserId(dto.getUser_id())
                 .orElseThrow(() -> new UserException("해당 user가 없습니다"));
 
@@ -44,7 +36,7 @@ public class UserService {
                 new FacilityException("시설을 찾을 수 없습니다")
         );
 
-        NHResident nhResident = NHResident.newManagerNHResident(user, facility, dto.getUser_role());
+        NHResident nhResident = NHResident.newNHResident(user, dto.getResident_name(), facility, dto.getUser_role(), dto.getBirth(), dto.getHealth_info());
         nhResidentRepository.save(nhResident);
     }
 
@@ -87,11 +79,11 @@ public class UserService {
         return (user == null) ? false : true;
     }
 
-    public Long login(String userId, String password) throws Exception {
+    public ResponseLogin login(String userId, String password) throws Exception {
         User user = userRepository.findByIdAndPasswords(userId, password)
-                .orElseThrow(() -> new UserException("user not found"));
+                .orElseThrow(() -> new UserAuthException("user not found"));
 
-        return user.getUserId();
+        return new ResponseLogin(user.getUserId(), user.getUserRole());
     }
 
     @Transactional
@@ -112,12 +104,12 @@ public class UserService {
         return userListDTO;
     }
 
-    public UserRole getUserRole(Long userId) throws Exception {
-        User user = userRepository.findUserByUserId(userId)
-                .orElseThrow(()-> new UserException("해당 user가 없습니다"));
-
-        return user.getUserRole();
-    }
+//    public UserRole getUserRole(Long userId) throws Exception {
+//        User user = userRepository.findUserByUserId(userId)
+//                .orElseThrow(()-> new UserException("해당 user가 없습니다"));
+//
+//        return user.getUserRole();
+//    }
 
     public User findUser(Long user_id) throws Exception {
         User user = userRepository.findUserByUserId(user_id)

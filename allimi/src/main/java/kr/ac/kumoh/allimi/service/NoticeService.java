@@ -1,12 +1,11 @@
 package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.domain.*;
-import kr.ac.kumoh.allimi.dto.NoticeListDTO;
-import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
-import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
-import kr.ac.kumoh.allimi.exception.NoticeException;
-import kr.ac.kumoh.allimi.exception.UserException;
+import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
+import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
+import kr.ac.kumoh.allimi.dto.notice.NoticeResponse;
+import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
+import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +25,10 @@ public class NoticeService {
   public void write(NoticeWriteDto dto) throws Exception {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
+
+    if (user.getUserRole() != UserRole.MANAGER && user.getUserRole() != UserRole.WORKER) {
+      new UserAuthException("권한이 없는 사용자 입니다.");
+    }
 
     NHResident targetResident = nhResidentRepository.findById(dto.getTarget_id())
             .orElseThrow(() -> new NHResidentException("target resident not found"));
@@ -88,41 +91,41 @@ public class NoticeService {
     return notices;
   }
 
-//  //알림장 상세보기
-//  public NoticeResponse findNotice(Long noticeId) throws Exception {
-//    Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException("해당 알림장을 찾을 수 없습니다"));
-//
-//    NoticeContent nContent = notice.getContents();
-//
-//    return NoticeResponse.builder()
-//            .create_date(nContent.getCreateDate())
-//            .noticeId(notice.getId())
-//            .subContent(nContent.getSubContents())
-//            .content(nContent.getContents())
-//            .build();
-//  }
-//
-//  public void edit(NoticeEditDto editDto) throws Exception {
-//    Notice notice = noticeRepository.findById(editDto.getNoticeId())
-//            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
-//
-//    User writer = notice.getUser();
-//
-//    User user = userRepository.findUserByUserId(editDto.getUserId())
-//            .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다"));
-//
-//    if (writer.getUserId() != editDto.getUserId() && user.getUserRole() != UserRole.MANAGER) {
-//      throw new UserException("권한이 없는 사용자 입니다");
-//    }
-//
-//    NHResident targetResident = nhResidentRepository.findById(editDto.getTargetId())
-//            .orElseThrow(() -> new NHResidentException("target을 찾을 수 없습니다"));
-//
-//    notice.editNotice(targetResident, editDto.getContent(), editDto.getSubContent());
-//  }
-//
-//  public Long delete(Long notice_id) {
-//    Long deleted = noticeRepository.deleteNoticeById(notice_id);
-//    return deleted;
-//  }
+  //알림장 상세보기
+  public NoticeResponse getDetail(Long noticeId) throws Exception {
+    Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException("해당 알림장을 찾을 수 없습니다"));
+    User user = notice.getUser();
+
+    return NoticeResponse.builder()
+            .create_date(notice.getCreateDate())
+            .user_id(user.getUserId())
+            .notice_id(notice.getId())
+            .sub_content(notice.getSubContents())
+            .content(notice.getContents())
+            .image_url(notice.getImageUrl())
+            .build();
+  }
+
+  public void edit(NoticeEditDto editDto) throws Exception {
+    Notice notice = noticeRepository.findById(editDto.getNotice_id())
+            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
+    User writer = notice.getUser();
+
+    User user = userRepository.findUserByUserId(editDto.getUser_id())
+            .orElseThrow(()-> new UserException("없는 사용자입니다"));
+
+    if (writer.getUserId() != editDto.getUser_id() && user.getUserRole() != UserRole.MANAGER)
+      throw new UserException("권한이 없는 사용자 입니다");
+
+
+    NHResident targetResident = nhResidentRepository.findById(editDto.getResident_id())
+            .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없습니다"));
+
+    notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), editDto.getImage_url());
+  }
+
+  public Long delete(Long notice_id) {
+    Long deleted = noticeRepository.deleteNoticeById(notice_id);
+    return deleted;
+  }
 }

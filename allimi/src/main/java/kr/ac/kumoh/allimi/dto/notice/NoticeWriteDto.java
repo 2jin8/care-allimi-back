@@ -1,4 +1,4 @@
-package kr.ac.kumoh.allimi.dto;
+package kr.ac.kumoh.allimi.dto.notice;
 
 import lombok.Builder;
 import lombok.Getter;
