@@ -42,18 +42,18 @@ public class NoticeController {
     return ResponseEntity.status(HttpStatus.OK).body(noticeList);
   }
 
-//  @GetMapping("/v2/notices/detail/{notice_id}") // 알림장 상세보기
-//  public ResponseEntity notice(@PathVariable("notice_id") Long noticeId) {
-//    NoticeResponse noticeResponse;
-//
-//    try {
-//      noticeResponse = noticeService.findNotice(noticeId);
-//    } catch (Exception e) {
-//      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//    }
-//
-//    return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeResponse);
-//  }
+  @GetMapping("/v2/notices/detail/{notice_id}") // 알림장 상세보기
+  public ResponseEntity noticeDetail(@PathVariable("notice_id") Long noticeId) {
+    NoticeResponse noticeResponse;
+
+    try {
+      noticeResponse = noticeService.getDetail(noticeId);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeResponse);
+  }
 
 //  @PatchMapping("/v1/notices") // 알림장 수정
 //  public ResponseEntity noticeEdit(@RequestBody NoticeEditDto dto) {

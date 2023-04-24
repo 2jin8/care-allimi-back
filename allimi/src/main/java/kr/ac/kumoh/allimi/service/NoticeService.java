@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.NoticeListDTO;
+import kr.ac.kumoh.allimi.dto.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
@@ -88,20 +89,18 @@ public class NoticeService {
     return notices;
   }
 
-//  //알림장 상세보기
-//  public NoticeResponse findNotice(Long noticeId) throws Exception {
-//    Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException("해당 알림장을 찾을 수 없습니다"));
-//
-//    NoticeContent nContent = notice.getContents();
-//
-//    return NoticeResponse.builder()
-//            .create_date(nContent.getCreateDate())
-//            .noticeId(notice.getId())
-//            .subContent(nContent.getSubContents())
-//            .content(nContent.getContents())
-//            .build();
-//  }
-//
+  //알림장 상세보기
+  public NoticeResponse getDetail(Long noticeId) throws Exception {
+    Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException("해당 알림장을 찾을 수 없습니다"));
+
+    return NoticeResponse.builder()
+            .create_date(notice.getCreateDate())
+            .noticeId(notice.getId())
+            .subContent(notice.getSubContents())
+            .content(notice.getContents())
+            .build();
+  }
+
 //  public void edit(NoticeEditDto editDto) throws Exception {
 //    Notice notice = noticeRepository.findById(editDto.getNoticeId())
 //            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
