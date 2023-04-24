@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 public class NHResidentDTO {
     Long user_id;
     Long facility_id;
-    String name;
-    UserRole userRole;
-
+    String resident_name;
+    String birth;
+    UserRole user_role;
+    String health_info;
 }

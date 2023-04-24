@@ -11,4 +11,5 @@ public class NoticeListDTO {
     Long noticeId;
     LocalDateTime create_date;
     String content;
+    String imageUrl;
 }

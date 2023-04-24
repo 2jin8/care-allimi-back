@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 //@Builder
 public class NoticeWriteDto {
-    private Long userId;
-    private Long target;
-    private Long facilityId;
+    private Long user_id;
+    private Long target_id;  //nhresident_id
+    private Long facility_id;
     private String contents;
-    private String subContents;
-
+    private String sub_contents;
+    private String image_url;
 }

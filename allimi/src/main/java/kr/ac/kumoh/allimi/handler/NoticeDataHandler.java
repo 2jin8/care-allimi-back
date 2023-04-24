@@ -1,4 +1,4 @@
-//package kr.ac.kumoh.allimi.handler;
+package kr.ac.kumoh.allimi.handler;//package kr.ac.kumoh.allimi.handler;
 //
 //import kr.ac.kumoh.allimi.domain.Facility;
 //import kr.ac.kumoh.allimi.domain.Notice;

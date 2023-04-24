@@ -1,43 +1,41 @@
 package kr.ac.kumoh.allimi.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
 @Getter
-@RequiredArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notice {
+@NoArgsConstructor
+public class Notice extends Functions {
+    @Lob
+    @Column(length = 100000)
+    private String contents;
+    @Lob
+    @Column(name = "sub_content", length = 100000)
+    private String subContents;
 
-    @Id
-    @Column(name = "notice_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "image_url", length = 1024)
+    private String imageUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facility_id")
-    private Facility facility;
+    protected Notice(@NotNull User user, @NotNull NHResident nhResident, @NotNull Facility facility, String content, String subContent, String imageUrl) {
+        setUser(user);
+        setNhResident(nhResident);
+        setFacility(facility);
+        this.contents = content;
+        this.subContents = subContent;
+        this.imageUrl = imageUrl;
+    }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", updatable = false)
-    private User user;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "target_id", referencedColumnName = "user_id")
-    private NHResident target;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="nc_id")
-    private NoticeContent content;
-
-    public static Notice newNotice(Facility facility, User user, NHResident target, NoticeContent content) {
-        Notice ntc = new Notice(null, facility, user, target, content);
-
+    public static Notice newNotice(User user, NHResident target, Facility facility, String contents, String subContents, String imageUrl) {
+        Notice ntc = new Notice(user, target, facility, contents, subContents, imageUrl);
         return ntc;
     }
 
-    public void editNotice(NHResident target, String contents, String subContents) {
-        this.target = target;
-        this.content.editNoticeContent(contents, subContents);
+    public void editNotice(NHResident target, String contents, String subContents, String imageUrl) {
+        setNhResident(target);
+        this.contents = contents;
+        this.subContents = subContents;
+        this.imageUrl = imageUrl;
     }
 }

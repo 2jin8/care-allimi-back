@@ -7,8 +7,10 @@ import lombok.Getter;
 @Getter
 @Builder
 public class NHResidentResponse {
-    Long user_id;
-    String name;
+    Long resident_id;
+    Long facility_id;
+    String facility_name;
+    String resident_name;
     UserRole userRole;
-
+    boolean isApproved;
 }
