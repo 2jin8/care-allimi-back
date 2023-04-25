@@ -1,4 +1,4 @@
-package kr.ac.kumoh.allimi.dto;
+package kr.ac.kumoh.allimi.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import kr.ac.kumoh.allimi.domain.UserRole;

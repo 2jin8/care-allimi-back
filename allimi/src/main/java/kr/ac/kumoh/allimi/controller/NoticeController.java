@@ -4,6 +4,7 @@ import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.dto.notice.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
+import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,8 @@ public class NoticeController {
 //    Long noticeId;
     try {
       noticeService.write(dto);
+    } catch (UserAuthException e) { //알림장 쓸 권한 없음
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     } catch (Exception e) { //알림장 쓰기 실패
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }

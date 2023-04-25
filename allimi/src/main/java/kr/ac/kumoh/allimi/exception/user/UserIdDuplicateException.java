@@ -1,4 +1,4 @@
-package kr.ac.kumoh.allimi.exception;
+package kr.ac.kumoh.allimi.exception.user;
 
 public class UserIdDuplicateException extends RuntimeException{
     public UserIdDuplicateException() {

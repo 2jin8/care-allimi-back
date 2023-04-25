@@ -2,13 +2,14 @@ package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
 import kr.ac.kumoh.allimi.domain.*;
-import kr.ac.kumoh.allimi.dto.*;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
+import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
+import kr.ac.kumoh.allimi.dto.user.UserListDTO;
 import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.UserAuthException;
-import kr.ac.kumoh.allimi.exception.UserException;
-import kr.ac.kumoh.allimi.exception.UserIdDuplicateException;
+import kr.ac.kumoh.allimi.exception.user.UserAuthException;
+import kr.ac.kumoh.allimi.exception.user.UserException;
+import kr.ac.kumoh.allimi.exception.user.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
