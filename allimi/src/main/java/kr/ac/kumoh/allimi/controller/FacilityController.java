@@ -1,20 +1,20 @@
 package kr.ac.kumoh.allimi.controller;
 
-import kr.ac.kumoh.allimi.dto.SignUpDTO;
 import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
-import kr.ac.kumoh.allimi.exception.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.service.FacilityService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class FacilityController {
     private final FacilityService facilityService;
 

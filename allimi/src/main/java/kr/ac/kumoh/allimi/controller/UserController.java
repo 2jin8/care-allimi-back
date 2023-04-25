@@ -1,8 +1,10 @@
 package kr.ac.kumoh.allimi.controller;
 import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
-import kr.ac.kumoh.allimi.dto.*;
-import kr.ac.kumoh.allimi.exception.UserAuthException;
-import kr.ac.kumoh.allimi.exception.UserIdDuplicateException;
+import kr.ac.kumoh.allimi.dto.user.LoginDTO;
+import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
+import kr.ac.kumoh.allimi.dto.user.UserListDTO;
+import kr.ac.kumoh.allimi.exception.user.UserAuthException;
+import kr.ac.kumoh.allimi.exception.user.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.service.NHResidentService;
 import lombok.RequiredArgsConstructor;
 import kr.ac.kumoh.allimi.service.UserService;
@@ -55,9 +57,8 @@ public class UserController {
 
     @GetMapping("/v2/users/{user_id}") // 사용자 정보 조회
     public ResponseEntity userInfo(@PathVariable Long user_id) {
-        if (user_id == null) {
+        if (user_id == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
 
         UserListDTO userListDTO;
 

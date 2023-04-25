@@ -51,5 +51,9 @@ public class NHResident {
         user.addNHResident(nhResident);
         return nhResident;
     }
+
+    public void approve() {
+        this.isApproved = true;
+    }
 }
 
