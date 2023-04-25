@@ -1,4 +1,4 @@
-package kr.ac.kumoh.allimi.dto;
+package kr.ac.kumoh.allimi.dto.notice;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -11,4 +11,5 @@ public class NoticeListDTO {
     Long noticeId;
     LocalDateTime create_date;
     String content;
+    String imageUrl;
 }

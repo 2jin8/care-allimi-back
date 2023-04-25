@@ -1,4 +1,4 @@
-package kr.ac.kumoh.allimi.dto;
+package kr.ac.kumoh.allimi.dto.notice;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,10 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class NoticeResponse {
-    Long noticeId;
+    Long notice_id;
+    Long user_id;
     LocalDateTime create_date;
     String content;
-    String subContent;
+    String sub_content;
+    String image_url;
 }

@@ -23,10 +23,12 @@ public class User {
     private String id;
 
     @NotNull
-    private String password;
+    private String passwords;
 
     private String tel;
-    private String name;
+
+    @Column(name = "user_name")
+    private String name; //보호자 이름
 
     @Column(name = "current_nhresident")
     private int currentNHResident = 0;
@@ -40,7 +42,7 @@ public class User {
 
     private User(String id, String password, String tel, String name) {
         this.id = id;
-        this.password = password;
+        this.passwords = password;
         this.tel = tel;
         this.name = name;
     }
@@ -51,7 +53,6 @@ public class User {
 
     public static User newUser(String id, String password, String name, String tel) {
         User user = new User(id, password, tel, name);
-
         return user;
     }
 
