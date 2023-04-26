@@ -4,6 +4,9 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 //@Builder
 public class NoticeWriteDto {
@@ -12,5 +15,5 @@ public class NoticeWriteDto {
     private Long facility_id;
     private String contents;
     private String sub_contents;
-
+    private List<String> image_url = new ArrayList<>();
 }

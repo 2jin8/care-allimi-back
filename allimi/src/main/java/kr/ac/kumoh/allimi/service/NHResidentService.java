@@ -56,8 +56,8 @@ public class NHResidentService {
             NHResidentResponse response = NHResidentResponse.builder()
                     .resident_id(nhr.getId())
                     .resident_name(nhr.getName())
-                    .userRole(nhr.getUserRole())
-                    .isApproved(null)
+                    .user_role(nhr.getUserRole())
+                    .is_approved(null)
                     .build();
 
             responseList.add(response);
