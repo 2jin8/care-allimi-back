@@ -3,6 +3,9 @@ package kr.ac.kumoh.allimi.dto.notice;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 //@Builder
 public class NoticeWriteDto {
@@ -11,5 +14,5 @@ public class NoticeWriteDto {
     private Long facility_id;
     private String contents;
     private String sub_contents;
-    private String image_url;
+    private List<String> image_url = new ArrayList<>();
 }

@@ -64,10 +64,10 @@ public class UserService {
             nhResidentResponses.add(NHResidentResponse.builder()
                     .resident_id(nhr.getId())
                     .resident_name(nhr.getName())
-                    .userRole(nhr.getUserRole())
+                    .user_role(nhr.getUserRole())
                     .facility_id(facility.getId())
                     .facility_name(facility.getName())
-                    .isApproved(nhr.isApproved())
+                    .is_approved(nhr.isApproved())
                     .build());
         }
 

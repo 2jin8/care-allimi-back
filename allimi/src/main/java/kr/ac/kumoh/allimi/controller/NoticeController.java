@@ -46,46 +46,46 @@ public class NoticeController {
     return ResponseEntity.status(HttpStatus.OK).body(noticeList);
   }
 
-  @GetMapping("/v2/notices/detail/{notice_id}") // 알림장 상세보기
-  public ResponseEntity noticeDetail(@PathVariable("notice_id") Long noticeId) {
-    NoticeResponse noticeResponse;
-
-    if (noticeId == null)
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-    try {
-      noticeResponse = noticeService.getDetail(noticeId);
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-
-    return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeResponse);
-  }
-
-  @PatchMapping("/v2/notices") // 알림장 수정
-  public ResponseEntity noticeEdit(@RequestBody NoticeEditDto dto) {
-    try {
-      noticeService.edit(dto);
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-
-    return ResponseEntity.status(HttpStatus.OK).build();
-  }
-
-  @DeleteMapping("/v2/notices") // 알림장 삭제
-  public ResponseEntity noticeDelete(@RequestBody Map<String, Long> notice) {
-    Long noticeId = notice.get("notice_id");
-
-    if (noticeId == null)
-      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
-
-    Long deletedCnt = noticeService.delete(notice.get("notice_id"));
-
-    if (deletedCnt == 0)
-      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
-
-    return ResponseEntity.status(HttpStatus.OK).build();
-  }
+//  @GetMapping("/v2/notices/detail/{notice_id}") // 알림장 상세보기
+//  public ResponseEntity noticeDetail(@PathVariable("notice_id") Long noticeId) {
+//    NoticeResponse noticeResponse;
+//
+//    if (noticeId == null)
+//      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//
+//    try {
+//      noticeResponse = noticeService.getDetail(noticeId);
+//    } catch (Exception e) {
+//      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//    }
+//
+//    return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeResponse);
+//  }
+//
+//  @PatchMapping("/v2/notices") // 알림장 수정
+//  public ResponseEntity noticeEdit(@RequestBody NoticeEditDto dto) {
+//    try {
+//      noticeService.edit(dto);
+//    } catch (Exception e) {
+//      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//    }
+//
+//    return ResponseEntity.status(HttpStatus.OK).build();
+//  }
+//
+//  @DeleteMapping("/v2/notices") // 알림장 삭제
+//  public ResponseEntity noticeDelete(@RequestBody Map<String, Long> notice) {
+//    Long noticeId = notice.get("notice_id");
+//
+//    if (noticeId == null)
+//      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+//
+//    Long deletedCnt = noticeService.delete(notice.get("notice_id"));
+//
+//    if (deletedCnt == 0)
+//      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+//
+//    return ResponseEntity.status(HttpStatus.OK).build();
+//  }
 }
 
