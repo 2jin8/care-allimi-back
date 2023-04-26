@@ -25,6 +25,7 @@ public class S3Service {
 
         // 파일의 사이즈를 ContentLength로 S3에 알려주기 위해서 ObjectMetadata 사용
         ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentType(multipartFile.getContentType()); // 타입 지정 안하면 이미지 링크가 바로 다운받아짐
         objMeta.setContentLength(multipartFile.getInputStream().available());
 
         // S3 API 메소드인 putObject를 이용하여 파일 Stream을 열어서 S3에 파일을 업로드
@@ -32,5 +33,9 @@ public class S3Service {
 
         // getUrl 메소드를 통해서 S3에 업로드된 사진 URI을 가져오기
         return amazonS3.getUrl(bucket, s3FileName).toString();
+    }
+
+    public void delete(String imageUrl) {
+        amazonS3.deleteObject(bucket, imageUrl);
     }
 }

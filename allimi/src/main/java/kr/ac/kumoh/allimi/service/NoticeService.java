@@ -1,7 +1,4 @@
 package kr.ac.kumoh.allimi.service;
-
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
@@ -13,14 +10,13 @@ import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.*;
 import kr.ac.kumoh.allimi.s3.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -48,7 +44,7 @@ public class NoticeService {
 
     String image_url = null;
     if (!file.isEmpty()) {
-      image_url = s3Service.upload(file);
+      image_url = URLDecoder.decode(s3Service.upload(file), "utf-8");
     }
 
     Notice notice = Notice.newNotice(user, targetResident, facility, dto.getContents(), dto.getSub_contents(), image_url);
@@ -139,6 +135,12 @@ public class NoticeService {
   }
 
   public Long delete(Long notice_id) {
+    Notice notice = noticeRepository.findById(notice_id).
+            orElseThrow(() -> new NoticeException("해당 Notice가 없습니다"));
+    String imageUrl = notice.getImageUrl();
+    if (imageUrl != null) {
+      s3Service.delete(imageUrl.substring(59));
+    }
     Long deleted = noticeRepository.deleteNoticeById(notice_id);
     return deleted;
   }
