@@ -27,7 +27,7 @@ public class NoticeService {
   private final ImageRepository imageRepository;
   private final S3Service s3Service;
 
-  public void write(NoticeWriteDto dto, MultipartFile file) throws Exception {
+  public void write(NoticeWriteDto dto, List<MultipartFile> files) throws Exception {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
@@ -41,19 +41,18 @@ public class NoticeService {
     Facility facility = facilityRepository.findById(dto.getFacility_id())
             .orElseThrow(() -> new FacilityException("facility not found"));
 
-    String image_url = null;
-    if (!file.isEmpty()) {
-      image_url = URLDecoder.decode(s3Service.upload(file), "utf-8");
-    }
     Notice notice = Notice.newNotice(user, targetResident, facility, dto.getContents(), dto.getSub_contents());
     List<Image> images = new ArrayList<>();
-    for (String url: dto.getImage_url()) {
-      Image image = Image.newNoticeImage(notice, url);
-      images.add(image);
-      imageRepository.save(image);
+    if (files.size() != 0) {
+      for (MultipartFile file : files) {
+        String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
+        Image image = Image.newNoticeImage(notice, url);
+        images.add(image);
+        imageRepository.save(image);
+      }
     }
+
     notice.addImages(images);
-    
     Notice savedNotice = noticeRepository.save(notice);
     
     if (savedNotice == null)
@@ -151,7 +150,14 @@ public class NoticeService {
 //  }
 //
 //  public Long delete(Long notice_id) {
+//    Notice notice = noticeRepository.findById(notice_id).
+//            orElseThrow(() -> new NoticeException("해당 Notice가 없습니다"));
+//    String imageUrl = notice.getImageUrl();
+//    if (imageUrl != null) {
+//      s3Service.delete(imageUrl.substring(59));
+//    }
 //    Long deleted = noticeRepository.deleteNoticeById(notice_id);
 //    return deleted;
 //  }
 }
+

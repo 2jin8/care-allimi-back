@@ -46,6 +46,25 @@ public class NHResidentService {
     }
 
     @Transactional(readOnly = true)
+    public List<NHResidentResponse> nhResidentList(Long facilityId) throws Exception {
+        List<NHResident> list = nhResidentRepository.findByFacilityId(facilityId)
+                .orElseGet(() -> new ArrayList<>());
+
+        List<NHResidentResponse> responseList = new ArrayList<>();
+
+        for (NHResident nhResident : list) {
+            NHResidentResponse response = NHResidentResponse.builder()
+                    .resident_id(nhResident.getId())
+                    .resident_name(nhResident.getName())
+                    .user_role(nhResident.getUserRole())
+                    .is_approved(nhResident.isApproved())
+                    .build();
+            responseList.add(response);
+        }
+        return responseList;
+    }
+
+    @Transactional(readOnly = true)
     public List<NHResidentResponse> notApprovedList(Long facilityId) throws Exception {
         List<NHResident> list = nhResidentRepository.findNotApproved(facilityId)
                 .orElseGet(() -> new ArrayList<>());
