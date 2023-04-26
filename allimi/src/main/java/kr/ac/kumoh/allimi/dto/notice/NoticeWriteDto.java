@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.dto.notice;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 //@Builder
@@ -11,5 +12,5 @@ public class NoticeWriteDto {
     private Long facility_id;
     private String contents;
     private String sub_contents;
-    private String image_url;
+
 }
