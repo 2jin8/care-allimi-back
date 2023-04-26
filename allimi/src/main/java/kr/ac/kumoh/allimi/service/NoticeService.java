@@ -1,5 +1,7 @@
 package kr.ac.kumoh.allimi.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
@@ -9,11 +11,16 @@ import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.*;
+import kr.ac.kumoh.allimi.s3.S3Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -23,13 +30,14 @@ public class NoticeService {
   private final UserRepository userRepository;
   private final FacilityRepository facilityRepository;
   private final NHResidentRepository nhResidentRepository;
+  private final S3Service s3Service;
 
-  public void write(NoticeWriteDto dto) throws Exception {
+  public void write(NoticeWriteDto dto, MultipartFile file) throws Exception {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
     if (user.getUserRole() != UserRole.MANAGER && user.getUserRole() != UserRole.WORKER) {
-      new UserAuthException("권한이 없는 사용자 입니다.");
+      throw new UserAuthException("권한이 없는 사용자 입니다.");
     }
 
     NHResident targetResident = nhResidentRepository.findById(dto.getTarget_id())
@@ -38,12 +46,16 @@ public class NoticeService {
     Facility facility = facilityRepository.findById(dto.getFacility_id())
             .orElseThrow(() -> new FacilityException("facility not found"));
 
-    Notice notice = Notice.newNotice(user, targetResident, facility, dto.getContents(), dto.getSub_contents(), dto.getImage_url());
+    String image_url = null;
+    if (!file.isEmpty()) {
+      image_url = s3Service.upload(file);
+    }
+
+    Notice notice = Notice.newNotice(user, targetResident, facility, dto.getContents(), dto.getSub_contents(), image_url);
     Notice savedNotice = noticeRepository.save(notice);
 
     if (savedNotice == null)
-      new NoticeException("알림장 저장 실패");
-
+      throw new NoticeException("알림장 저장 실패");
   }
   //알림장 목록보기
   public List<NoticeListDTO> noticeList(Long residentId) throws Exception {
@@ -58,7 +70,7 @@ public class NoticeService {
     } else if (userRole == UserRole.PROTECTOR) {
       notices = userNoticeList(nhResident);
     } else {
-      new NHResidentException("user의 역할이 잘못됨");
+      throw new NHResidentException("user의 역할이 잘못됨");
     }
 
     // Response
