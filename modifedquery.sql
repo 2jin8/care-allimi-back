@@ -147,4 +147,20 @@ show tables;
        foreign key (user_id) 
        references users (user_id) ON DELETE SET NULL;
     
+ create table image (
+       image_id bigint not null auto_increment,
+        image_url varchar(255),
+        allnotice_id bigint,
+        notice_id bigint,
+        primary key (image_id)
+    ) engine=InnoDB;
     
+    alter table image 
+       add constraint FK2upt0ce363186b049swfeec7r 
+       foreign key (allnotice_id) 
+       references all_notice (id) ON DELETE cascade;
+    
+    alter table image 
+       add constraint FKmxefv2q9erynjpr2u4tftmn1r 
+       foreign key (notice_id) 
+       references notice (id) on delete cascade;
