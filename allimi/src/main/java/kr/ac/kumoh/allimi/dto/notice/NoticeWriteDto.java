@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.dto.notice;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;

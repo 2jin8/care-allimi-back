@@ -9,7 +9,11 @@ import kr.ac.kumoh.allimi.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Map;
 
@@ -19,11 +23,12 @@ import java.util.Map;
 public class NoticeController {
   private final NoticeService noticeService;
 
-  @PostMapping("/v2/notices") // 알림장 작성
-  public ResponseEntity noticeWrite(@RequestBody NoticeWriteDto dto) {
-//    Long noticeId;
+  @PostMapping(value = "/v2/notices") // 알림장 작성
+  public ResponseEntity noticeWrite(@RequestPart(value="notice") NoticeWriteDto dto,
+                                    @RequestPart(value="file", required = false) MultipartFile file) {
+
     try {
-      noticeService.write(dto);
+      noticeService.write(dto, file);
     } catch (UserAuthException e) { //알림장 쓸 권한 없음
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     } catch (Exception e) { //알림장 쓰기 실패
@@ -32,6 +37,8 @@ public class NoticeController {
 
     return ResponseEntity.status(HttpStatus.OK).build();
   }
+
+
 
   @GetMapping("/v2/notices/{resident_id}") // 알림장 목록
   public ResponseEntity noticeList(@PathVariable("resident_id") Long residentId) {
