@@ -20,6 +20,9 @@ public interface NHResidentRepository extends JpaRepository<NHResident, Long> {
     @Query(value="select * from nhresident where facility_id = ?1 and is_approved = false", nativeQuery = true)
     Optional<List<NHResident>> findNotApproved(Long facilityId);
 
+    @Query(value = "select * from nhresident where facility_id = ?1", nativeQuery = true)
+    Optional<List<NHResident>> findByFacilityId(Long facilityId);
+
 //    @Query("select nhr from NHResident nhr where nhr.userRole = 'PROTECTOR' and nhr.facility.id = ?1")
 //    Optional<List> findProtectorByFacilityId(Long facilityId);
 }

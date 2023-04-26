@@ -80,13 +80,14 @@ public class NHResidentController {
         //TODO
     }
 
-    //is_approved = false인 사용자 모두 출력
+    // 사용자 모두 출력
     @GetMapping("/v2/nhresdients/approval/{facility_id}")
     public ResponseEntity approvedFalseList(@PathVariable("facility_id") Long facilityId) {
         List<NHResidentResponse> responses = new ArrayList<>();
 
         try {
-            responses = nhResidentService.notApprovedList(facilityId);
+            responses = nhResidentService.nhResidentList(facilityId);
+//            responses = nhResidentService.notApprovedList(facilityId); //is_approved = false인 사용자 모두 출력
         } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

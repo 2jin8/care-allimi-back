@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,10 +24,10 @@ public class NoticeController {
 
   @PostMapping(value = "/v2/notices") // 알림장 작성
   public ResponseEntity noticeWrite(@RequestPart(value="notice") NoticeWriteDto dto,
-                                    @RequestPart(value="file", required = false) MultipartFile file) {
+                                    @RequestPart(value="file", required = false) List<MultipartFile> files) {
 
     try {
-      noticeService.write(dto, file);
+      noticeService.write(dto, files);
     } catch (UserAuthException e) { //알림장 쓸 권한 없음
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     } catch (Exception e) { //알림장 쓰기 실패
@@ -95,4 +94,5 @@ public class NoticeController {
 //    return ResponseEntity.status(HttpStatus.OK).build();
 //  }
 }
+
 
