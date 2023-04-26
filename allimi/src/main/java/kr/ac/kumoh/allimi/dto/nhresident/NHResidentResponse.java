@@ -16,8 +16,8 @@ public class NHResidentResponse {
     String facility_name;
 
     String resident_name;
-    UserRole userRole;
+    UserRole user_role;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    Boolean isApproved;
+    Boolean is_approved;
 }

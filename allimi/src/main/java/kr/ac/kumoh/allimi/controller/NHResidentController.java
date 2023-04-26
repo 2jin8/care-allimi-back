@@ -53,8 +53,7 @@ public class NHResidentController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-
-    // 사용자의 입소자 리스트 출력
+    // 사용자의 (승인된) 입소자 리스트 출력
     @GetMapping("/v2/nhresdients/{user_id}")
     public ResponseEntity nhresidentList(@PathVariable("user_id") Long userId) {
         List<NHResidentResponse> nhResidentResponses;

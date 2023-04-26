@@ -1,8 +1,6 @@
 package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.domain.*;
-import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
-import kr.ac.kumoh.allimi.dto.notice.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
@@ -26,6 +24,7 @@ public class NoticeService {
   private final UserRepository userRepository;
   private final FacilityRepository facilityRepository;
   private final NHResidentRepository nhResidentRepository;
+  private final ImageRepository imageRepository;
   private final S3Service s3Service;
 
   public void write(NoticeWriteDto dto, MultipartFile file) throws Exception {
@@ -46,13 +45,21 @@ public class NoticeService {
     if (!file.isEmpty()) {
       image_url = URLDecoder.decode(s3Service.upload(file), "utf-8");
     }
-
-    Notice notice = Notice.newNotice(user, targetResident, facility, dto.getContents(), dto.getSub_contents(), image_url);
+    Notice notice = Notice.newNotice(user, targetResident, facility, dto.getContents(), dto.getSub_contents());
+    List<Image> images = new ArrayList<>();
+    for (String url: dto.getImage_url()) {
+      Image image = Image.newNoticeImage(notice, url);
+      images.add(image);
+      imageRepository.save(image);
+    }
+    notice.addImages(images);
+    
     Notice savedNotice = noticeRepository.save(notice);
-
+    
     if (savedNotice == null)
       throw new NoticeException("알림장 저장 실패");
   }
+  
   //알림장 목록보기
   public List<NoticeListDTO> noticeList(Long residentId) throws Exception {
     NHResident nhResident = nhResidentRepository.findById(residentId)
@@ -73,12 +80,21 @@ public class NoticeService {
     List<NoticeListDTO> noticeList = new ArrayList<>();
 
     for (Notice notice : notices) {
+
+      List<Image> imgList = notice.getImages();
+      List<String> imgStringList = new ArrayList<>();
+
+      for (Image img:imgList) {
+        imgStringList.add(img.getImageUrl());
+      }
+
       NoticeListDTO dto = NoticeListDTO.builder()
               .noticeId(notice.getId())
               .create_date(notice.getCreateDate())
               .content(notice.getContents())
-              .imageUrl(notice.getImageUrl())
+              .imageUrl(imgStringList)
               .build();
+
       noticeList.add(dto);
     }
 
@@ -101,47 +117,41 @@ public class NoticeService {
     return notices;
   }
 
-  //알림장 상세보기
-  public NoticeResponse getDetail(Long noticeId) throws Exception {
-    Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException("해당 알림장을 찾을 수 없습니다"));
-    User user = notice.getUser();
-
-    return NoticeResponse.builder()
-            .create_date(notice.getCreateDate())
-            .user_id(user.getUserId())
-            .notice_id(notice.getId())
-            .sub_content(notice.getSubContents())
-            .content(notice.getContents())
-            .image_url(notice.getImageUrl())
-            .build();
-  }
-
-  public void edit(NoticeEditDto editDto) throws Exception {
-    Notice notice = noticeRepository.findById(editDto.getNotice_id())
-            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
-    User writer = notice.getUser();
-
-    User user = userRepository.findUserByUserId(editDto.getUser_id())
-            .orElseThrow(()-> new UserException("없는 사용자입니다"));
-
-    if (writer.getUserId() != editDto.getUser_id() && user.getUserRole() != UserRole.MANAGER)
-      throw new UserException("권한이 없는 사용자 입니다");
-
-
-    NHResident targetResident = nhResidentRepository.findById(editDto.getResident_id())
-            .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없습니다"));
-
-    notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), editDto.getImage_url());
-  }
-
-  public Long delete(Long notice_id) {
-    Notice notice = noticeRepository.findById(notice_id).
-            orElseThrow(() -> new NoticeException("해당 Notice가 없습니다"));
-    String imageUrl = notice.getImageUrl();
-    if (imageUrl != null) {
-      s3Service.delete(imageUrl.substring(59));
-    }
-    Long deleted = noticeRepository.deleteNoticeById(notice_id);
-    return deleted;
-  }
+//  //알림장 상세보기
+//  public NoticeResponse getDetail(Long noticeId) throws Exception {
+//    Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException("해당 알림장을 찾을 수 없습니다"));
+//    User user = notice.getUser();
+//
+//    return NoticeResponse.builder()
+//            .create_date(notice.getCreateDate())
+//            .user_id(user.getUserId())
+//            .notice_id(notice.getId())
+//            .sub_content(notice.getSubContents())
+//            .content(notice.getContents())
+//            .image_url(notice.getImageUrl())
+//            .build();
+//  }
+//
+//  public void edit(NoticeEditDto editDto) throws Exception {
+//    Notice notice = noticeRepository.findById(editDto.getNotice_id())
+//            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
+//    User writer = notice.getUser();
+//
+//    User user = userRepository.findUserByUserId(editDto.getUser_id())
+//            .orElseThrow(()-> new UserException("없는 사용자입니다"));
+//
+//    if (writer.getUserId() != editDto.getUser_id() && user.getUserRole() != UserRole.MANAGER)
+//      throw new UserException("권한이 없는 사용자 입니다");
+//
+//
+//    NHResident targetResident = nhResidentRepository.findById(editDto.getResident_id())
+//            .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없습니다"));
+//
+//    notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), editDto.getImage_url());
+//  }
+//
+//  public Long delete(Long notice_id) {
+//    Long deleted = noticeRepository.deleteNoticeById(notice_id);
+//    return deleted;
+//  }
 }
