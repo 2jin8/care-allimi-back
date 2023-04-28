@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NHResident {
     @Id
-    @Column(name = "nhresident_id")
+    @Column(name = "nhr_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

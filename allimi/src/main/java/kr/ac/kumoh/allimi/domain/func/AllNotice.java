@@ -24,16 +24,11 @@ public class AllNotice {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "allnotice_id")
-  private Long id;
+  private Long allnoticeId;
 
   @ManyToOne
   @JoinColumn(name = "user_id")
   private User user;
-
-  @NotNull
-  @JoinColumn(name = "nhr_id", referencedColumnName = "resident_id")
-  @ManyToOne
-  private NHResident nhResident;
 
   @NotNull
   @ManyToOne
@@ -57,11 +52,10 @@ public class AllNotice {
 
   private Boolean important = false;
 
-  public static AllNotice newAllNotice(@NotNull User user, @NotNull NHResident target, @NotNull Facility facility,
+  public static AllNotice newAllNotice(@NotNull User user, @NotNull Facility facility,
                              String title, String contents, List<Image> images) {
     AllNotice allNotice = AllNotice.builder()
             .user(user)
-            .nhResident(target)
             .facility(facility)
             .title(title)
             .contents(contents)

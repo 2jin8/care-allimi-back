@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 @Entity
 public class Invitation {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "invit_id")

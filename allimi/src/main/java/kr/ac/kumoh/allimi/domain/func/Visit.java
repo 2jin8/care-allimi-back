@@ -20,14 +20,14 @@ public class Visit {
   private User user;
 
   @NotNull
-  @JoinColumn(name = "nhr_id", referencedColumnName = "resident_id")
+  @JoinColumn(name = "nhr_id")
   @ManyToOne
   private NHResident nhResident;
 
   @NotNull
   @ManyToOne
   @JoinColumn(name = "facility_id")
-  private Facility facility;
+  private Facility faciltyId;
 
   @Column(name = "create_date")
   private LocalDateTime createDate = LocalDateTime.now();
@@ -39,7 +39,8 @@ public class Visit {
     @NotNull
     private LocalDateTime wantDate;
 
-    private String phone_num;
+    @Column(name = "phone_num")
+    private String phoneNum;
 
     @NotNull
     @Column(name = "visitor_name")

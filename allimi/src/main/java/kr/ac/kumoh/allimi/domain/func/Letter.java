@@ -13,14 +13,14 @@ public class Letter {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "letter_id")
-  private Long id;
+  private Long letterId;
 
   @ManyToOne
   @JoinColumn(name = "user_id")
   private User user;
 
   @NotNull
-  @JoinColumn(name = "nhr_id", referencedColumnName = "resident_id")
+  @JoinColumn(name = "nhr_id")
   @ManyToOne
   private NHResident nhResident;
 

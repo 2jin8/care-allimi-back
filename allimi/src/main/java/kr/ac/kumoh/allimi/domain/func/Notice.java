@@ -18,14 +18,14 @@ public class Notice {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "notice_id")
-  private Long id;
+  private Long noticeId;
 
   @ManyToOne
   @JoinColumn(name = "user_id")
   private User user;
 
   @NotNull
-  @JoinColumn(name = "nhr_id", referencedColumnName = "resident_id")
+  @JoinColumn(name = "nhr_id")
   @ManyToOne
   private NHResident nhResident;
 
@@ -76,15 +76,15 @@ public class Notice {
       this.images = images;
   }
 
-  //    public void editNotice(NHResident target, String contents, String subContents, String[] imageUrls) {
-  //        setNhResident(target);
-  //        this.contents = contents;
-  //        this.subContents = subContents;
-  //
-  //        this.image = null;
-  //        for(String url: imageUrls) {
-  //            Image i = Image.newNoticeImage(this, url);
-  //            this.image.add(i);
-  //        }
-  //    }
+      public void editNotice(NHResident target, String contents, String subContents, String[] imageUrls) {
+          setNhResident(target);
+          this.contents = contents;
+          this.subContents = subContents;
+
+          this.images = null;
+          for(String url: imageUrls) {
+              Image i = Image.newNoticeImage(this, url);
+              this.images.add(i);
+          }
+      }
 }
