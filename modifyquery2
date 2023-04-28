@@ -181,5 +181,5 @@ alter table visit
    foreign key (user_id) 
    references users (user_id) ON DELETE CASCADE;
    
-   
+select * from users;
    
