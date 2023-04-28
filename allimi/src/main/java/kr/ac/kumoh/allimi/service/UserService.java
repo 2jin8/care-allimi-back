@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
 import kr.ac.kumoh.allimi.domain.*;
+import kr.ac.kumoh.allimi.dto.admin.AdminUserListDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
 import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
@@ -41,6 +42,23 @@ public class UserService {
 //        nhResidentRepository.save(nhResident);
 //    }
 
+  public List<AdminUserListDTO> getAllUser() throws Exception {
+    List<User> users = userRepository.findAll();
+    List<AdminUserListDTO> dtos  = new ArrayList<>();
+
+    for (User user : users) {
+      dtos.add(AdminUserListDTO.builder()
+              .user_id(user.getUserId())
+              .user_name(user.getName())
+              .phone_num(user.getPhoneNum())
+              .login_id(user.getLoginId())
+              .build()
+      );
+    }
+
+    return dtos;
+  }
+
     @Transactional
     public Long addUser(SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
         // ID 중복 체크
@@ -66,17 +84,18 @@ public class UserService {
       return new ResponseLogin(user.getUserId(), user.getUserRole());
   }
 
-//  public UserListDTO getUserInfo(Long userId) throws Exception {
-//    User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new UserException("해당 user가 없습니다"));
-//
-//    UserListDTO userListDTO = UserListDTO.builder()
-//            .user_name(user.getName())
-//            .tel(user.getTel())
-//            .id(user.getId())
-//            .build();
-//
-//    return userListDTO;
-//  }
+  public UserListDTO getUserInfo(Long userId) throws Exception {
+    User user = userRepository.findUserByUserId(userId)
+            .orElseThrow(() -> new UserException("해당 user가 없습니다"));
+
+    UserListDTO userListDTO = UserListDTO.builder()
+            .user_name(user.getName())
+            .phone_num(user.getPhoneNum())
+            .login_id(user.getLoginId())
+            .build();
+
+    return userListDTO;
+  }
 
 //    public List<NHResidentResponse> getNHResidents(Long userId) {
 //        User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new UserException("user를 찾을 수 없습니다"));
@@ -100,12 +119,10 @@ public class UserService {
 
 //    }
 
-//
-//    @Transactional
-//    public void deleteUser(Long user_id) throws Exception { // 회원탈퇴
-//        //user삭제하면 resident는 null로 설정된다!
-//        userRepository.deleteById(user_id);
-//    }
+    @Transactional
+    public void deleteUser(Long user_id) throws Exception { // 회원탈퇴
+        userRepository.deleteById(user_id);
+    }
 
 //
 ////    public UserRole getUserRole(Long userId) throws Exception {
