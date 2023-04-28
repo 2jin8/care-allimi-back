@@ -9,6 +9,7 @@ import lombok.*;
 @Table(name = "nhresident")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class NHResident {
     @Id
     @Column(name = "nhr_id")
@@ -36,17 +37,27 @@ public class NHResident {
 
     private String birth;
 
-    public static NHResident newNHResident(User user, String name, Facility facility, UserRole userRole, String birth, String healthInfo) {
-        NHResident nhResident = new NHResident();
-        nhResident.setName(name);
-        nhResident.setFacility(facility);
-        nhResident.setUser(user);
-        nhResident.setUserRole(userRole);
-        nhResident.setBirth(birth);
-        nhResident.setHealthInfo(healthInfo);
+    public static NHResident newNHResident(User user, Facility facility, String name, UserRole userRole, String birth, String healthInfo) {
+        NHResident nhResident = NHResident.builder()
+                .name(name)
+                .user(user)
+                .facility(facility)
+                .userRole(userRole)
+                .birth(birth)
+                .healthInfo(healthInfo)
+                .build();
 
         user.addNHResident(nhResident);
         return nhResident;
+    }
+
+    public void edit(String residentName, String birth, String healthInfo) {
+      if (residentName != null)
+        this.name = residentName;
+      if (birth != null)
+        this.birth = birth;
+      if (healthInfo != null)
+        this.healthInfo = healthInfo;
     }
 }
 
