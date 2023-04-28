@@ -8,5 +8,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ResponseLogin {
     private Long user_id;
-    private UserRole userRole;
+  private UserRole userRole;
 }

@@ -1,12 +1,18 @@
 package kr.ac.kumoh.allimi.service;
 
+import kr.ac.kumoh.allimi.controller.response.ResponseResident;
+import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.domain.UserRole;
+import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
+import kr.ac.kumoh.allimi.dto.nhresident.NHResidentEditDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
+import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
+import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,35 +22,65 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class NHResidentService {
-//    private final NHResidentRepository nhResidentRepository;
-//    private final UserRepository userRepository;
-//
-//    @Transactional
-//    public void deleteResident(Long residentId) throws Exception { // 회원탈퇴
-//        //user삭제하면 resident는 null로 설정된다!
-//        nhResidentRepository.deleteById(residentId);
-//    }
-//
-////    nhResidentService.approve(userId, residentId);
-//
-//    @Transactional
-//    public void approve(Long approverId, Long residentId) throws Exception {
-//        NHResident approver = nhResidentRepository.findById(approverId)
-//                .orElseThrow(() -> new NHResidentException("승인자를 찾을 수 없습니다"));
-//
-//        if (approver.getUserRole() != UserRole.MANAGER && approver.getUserRole() != UserRole.WORKER)
-//            new UserAuthException("권한이 없는 사용자입니다");
-//
-//        NHResident resident = nhResidentRepository.findById(residentId)
-//                .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없습니다"));
-//
-//        resident.approve();
-//    }
-//
+    private final NHResidentRepository nhResidentRepository;
+    private final UserRepository userRepository;
+    private final FacilityRepository facilityRepository;
+
+    @Transactional
+    public Long addNHResident(NHResidentDTO dto) throws Exception { // user_id, facility_id, resident_name, birth, user_role, health_info;
+        User user = userRepository.findUserByUserId(dto.getUser_id())
+                .orElseThrow(() -> new UserException("해당 user가 없습니다"));
+
+        Facility facility = facilityRepository.findById(dto.getFacility_id())
+                .orElseThrow(() -> new FacilityException("시설을 찾을 수 없습니다"));
+
+        NHResident nhResident = NHResident.newNHResident(user, facility, dto.getResident_name(), dto.getUser_role(), dto.getBirth(), dto.getHealth_info());
+        nhResidentRepository.save(nhResident);
+
+        return nhResident.getId();
+    }
+
+    @Transactional
+    public void deleteResident(Long residentId) throws Exception { // 입소자 삭제
+        //user삭제하면 resident는 null로 설정된다!
+        nhResidentRepository.deleteById(residentId);
+    }
+
+  @Transactional
+  public void editNHResident(NHResidentEditDTO dto) throws Exception { //resident_id, resident_name, birth, health_info
+    NHResident nhResident = nhResidentRepository.findById(dto.getResident_id())
+                    .orElseThrow(() -> new NHResidentException("해당하는 resident가 없음"));
+
+    nhResident.edit(dto.getResident_name(), dto.getBirth(), dto.getHealth_info());
+  }
+
+  public List<ResponseResident> findAllByFacility(Long facilityId) throws Exception {
+    List<NHResident> residents = nhResidentRepository.findByFacilityId(facilityId)
+            .orElseThrow(() -> new NHResidentException("입소자 리스트 찾기 실패"));
+
+    List<ResponseResident> list = new ArrayList<>();
+
+    for (NHResident r: residents) {
+      list.add(ResponseResident
+              .builder()
+              .id(r.getId())
+              .user_id(r.getUser().getUserId())
+              .name(r.getName())
+              .user_role(r.getUserRole())
+              .build());
+    }
+
+    return list;
+  }
+
+
+
 //    @Transactional(readOnly = true)
 //    public List<NHResidentResponse> nhResidentList(Long facilityId) throws Exception {
 //        List<NHResident> list = nhResidentRepository.findByFacilityId(facilityId)
@@ -61,27 +97,6 @@ public class NHResidentService {
 //                    .build();
 //            responseList.add(response);
 //        }
-//        return responseList;
-//    }
-//
-//    @Transactional(readOnly = true)
-//    public List<NHResidentResponse> notApprovedList(Long facilityId) throws Exception {
-//        List<NHResident> list = nhResidentRepository.findNotApproved(facilityId)
-//                .orElseGet(() -> new ArrayList<>());
-//
-//        List<NHResidentResponse> responseList = new ArrayList<>();
-//
-//        for (NHResident nhr: list) {
-//            NHResidentResponse response = NHResidentResponse.builder()
-//                    .resident_id(nhr.getId())
-//                    .resident_name(nhr.getName())
-//                    .user_role(nhr.getUserRole())
-//                    .is_approved(null)
-//                    .build();
-//
-//            responseList.add(response);
-//        }
-//
 //        return responseList;
 //    }
 
