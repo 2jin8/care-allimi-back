@@ -1,5 +1,6 @@
 package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.domain.*;
+import kr.ac.kumoh.allimi.domain.func.Notice;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.*;

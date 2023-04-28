@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NHResident {
     @Id
-    @Column(name = "resident_id")
+    @Column(name = "nhresident_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -36,9 +36,6 @@ public class NHResident {
 
     private String birth;
 
-    @Column(name = "is_approved")
-    private boolean isApproved = false;
-
     public static NHResident newNHResident(User user, String name, Facility facility, UserRole userRole, String birth, String healthInfo) {
         NHResident nhResident = new NHResident();
         nhResident.setName(name);
@@ -50,10 +47,6 @@ public class NHResident {
 
         user.addNHResident(nhResident);
         return nhResident;
-    }
-
-    public void approve() {
-        this.isApproved = true;
     }
 }
 

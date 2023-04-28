@@ -23,7 +23,9 @@ public class Invitation {
     private Facility facility;
 
     @NotNull
-    private String tel;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @CreatedDate
     private LocalDate dates;

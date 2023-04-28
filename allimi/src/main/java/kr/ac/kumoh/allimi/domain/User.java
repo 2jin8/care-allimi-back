@@ -20,12 +20,14 @@ public class User {
     private Long userId;
 
     @NotNull
-    private String id;
+    @Column(name = "login_id")
+    private String loginId;
 
     @NotNull
     private String passwords;
 
-    private String tel;
+    @Column(name = "phone_num")
+    private String phoneNum;
 
     @Column(name = "user_name")
     private String name; //보호자 이름
@@ -36,23 +38,23 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<NHResident> nhResident = new ArrayList<>();
 
+  private User(String loginId, String password, String phoneNum, String name) {
+    this.loginId = loginId;
+    this.passwords = password;
+    this.phoneNum = phoneNum;
+    this.name = name;
+  }
+
     public void changeCurrNHResident(int idx) {
         this.currentNHResident = idx;
-    }
-
-    private User(String id, String password, String tel, String name) {
-        this.id = id;
-        this.passwords = password;
-        this.tel = tel;
-        this.name = name;
     }
 
     public void addNHResident(NHResident nhResident) {
         this.nhResident.add(nhResident);
     }
 
-    public static User newUser(String id, String password, String name, String tel) {
-        User user = new User(id, password, tel, name);
+    public static User newUser(String id, String password, String name, String phoneNum) {
+        User user = new User(id, password, phoneNum, name);
         return user;
     }
 
