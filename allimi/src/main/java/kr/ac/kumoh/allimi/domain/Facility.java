@@ -33,4 +33,18 @@ public class Facility {
     public static Facility makeFacility(String name, String address, String tel, String fmName) {
         return new Facility(null, name, address, tel, fmName);
     }
+
+    public void edit(String name, String address, String tel, String fmName) {
+      if (name != null)
+        this.name = name;
+
+      if (address != null)
+        this.address = address;
+
+      if (tel != null)
+        this.tel = tel;
+
+      if (fmName != null)
+        this.fmName = fmName;
+    }
 }
