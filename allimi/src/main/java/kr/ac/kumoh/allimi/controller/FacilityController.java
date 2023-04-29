@@ -31,6 +31,12 @@ public class FacilityController {
   //시설 추가
   @PostMapping("/v2/facilities")
   public ResponseEntity addFacility(@RequestBody AddFacilityDTO dto) { // name, address, tel, fm_name
+
+    if (dto.getName() == null) {
+      log.info("FacilityController 시설추가: 시설 이름은 필수임");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
     Long facilityId;
 
     try {
