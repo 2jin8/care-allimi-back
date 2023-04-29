@@ -1,29 +1,37 @@
 package kr.ac.kumoh.allimi.controller;
 
+import kr.ac.kumoh.allimi.controller.response.ResponseResident;
+import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
+import kr.ac.kumoh.allimi.dto.nhresident.NHResidentEditDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
+import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
+import kr.ac.kumoh.allimi.service.FacilityService;
 import kr.ac.kumoh.allimi.service.NHResidentService;
 import kr.ac.kumoh.allimi.service.UserService;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-//시설장, 직원도 NHResident 추가가 필요함. role부여를 위해
 
-@RestController
+
+//시설장, 직원도 NHResident 추가가 필요함. role부여를 위해
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@Slf4j
+@RestController
 public class NHResidentController {
     @Autowired
     private final UserService userService;
@@ -31,92 +39,120 @@ public class NHResidentController {
 
     //새 입소자 추가 or 직원, 시설장 등록
     @PostMapping("/v2/nhResident")
-    public ResponseEntity addNHResident(@RequestBody NHResidentDTO dto) {
-        try {
-            userService.addNHResident(dto);
-        } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    public ResponseEntity addNHResident(@RequestBody NHResidentDTO dto) { // user_id, facility_id, resident_name, birth, user_role, health_info;
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+      if (dto.getUser_id() == null || dto.getFacility_id() == null) {
+        log.info("NHResident 추가: user_id가 null로 들어옴. 잘못된 요청");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
+
+      Long residentId;
+
+      try {
+        residentId = nhResidentService.addNHResident(dto);
+      } catch (UserException exception) {
+        log.info("NHResident 추가: user_id해당하는 user가 없음");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      } catch (FacilityException exception) {
+        log.info("NHResident 추가: facility_id해당하는 시설이 없음");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      } catch (Exception exception) {
+        log.info("NHResident 추가: facility_id해당하는 시설이 없음");
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
+
+      Map<String, Long> map = new HashMap<>();
+      map.put("resident_id", residentId);
+
+      return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
-    //입소자 삭제
+    //입소자 삭제 //잘못된 정보 입력 테스트
     @DeleteMapping("/v2/nhResident")
-    public ResponseEntity deleteResident(@RequestBody Map<String, Long> resident) {
-        try {
-            nhResidentService.deleteResident(resident.get("nhresident_id"));
-        } catch (Exception exception) { //nhresident를 찾을 수 없을 때
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    public ResponseEntity deleteResident(@RequestBody Map<String, Long> resident) { //nhresident_id
+      Long residentId = resident.get("nhresident_id");
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+      if (residentId == null) {
+        log.info("NHResidentController 입소자 삭제: nhresident_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
+
+      try {
+          nhResidentService.deleteResident(residentId);
+      } catch (Exception exception) { //nhresident를 찾을 수 없을 때
+        log.info("NHResidentController 입소자 삭제: 삭제 중 문제발생");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
+
+      return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    // 사용자의 (승인된) 입소자 리스트 출력
+    // 사용자의 입소자 리스트 출력
     @GetMapping("/v2/nhresdients/{user_id}")
-    public ResponseEntity nhresidentList(@PathVariable("user_id") Long userId) {
-        List<NHResidentResponse> nhResidentResponses;
+    public ResponseEntity nhresidentList(@PathVariable("user_id") Long userId) { //user_id
+      List<NHResidentResponse> nhResidentResponses;
 
-        try {
-            nhResidentResponses = userService.getNHResidents(userId);
-        } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+      try {
+          nhResidentResponses = userService.getNHResidents(userId);
+      } catch (UserException exception) {
+        log.info("NHResidentController 사용자 입소자 리스트 출력: user를 찾을 수 없음");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      } catch (Exception exception) {
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseResidentList(nhResidentResponses.size(), nhResidentResponses));
+      return ResponseEntity.status(HttpStatus.OK).body(new ResponseResidentList(nhResidentResponses.size(), nhResidentResponses));
+      // count, resident_list: {resident_id, acility_id, facility_name, resident_name, user_role};
     }
 
     @Getter
     @AllArgsConstructor
     public class ResponseResidentList {
         private int count;
-        private List<NHResidentResponse> userListDTO;
+        private List<NHResidentResponse> resident_list;
     }
+
+    // 시설 해당하는 모든 입소자 출력 - 관리자용
+  @GetMapping("/v2/nhresidents/admin/{facility_id}")
+  public ResponseEntity allResidentList(@PathVariable("facility_id") Long facilityId) {
+      if (facilityId == null) {
+        log.info("NHResidentController 모든 입소자 출력 - 관리자용: nhresident_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); 
+      }
+      
+    List<ResponseResident> facilitys;
+      
+      try {
+        facilitys = nhResidentService.findAllByFacility(facilityId);
+      }catch (Exception exception) {
+        log.info("NHResidentController 모든 입소자 출력 - 관리자용: nhresident 리스트 찾기 실패");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+
+    return ResponseEntity.status(HttpStatus.OK).body(facilitys);
+  }
 
     //입소자 수정
-    @PatchMapping("/v2/nhresidents/{resident_id}")
-    public void nhresidentEdit(@PathVariable("resident_id") Long residentId) {
-        //TODO
-    }
+    @PatchMapping("/v2/nhresidents") //resident_id
+    public ResponseEntity nhresidentEdit(@RequestBody NHResidentEditDTO editDTO) { //resident_id, resident_name, birth, health_info
 
-    // 사용자 모두 출력
-    @GetMapping("/v2/nhresdients/approval/{facility_id}")
-    public ResponseEntity approvedFalseList(@PathVariable("facility_id") Long facilityId) {
-        List<NHResidentResponse> responses = new ArrayList<>();
+      if (editDTO.getResident_id() == null) {
+        log.info("NHResidentController 입소자 수정: nhresident_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
 
-        try {
-            responses = nhResidentService.nhResidentList(facilityId);
-//            responses = nhResidentService.notApprovedList(facilityId); //is_approved = false인 사용자 모두 출력
-        } catch (Exception exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+      try {
+        nhResidentService.editNHResident(editDTO);
+      } catch (NHResidentException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      } catch (Exception exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
 
-        return ResponseEntity.status(HttpStatus.OK).body(responses);
-    }
+      // resident_id, resident_name, birth, health_info;
+      Map<String, Long> map = new HashMap<>();
+      map.put("resident_id", editDTO.getResident_id());
 
-    //승인해주기
-    @PostMapping("/v2/nhresidents/approval")
-    public ResponseEntity approve(@RequestBody Map<String, Long> data) {
-        Long approverId = data.get("approver_id"); //승인해주는 사람 resident_id
-        Long residentId = data.get("resident_id"); //승인받을 입소자 resident_id
-
-        if (approverId == null || residentId == null)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
-        try {
-            nhResidentService.approve(approverId, residentId);
-        } catch(NHResidentException exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //사용자를 찾을 수 없음
-        } catch(UserAuthException exception) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); //권한이 없는 사용자
-        } catch(Exception exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        Map<String, Long> map = new HashMap<>();
-        map.put("resident_id", residentId);
-
-        return ResponseEntity.status(HttpStatus.OK).body(map);
+      return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 }
