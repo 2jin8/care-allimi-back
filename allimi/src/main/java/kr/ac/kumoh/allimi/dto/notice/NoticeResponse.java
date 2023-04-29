@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -14,5 +15,5 @@ public class NoticeResponse {
     LocalDateTime create_date;
     String content;
     String sub_content;
-    String image_url;
+    List<String> image_url;
 }

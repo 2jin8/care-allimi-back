@@ -113,7 +113,7 @@ public class LetterController {
     return ResponseEntity.status(HttpStatus.OK).body(map);
   }
 
-  @GetMapping("/v2/notices/{resident_id}") // 한마디 목록
+  @GetMapping("/v2/letters/{resident_id}") // 한마디 목록
   public ResponseEntity noticeList(@PathVariable("resident_id") Long residentId) {
     if (residentId == null) {
       log.info("LetterController 한마디 목록보기: 필요한 값이 제대로 안들어옴. 사용자의 잘못된 입력");
