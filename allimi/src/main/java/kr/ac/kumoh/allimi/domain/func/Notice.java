@@ -38,10 +38,6 @@ public class Notice {
   private LocalDateTime createDate = LocalDateTime.now();
 
   @Lob
-  @Column(length = 5000)
-  private String title;
-
-  @Lob
   @Column(length = 100000)
   private String contents;
 
@@ -54,15 +50,13 @@ public class Notice {
   private List<Image> images = new ArrayList<>();
 
   public static Notice newNotice(@NotNull User user, @NotNull NHResident target, @NotNull Facility facility,
-                                 String title, String contents, String subContents, List<Image> images) {
+                                 String contents, String subContents) {
     Notice ntc = Notice.builder()
             .user(user)
             .nhResident(target)
             .facility(facility)
-            .title(title)
             .contents(contents)
             .subContents(subContents)
-            .images(images)
             .build();
 
       return ntc;
