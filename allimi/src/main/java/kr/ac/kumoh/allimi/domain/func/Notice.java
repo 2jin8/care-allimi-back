@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.domain.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class Notice {
   private Facility facility;
 
   @Column(name = "create_date")
+  @CreationTimestamp
   private LocalDateTime createDate = LocalDateTime.now();
 
   @Lob

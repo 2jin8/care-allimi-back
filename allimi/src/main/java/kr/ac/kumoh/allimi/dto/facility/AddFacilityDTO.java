@@ -1,5 +1,6 @@
 package kr.ac.kumoh.allimi.dto.facility;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
