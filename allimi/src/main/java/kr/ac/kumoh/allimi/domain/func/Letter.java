@@ -59,4 +59,13 @@ public class Letter {
 
     return letter;
   }
+
+  public void edit(NHResident resident, String contents) {
+    this.nhResident = resident;
+    this.contents = contents;
+  }
+
+  public void readCheck() {
+    this.isRead = true;
+  }
 }

@@ -1,6 +1,7 @@
 package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
+import kr.ac.kumoh.allimi.controller.response.ResponseResidentDetail;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.admin.AdminUserListDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
@@ -8,6 +9,7 @@ import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
 import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
 import kr.ac.kumoh.allimi.dto.user.UserListDTO;
 import kr.ac.kumoh.allimi.exception.FacilityException;
+import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.exception.user.UserIdDuplicateException;
@@ -47,17 +49,53 @@ public class UserService {
     return dtos;
   }
 
-    @Transactional
-    public Long addUser(SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
-        // ID 중복 체크
-        if (isDuplicateId(dto.getLogin_id()))
-            throw new UserIdDuplicateException("중복된 아이디 입니다");
+  @Transactional
+  public void changeNHResident(Long user_id, Long nhr_id) throws Exception {
+    User user = userRepository.findUserByUserId(user_id)
+            .orElseThrow(() -> new UserException("해당하는 user가 없습니다"));
 
-        User user = User.newUser(dto.getLogin_id(), dto.getPassword(), dto.getName(), dto.getPhone_num());
-        User saved = userRepository.save(user);
+    NHResident nhr = nhResidentRepository.findById(nhr_id)
+            .orElseThrow(() -> new NHResidentException("해당하는 입소자가 없습니다"));
 
-        return saved.getUserId();
+    List<NHResident> usersNHR = user.getNhResident();
+    if (!usersNHR.contains(nhr)) {
+      new NHResidentException("user에 해당하는 입소자가 없습니다");
     }
+
+    user.changeCurrNHResident(nhr_id);
+  }
+
+  @Transactional
+  public Long addUser(SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
+      // ID 중복 체크
+      if (isDuplicateId(dto.getLogin_id()))
+          throw new UserIdDuplicateException("중복된 아이디 입니다");
+
+      User user = User.newUser(dto.getLogin_id(), dto.getPassword(), dto.getName(), dto.getPhone_num());
+      User saved = userRepository.save(user);
+
+      return saved.getUserId();
+  }
+
+  public ResponseResidentDetail getCurrNHResident(Long userId) throws Exception {
+    User user = userRepository.findUserByUserId(userId)
+            .orElseThrow(() -> new UserException("user not found"));
+
+    NHResident nhResident = nhResidentRepository.findById(user.getCurrentNHResident())
+            .orElseThrow(() -> new NHResidentException("resident not found"));
+
+    Facility facility = nhResident.getFacility();
+
+    ResponseResidentDetail response = ResponseResidentDetail.builder()
+            .nhr_id(nhResident.getId())
+            .facility_id(facility.getId())
+            .resident_name(nhResident.getName())
+            .facility_name(facility.getName())
+            .user_role(nhResident.getUserRole())
+            .build();
+
+    return response;
+  }
 
   public Boolean isDuplicateId(String id) {
     User user = userRepository.findUserByLoginId(id).orElse(null);
@@ -69,7 +107,14 @@ public class UserService {
       User user = userRepository.findByLoginIdAndPasswords(loginId, password)
               .orElseThrow(() -> new UserAuthException("user not found"));
 
-      return new ResponseLogin(user.getUserId(), user.getUserRole());
+      if (user.getCurrentNHResident() == null) { //입소자가 한 명도 없음
+        return new ResponseLogin(user.getUserId(), null);
+      }
+
+      NHResident nhResident = nhResidentRepository.findById(user.getCurrentNHResident())
+              .orElseThrow(() -> new NHResidentException("입소자 찾기에서 오류가 발생"));
+
+      return new ResponseLogin(user.getUserId(), nhResident.getUserRole());
   }
 
   public UserListDTO getUserInfo(Long userId) throws Exception {

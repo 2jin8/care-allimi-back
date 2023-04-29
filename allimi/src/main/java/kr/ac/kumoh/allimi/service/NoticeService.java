@@ -32,9 +32,11 @@ public class NoticeService {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    if (user.getUserRole() != UserRole.MANAGER && user.getUserRole() != UserRole.WORKER) {
-      throw new UserAuthException("권한이 없는 사용자 입니다.");
-    }
+    UserRole userRole = userRepository.getUserRole(dto.getUser_id())
+            .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+
+    if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
+      new UserAuthException("권한이 없는 사용자");
 
     NHResident targetResident = nhResidentRepository.findById(dto.getNhresident_id())
             .orElseThrow(() -> new NHResidentException("target resident not found"));
