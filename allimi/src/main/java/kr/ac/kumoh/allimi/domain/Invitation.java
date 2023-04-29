@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDate;
 
@@ -27,5 +28,8 @@ public class Invitation {
     private User user;
 
     @CreatedDate
+    @CreationTimestamp
     private LocalDate dates;
+
+
 }

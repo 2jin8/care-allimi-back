@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class AllNotice {
   private Facility facility;
 
   @Column(name = "create_date")
+  @CreationTimestamp
   private LocalDateTime createDate = LocalDateTime.now();
 
   @Lob
