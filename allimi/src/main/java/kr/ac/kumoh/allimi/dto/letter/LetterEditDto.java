@@ -6,10 +6,10 @@ import lombok.Getter;
 //@Builder
 public class
 
-LetterWriteDto {
+LetterEditDto {
+    private Long letter_id;
     private Long user_id;
     private Long nhresident_id;
-    private Long facility_id;
     private String contents;
 
 }
