@@ -3,12 +3,14 @@ package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.domain.func.Letter;
 import kr.ac.kumoh.allimi.domain.func.Notice;
+import kr.ac.kumoh.allimi.dto.letter.LetterEditDto;
 import kr.ac.kumoh.allimi.dto.letter.LetterListDTO;
 import kr.ac.kumoh.allimi.dto.letter.LetterWriteDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.LetterException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
+import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,22 @@ public class LetterService {
 
     return savedLetter.getLetterId();
   }
+
+  public void edit(LetterEditDto dto) throws Exception {  // // letter_id, user_id, nhresident_id, contents
+    Letter letter = letterRepository.findByLetterId(dto.getLetter_id())
+            .orElseThrow(() -> new LetterException("letter를 찾을 수 없음"));
+
+    User user = letter.getUser();
+
+    if (!letter.getUser().equals(user))
+      new UserAuthException("권한이 없는 사용자입니다.");
+
+    NHResident resident = nhResidentRepository.findById(dto.getNhresident_id())
+            .orElseThrow(() -> new NHResidentException("resident를 찾을 수 없음"));
+
+    letter.edit(resident, dto.getContents());
+  }
+
 
   //한마디 목록보기
   @Transactional(readOnly = true)
@@ -105,21 +123,22 @@ public class LetterService {
     return letters;
   }
 
-//  //알림장 상세보기
-//  public NoticeResponse getDetail(Long noticeId) throws Exception {
-//    Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException("해당 알림장을 찾을 수 없습니다"));
-//    User user = notice.getUser();
-//
-//    return NoticeResponse.builder()
-//            .create_date(notice.getCreateDate())
-//            .user_id(user.getUserId())
-//            .notice_id(notice.getId())
-//            .sub_content(notice.getSubContents())
-//            .content(notice.getContents())
-//            .image_url(notice.getImageUrl())
-//            .build();
-//  }
-//
+  public void readCheck(Long userId, Long letterId) throws Exception {
+    User user = userRepository.findUserByUserId(userId)
+            .orElseThrow(() -> new UserException("해당하는 user가 없습니다"));
+
+    UserRole userRole = userRepository.getUserRole(userId)
+            .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+
+    if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
+      new UserAuthException("권한이 없는 사용자");
+
+    Letter letter = letterRepository.findById(letterId)
+            .orElseThrow(() -> new LetterException("해당하는 한마디가 없음"));
+
+    letter.readCheck();
+  }
+
 //  public void edit(NoticeEditDto editDto) throws Exception {
 //    Notice notice = noticeRepository.findById(editDto.getNotice_id())
 //            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));

@@ -3,7 +3,7 @@ import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.domain.func.Notice;
 import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
-import kr.ac.kumoh.allimi.dto.notice.NoticeResponse;
+import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +33,11 @@ public class NoticeService {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    if (user.getUserRole() != UserRole.MANAGER && user.getUserRole() != UserRole.WORKER) {
-      throw new UserAuthException("권한이 없는 사용자 입니다.");
-    }
+    UserRole userRole = userRepository.getUserRole(dto.getUser_id())
+            .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+
+    if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
+      new UserAuthException("권한이 없는 사용자");
 
     NHResident targetResident = nhResidentRepository.findById(dto.getNhresident_id())
             .orElseThrow(() -> new NHResidentException("target resident not found"));
@@ -135,10 +136,10 @@ public class NoticeService {
 
     User writer = notice.getUser();
 
-    User user = userRepository.findUserByUserId(editDto.getUser_id())
-            .orElseThrow(()-> new UserException("없는 사용자입니다"));
+    UserRole userRole = userRepository.getUserRole(editDto.getUser_id())
+            .orElseThrow(() -> new UserException("userRole이 잘못됨"));
 
-    if (writer.getUserId() != editDto.getUser_id() && user.getUserRole() != UserRole.MANAGER)
+    if (writer.getUserId() != editDto.getUser_id() && userRole != UserRole.MANAGER)
       throw new UserException("권한이 없는 사용자 입니다");
 
     NHResident targetResident = nhResidentRepository.findById(editDto.getResident_id())

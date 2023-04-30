@@ -2,7 +2,7 @@ package kr.ac.kumoh.allimi.controller;
 
 import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
-import kr.ac.kumoh.allimi.dto.notice.NoticeResponse;
+import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
@@ -19,10 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
-@RestController
 @RequiredArgsConstructor
-@Slf4j
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@Slf4j
+@RestController
 public class NoticeController { 
   private final NoticeService noticeService;
   
@@ -46,6 +46,7 @@ public class NoticeController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     } catch (Exception e) { //알림장 쓰기 실패
       log.info("NoticeController 알림장 작성: 알림장 쓰기 실패");
+      System.out.println(e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
@@ -101,7 +102,7 @@ public class NoticeController {
     if (noticeId == null)
       return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
 
-    Long deletedCnt = noticeService.delete(notice.get("notice_id"));
+    Long deletedCnt = noticeService.delete(noticeId);
 
     if (deletedCnt == 0)
       return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();

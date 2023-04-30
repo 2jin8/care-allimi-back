@@ -10,9 +10,7 @@ import java.util.Optional;
 
 public interface NHResidentRepository extends JpaRepository<NHResident, Long> {
 
-//    Optional<List> findByFacilityId(Long facilityId);
-
-    Optional<NHResident> findById(Long targetId);
+//    Optional<NHResident> findById(Long targetId);
 
     @Query(value="select * from users where user_id = ?1", nativeQuery = true)
     Optional<List<NHResident>> findByUserId(Long userId);
