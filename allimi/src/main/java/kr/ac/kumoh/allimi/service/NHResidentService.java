@@ -43,6 +43,8 @@ public class NHResidentService {
         NHResident nhResident = NHResident.newNHResident(user, facility, dto.getResident_name(), dto.getUser_role(), dto.getBirth(), dto.getHealth_info());
         nhResidentRepository.save(nhResident);
 
+        user.changeCurrNHResident(nhResident.getId());
+
         return nhResident.getId();
     }
 

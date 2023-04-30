@@ -1,5 +1,6 @@
 package kr.ac.kumoh.allimi.controller;
 import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
+import kr.ac.kumoh.allimi.controller.response.ResponseResidentDetail;
 import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.admin.AdminUserListDTO;
 import kr.ac.kumoh.allimi.dto.user.LoginDTO;
@@ -27,43 +28,94 @@ import java.util.Map;
 @Slf4j
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
-    private final UserService userService;
-    private final NHResidentService nhResidentService;
+  private final UserService userService;
+  private final NHResidentService nhResidentService;
 
-    //전체 user조회 - 관리자용
-    @GetMapping("/v2/users/admin")
-    public ResponseEntity getAllUser() {
-      List<AdminUserListDTO> dtos = null;
+  //전체 user조회 - 관리자용
+  @GetMapping("/v2/users/admin")
+  public ResponseEntity getAllUser() {
+    List<AdminUserListDTO> dtos = null;
+    try {
+      dtos = userService.getAllUser();
+    }catch (Exception exception) {
+      log.info("관리자 전체 user조회: 조회 중 문제가 생김");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(dtos);
+  }
+
+  //현재 가리키는 nhresident 변경
+  @PatchMapping("/v2/users/nhrs")
+  public ResponseEntity changeNHResident(@RequestBody Map<String, Long> input) {
+
+    Long userId = input.get("user_id");
+    Long nhrId = input.get("nhr_id");
+
+    if (userId == null || nhrId == null) {
+      log.info("UserController 현재 user의 nhresident 변경: nhr_id 혹은 user_id가 null로 들어옴. 잘못된 요청");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    try {
+      userService.changeNHResident(userId, nhrId);
+    } catch (UserException exception) {
+      log.info("UserController 현재 user의 nhresident 변경: 해당하는 user가 없음");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (Exception exception) {
+      log.info("UserController 현재 user의 nhresident 변경: 변경 중 문제가 생김");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
+  //현재 user의 nhresident를 반환
+  @GetMapping("/v2/users/nhrs/{user_id}")
+  public ResponseEntity getUsersCurrNHR(@PathVariable("user_id") Long userId) { //user_id
+    if (userId == null) {
+      log.info("UserController 현재 user의 nhresident 반환: nhr_id 혹은 user_id가 null로 들어옴. 잘못된 요청");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    ResponseResidentDetail response;
+
+    try {
+      response = userService.getCurrNHResident(userId);
+    }catch (Exception exception) {
+      log.info("UserController 현재 user의 nhresident 반환: 문제가 생김");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+    
+    return ResponseEntity.status(HttpStatus.OK).body(response); // nhr_id, facility_id resident_name, facility_name, user_role;
+  }
+
+  //회원가입
+  @PostMapping("/v2/users")
+  public ResponseEntity addUser(@RequestBody SignUpDTO dto) { // login_id, password, name, phone_num;
+
+    if(dto.getLogin_id() == null || dto.getPassword() == null || dto.getName() == null) {
+      log.info("UserController 회원가입: 필수적인 정보가 들어오지 않음");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+      Long userId;
+
       try {
-        dtos = userService.getAllUser();
-      }catch (Exception exception) {
-        log.info("관리자 전체 user조회: 조회 중 문제가 생김");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+          userId = userService.addUser(dto);
+      } catch(UserIdDuplicateException exception) { //중복된 id 에러
+        log.info("회원가입: 중복된 id로 회원가입");
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      } catch(Exception exception) { //그냥 에러
+        log.info("회원가입: 회원가입하는데 exception이 발생");
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
       }
 
-      return ResponseEntity.status(HttpStatus.OK).body(dtos);
-    }
+      Map<String, Long> map = new HashMap<>();
+      map.put("user_id", userId);
 
-    //회원가입
-    @PostMapping("/v2/users")
-    public ResponseEntity addUser(@RequestBody SignUpDTO dto) { // login_id, password, name, phone_num;
-        Long userId;
-
-        try {
-            userId = userService.addUser(dto);
-        } catch(UserIdDuplicateException exception) { //중복된 id 에러
-          log.info("회원가입: 중복된 id로 회원가입");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } catch(Exception exception) { //그냥 에러
-          log.info("회원가입: 회원가입하는데 exception이 발생");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        Map<String, Long> map = new HashMap<>();
-        map.put("user_id", userId);
-
-        return ResponseEntity.status(HttpStatus.OK).body(map); // user_id
-    }
+      return ResponseEntity.status(HttpStatus.OK).body(map); // user_id
+  }
 
     @PostMapping("/v2/login") // 로그인
     public ResponseEntity login(@RequestBody LoginDTO dto) {  // login_id, password

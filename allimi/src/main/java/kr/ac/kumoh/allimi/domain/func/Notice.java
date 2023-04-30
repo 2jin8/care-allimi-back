@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@Entity
 public class Notice {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,19 +68,22 @@ public class Notice {
   this.nhResident = nhResident;
   }
 
-  public void addImages(List<Image> images) {
-      this.images = images;
-  }
+    public void addImages(List<Image> images) {
+        this.images = images;
+    }
 
-      public void editNotice(NHResident target, String contents, String subContents, String[] imageUrls) {
-          setNhResident(target);
-          this.contents = contents;
-          this.subContents = subContents;
+  public void editNotice(NHResident target, String contents, String subContents, List<String> imageUrls) {
+      setNhResident(target);
+      this.contents = contents;
+      this.subContents = subContents;
 
-          this.images = null;
-          for(String url: imageUrls) {
-              Image i = Image.newNoticeImage(this, url);
-              this.images.add(i);
-          }
+      this.images = null;
+
+      List<Image> imageList = new ArrayList<>();
+      for (String imageUrl : imageUrls) {
+          Image i = Image.newNoticeImage(this, imageUrl);
+          imageList.add(i);
       }
+      this.images = imageList;
+  }
 }

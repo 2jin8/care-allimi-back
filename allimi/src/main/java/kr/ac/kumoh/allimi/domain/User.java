@@ -33,7 +33,7 @@ public class User {
     private String name; //보호자 이름
 
     @Column(name = "current_nhresident")
-    private int currentNHResident = 0;
+    private Long currentNHResident;
 
     @OneToMany(mappedBy = "user")
     private List<NHResident> nhResident = new ArrayList<>();
@@ -45,8 +45,8 @@ public class User {
     this.name = name;
   }
 
-    public void changeCurrNHResident(int idx) {
-        this.currentNHResident = idx;
+    public void changeCurrNHResident(Long residentId) {
+        this.currentNHResident = residentId;
     }
 
     public void addNHResident(NHResident nhResident) {
@@ -58,7 +58,7 @@ public class User {
         return user;
     }
 
-    public UserRole getUserRole() {
-        return this.nhResident.get(this.getCurrentNHResident()).getUserRole();
-    }
+//    public UserRole getUserRole() {
+//        return this.nhResident.get(this.getCurrentNHResident()).getUserRole();
+//    }
 }
