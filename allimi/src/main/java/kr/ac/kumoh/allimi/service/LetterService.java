@@ -138,7 +138,7 @@ public class LetterService {
 
     letter.readCheck();
   }
-  
+
 //  public void edit(NoticeEditDto editDto) throws Exception {
 //    Notice notice = noticeRepository.findById(editDto.getNotice_id())
 //            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));

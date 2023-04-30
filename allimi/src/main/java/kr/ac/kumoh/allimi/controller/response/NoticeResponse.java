@@ -1,4 +1,4 @@
-package kr.ac.kumoh.allimi.dto.notice;
+package kr.ac.kumoh.allimi.controller.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
