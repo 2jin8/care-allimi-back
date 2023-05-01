@@ -33,8 +33,10 @@ public class NoticeService {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    UserRole userRole = userRepository.getUserRole(dto.getUser_id())
+    List<UserRole> userRoleList = userRepository.getUserRole(dto.getUser_id())
             .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+
+    UserRole userRole = userRoleList.get(0);
 
     if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
       new UserAuthException("권한이 없는 사용자");
@@ -48,14 +50,21 @@ public class NoticeService {
     Notice notice = Notice.newNotice(user, targetResident, facility, dto.getContents(), dto.getSub_contents());
 
     List<Image> images = new ArrayList<>();
-    for (MultipartFile file : files) {
-      if (!file.isEmpty()) {
-        String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
-        Image image = Image.newNoticeImage(notice, url);
-        images.add(image);
-        imageRepository.save(image);
+
+    if (files != null) {
+
+      for (MultipartFile file : files) {
+        if (!file.isEmpty()) {
+          String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
+          Image image = Image.newNoticeImage(notice, url);
+          images.add(image);
+          imageRepository.save(image);
+        }
       }
+    }else {
+      System.out.println("@@@@@@@@@@@@@@@@@@ file null");
     }
+
 
     notice.addImages(images);
     Notice savedNotice = noticeRepository.save(notice);
@@ -136,8 +145,10 @@ public class NoticeService {
 
     User writer = notice.getUser();
 
-    UserRole userRole = userRepository.getUserRole(editDto.getUser_id())
+    List<UserRole> userRoleList = userRepository.getUserRole(editDto.getUser_id())
             .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+
+    UserRole userRole = userRoleList.get(0);
 
     if (writer.getUserId() != editDto.getUser_id() && userRole != UserRole.MANAGER)
       throw new UserException("권한이 없는 사용자 입니다");
