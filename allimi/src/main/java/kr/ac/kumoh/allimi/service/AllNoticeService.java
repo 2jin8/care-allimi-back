@@ -40,11 +40,13 @@ public class AllNoticeService {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    UserRole userRole = userRepository.getUserRole(dto.getUser_id())
+    List<UserRole> userRole = userRepository.getUserRoles(dto.getUser_id())
             .orElseThrow(() -> new UserException("userRole이 잘못됨"));
 
-    if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
-      new UserAuthException("권한이 없는 사용자");
+    for (UserRole role : userRole) {
+      if (role != UserRole.MANAGER && role != UserRole.WORKER)
+        throw new UserAuthException("권한이 없는 사용자");
+    }
 
     Facility facility = facilityRepository.findById(dto.getFacility_id())
             .orElseThrow(() -> new FacilityException("facility not found"));
@@ -102,11 +104,13 @@ public class AllNoticeService {
     User user = userRepository.findUserByUserId(editDto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    UserRole userRole = userRepository.getUserRole(editDto.getUser_id())
+    List<UserRole> userRole = userRepository.getUserRoles(editDto.getUser_id())
             .orElseThrow(() -> new UserException("userRole이 잘못됨"));
 
-    if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
-      new UserAuthException("권한이 없는 사용자");
+    for (UserRole role : userRole) {
+      if (role != UserRole.MANAGER && role != UserRole.WORKER)
+        throw new UserAuthException("권한이 없는 사용자");
+    }
 
     AllNotice allNotice = allNoticeRepository.findById(editDto.getAllnotice_id())
             .orElseThrow(() -> new AllNoticeException("전체공지를 찾을 수 없습니다"));
