@@ -48,13 +48,12 @@ public class UserController {
   //현재 가리키는 nhresident 변경
   @PatchMapping("/v2/users/nhrs")
   public ResponseEntity changeNHResident(@RequestBody Map<String, Long> input) {
-
     Long userId = input.get("user_id");
     Long nhrId = input.get("nhr_id");
 
     if (userId == null || nhrId == null) {
       log.info("UserController 현재 user의 nhresident 변경: nhr_id 혹은 user_id가 null로 들어옴. 잘못된 요청");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     try {
@@ -70,12 +69,12 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  //현재 user의 nhresident를 반환
+  //user가 현재 가리키는 nhresident를 반환
   @GetMapping("/v2/users/nhrs/{user_id}")
   public ResponseEntity getUsersCurrNHR(@PathVariable("user_id") Long userId) { //user_id
     if (userId == null) {
       log.info("UserController 현재 user의 nhresident 반환: nhr_id 혹은 user_id가 null로 들어옴. 잘못된 요청");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     ResponseResidentDetail response;
@@ -117,66 +116,70 @@ public class UserController {
       return ResponseEntity.status(HttpStatus.OK).body(map); // user_id
   }
 
-    @PostMapping("/v2/login") // 로그인
-    public ResponseEntity login(@RequestBody LoginDTO dto) {  // login_id, password
-        ResponseLogin responseLogin;
+  @PostMapping("/v2/login") // 로그인
+  public ResponseEntity login(@RequestBody LoginDTO dto) {  // login_id, password
+      ResponseLogin responseLogin;
 
-        try {
-            responseLogin = userService.login(dto.getLogin_id(), dto.getPassword());
-        } catch (Exception exception) {
-          log.info("일치하는 id, password가 없거나 로그인 중 에러 발생");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); //해당 id password 일치하는 게 없음
-        }
+      try {
+          responseLogin = userService.login(dto.getLogin_id(), dto.getPassword());
+      } catch (UserAuthException exception) {
+        log.info("일치하는 id, password가 없거나 로그인 중 에러 발생");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); //해당 id password 일치하는 게 없음
+      } catch (Exception exception) {
+        log.info("UserController 로그인: 로그인 중 에러 발생");
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //해당 id password 일치하는 게 없음
+      } 
 
-        return ResponseEntity.status(HttpStatus.OK).body(responseLogin);  //user_id, userRole
-    }
+      return ResponseEntity.status(HttpStatus.OK).body(responseLogin);  //user_id, userRole
+  }
 
-    @GetMapping("/v2/users/{user_id}") // 사용자 정보 조회
-    public ResponseEntity userInfo(@PathVariable("user_id") Long userId) { // user_id
-        if (userId == null) {
-          log.info("사용자 정보조회: user_id가 null로 들어옴. 잘못된 요청");
-          return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        UserListDTO userListDTO;
-
-        try {
-            userListDTO = userService.getUserInfo(userId);
-        } catch (UserException exception) {
-          log.info("사용자 정보 조회: 일치하는 user가 없음");
-          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //user가 없는 경우
-        } catch (Exception exception) {
-          log.info("사용자 정보 조회: user조회 중 에러 발생");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //user가 없는 경우
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(userListDTO); // user_name, phone_num, login_id;
-    }
-
-    @DeleteMapping("/v1/users") // 회원 탈퇴
-    public ResponseEntity deleteUser(@RequestBody Map<String, Long> user) { //user_id
-      Long userId = user.get("user_id");
-
+  @GetMapping("/v2/users/{user_id}") // 사용자 정보 조회
+  public ResponseEntity userInfo(@PathVariable("user_id") Long userId) { // user_id
       if (userId == null) {
-        log.info("회원 탈퇴: user_id가 null로 들어옴. 잘못된 요청");
+        log.info("사용자 정보조회: user_id가 null로 들어옴. 잘못된 요청");
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
       }
 
-        try {
-            userService.deleteUser(userId);
-        } catch (Exception exception) { //user를 찾을 수 없을 때
-          log.info("회원 탈퇴: 해당하는 user를 찾을 수 없음");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+      UserListDTO userListDTO;
 
-        return ResponseEntity.status(HttpStatus.OK).build(); //none
+      try {
+          userListDTO = userService.getUserInfo(userId);
+      } catch (UserException exception) {
+        log.info("사용자 정보 조회: 일치하는 user가 없음");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //user가 없는 경우
+      } catch (Exception exception) {
+        log.info("사용자 정보 조회: user조회 중 에러 발생");
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //user가 없는 경우
+      }
+
+      return ResponseEntity.status(HttpStatus.OK).body(userListDTO); // user_name, phone_num, login_id;
+  }
+
+  // 회원 탈퇴
+  @DeleteMapping("/v1/users")
+  public ResponseEntity deleteUser(@RequestBody Map<String, Long> user) { //user_id
+    Long userId = user.get("user_id");
+
+    if (userId == null) {
+      log.info("회원 탈퇴: user_id가 null로 들어옴. 잘못된 요청");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @PostMapping("/v2/logout") // 로그아웃 - 그냥 프론트 단에서 처리해도 될듯
-    public ResponseEntity logout(@RequestBody Map<String, Long> user) { //user_id
-//        TODO: 로그아웃
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
+      try {
+          userService.deleteUser(userId);
+      } catch (Exception exception) { //user를 찾을 수 없을 때
+        log.info("회원 탈퇴: 해당하는 user를 찾을 수 없음");
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
+
+      return ResponseEntity.status(HttpStatus.OK).build(); //none
+  }
+
+  @PostMapping("/v2/logout") // 로그아웃 - 그냥 프론트 단에서 처리해도 될듯
+  public ResponseEntity logout(@RequestBody Map<String, Long> user) { //user_id
+    // TODO: 로그아웃
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
 }
 
 
