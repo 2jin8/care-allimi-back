@@ -13,6 +13,7 @@ import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
+import kr.ac.kumoh.allimi.repository.InvitationRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class NHResidentService {
     private final NHResidentRepository nhResidentRepository;
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
+    private final InvitationRepository invitationRepository;
 
     @Transactional
     public Long addNHResident(NHResidentDTO dto) throws Exception { // user_id, facility_id, resident_name, birth, user_role, health_info;
@@ -68,6 +70,25 @@ public class NHResidentService {
                     .orElseThrow(() -> new NHResidentException("해당하는 resident가 없음"));
 
     nhResident.edit(dto.getResident_name(), dto.getBirth(), dto.getHealth_info());
+  }
+
+  public List<ResponseResident> findProtectorByFacility(Long facilityId) throws Exception {
+    List<NHResident> residents = nhResidentRepository.findProtectorByFacilityId(facilityId)
+            .orElseThrow(() -> new NHResidentException("입소자 리스트 찾기 실패"));
+
+    List<ResponseResident> list = new ArrayList<>();
+
+    for (NHResident r: residents) {
+      list.add(ResponseResident
+              .builder()
+              .id(r.getId())
+              .user_id(r.getUser().getUserId())
+              .name(r.getName())
+              .user_role(r.getUserRole())
+              .build());
+    }
+
+    return list;
   }
 
   public List<ResponseResident> findAllByFacility(Long facilityId) throws Exception {

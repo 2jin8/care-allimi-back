@@ -9,13 +9,13 @@ import lombok.ToString;
 @ToString
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AdminUserListDTO {
+public class UserListDTO {
   private Long user_id;
     private String user_name;
     private String phone_num;
     private String login_id;
 
-    public AdminUserListDTO(Long userId, String userName, String phoneNum, String loginId) {
+    public UserListDTO(Long userId, String userName, String phoneNum, String loginId) {
       this.user_id = userId;
         this.user_name = userName;
         this.phone_num = phoneNum;

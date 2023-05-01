@@ -10,6 +10,7 @@ import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.service.FacilityService;
+import kr.ac.kumoh.allimi.service.InvitationService;
 import kr.ac.kumoh.allimi.service.NHResidentService;
 import kr.ac.kumoh.allimi.service.UserService;
 import lombok.AllArgsConstructor;
@@ -36,6 +37,7 @@ public class NHResidentController {
     @Autowired
     private final UserService userService;
     private final NHResidentService nhResidentService;
+    private final InvitationService invitationService;
 
     //새 입소자 추가 or 직원, 시설장 등록 
     @PostMapping("/v2/nhResidents")
@@ -44,6 +46,13 @@ public class NHResidentController {
       if (dto.getUser_id() == null || dto.getFacility_id() == null) {
         log.info("NHResident 추가: user_id가 null로 들어옴. 잘못된 요청");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
+      
+      for (UserRole userRole : UserRole.values()) {
+        if (!userRole.name().equals(dto.getUser_role())) {
+          log.info("NHResident 추가: userRole이 올바른 값이 안들어옴. 잘못된 요청");
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
       }
 
       Long residentId;
@@ -97,8 +106,12 @@ public class NHResidentController {
     }
 
     // 사용자의 입소자 리스트 출력
-    @GetMapping("/v2/nhresdients/{user_id}")
+    @GetMapping("/v2/nhResidents/{user_id}")
     public ResponseEntity nhresidentList(@PathVariable("user_id") Long userId) { //user_id
+
+      if (userId == null)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
       List<NHResidentResponse> nhResidentResponses;
 
       try {
@@ -121,28 +134,48 @@ public class NHResidentController {
         private List<NHResidentResponse> resident_list;
     }
 
-    // 시설 해당하는 모든 입소자 출력
-  @GetMapping("/v2/nhresidents/{facility_id}")
-  public ResponseEntity allResidentList(@PathVariable("facility_id") Long facilityId) {
+    // 시설에 포함된 모든 protector 출력
+    @GetMapping("/v2/nhResidents/protectors/{facility_id}")
+    public ResponseEntity protectorList(@PathVariable("facility_id") Long facilityId) {
       if (facilityId == null) {
-        log.info("NHResidentController 모든 입소자 출력 - 관리자용: nhresident_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); 
+        log.info("NHResidentController 모든 보호자 출력: nhresident_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
       }
-      
-    List<ResponseResident> facilitys;
-      
+
+      List<ResponseResident> facilitys;
+
       try {
-        facilitys = nhResidentService.findAllByFacility(facilityId);
+        facilitys = nhResidentService.findProtectorByFacility(facilityId);
       }catch (Exception exception) {
-        log.info("NHResidentController 모든 입소자 출력 - 관리자용: nhresident 리스트 찾기 실패");
+        log.info("NHResidentController 모든 보호자 출력: nhresident 리스트 찾기 실패");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
       }
 
-    return ResponseEntity.status(HttpStatus.OK).body(facilitys);
-  }
+      return ResponseEntity.status(HttpStatus.OK).body(facilitys);
+    }
+
+    // 시설 해당하는 모든 입소자 출력
+    @GetMapping("/v2/nhResidents/{facility_id}")
+    public ResponseEntity allResidentList(@PathVariable("facility_id") Long facilityId) {
+        if (facilityId == null) {
+          log.info("NHResidentController 모든 입소자 출력 - 관리자용: nhresident_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+      List<ResponseResident> facilitys;
+
+        try {
+          facilitys = nhResidentService.findAllByFacility(facilityId);
+        }catch (Exception exception) {
+          log.info("NHResidentController 모든 입소자 출력 - 관리자용: nhresident 리스트 찾기 실패");
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+      return ResponseEntity.status(HttpStatus.OK).body(facilitys);
+    }
 
     //입소자 수정
-    @PatchMapping("/v2/nhresidents") //resident_id
+    @PatchMapping("/v2/nhResidents") //resident_id
     public ResponseEntity nhresidentEdit(@RequestBody NHResidentEditDTO editDTO) { //resident_id, resident_name, birth, health_info
 
       if (editDTO.getResident_id() == null) {
@@ -155,7 +188,7 @@ public class NHResidentController {
       } catch (NHResidentException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
       } catch (Exception exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
       }
 
       // resident_id, resident_name, birth, health_info;
