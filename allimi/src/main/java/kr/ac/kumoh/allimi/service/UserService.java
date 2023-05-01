@@ -3,12 +3,9 @@ package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
 import kr.ac.kumoh.allimi.controller.response.ResponseResidentDetail;
 import kr.ac.kumoh.allimi.domain.*;
-import kr.ac.kumoh.allimi.dto.admin.AdminUserListDTO;
-import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
+import kr.ac.kumoh.allimi.dto.admin.UserListDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
 import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
-import kr.ac.kumoh.allimi.dto.user.UserListDTO;
-import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
@@ -32,12 +29,12 @@ public class UserService {
     private final NHResidentRepository nhResidentRepository;
 
 
-  public List<AdminUserListDTO> getAllUser() throws Exception {
+  public List<UserListDTO> getAllUser() throws Exception {
     List<User> users = userRepository.findAll();
-    List<AdminUserListDTO> dtos  = new ArrayList<>();
+    List<UserListDTO> dtos  = new ArrayList<>();
 
     for (User user : users) {
-      dtos.add(AdminUserListDTO.builder()
+      dtos.add(UserListDTO.builder()
               .user_id(user.getUserId())
               .user_name(user.getName())
               .phone_num(user.getPhoneNum())
@@ -49,6 +46,24 @@ public class UserService {
     return dtos;
   }
 
+  public List<UserListDTO> getUserByPhoneNum(String phoneNum) throws Exception {
+    List<User> users = userRepository.findByPhoneNum(phoneNum)
+            .orElseThrow(() -> new UserException("해당 휴대폰번호인 user가 없음"));
+    List<UserListDTO> dtos  = new ArrayList<>();
+
+    for (User user : users) {
+      dtos.add(UserListDTO.builder()
+              .user_id(user.getUserId())
+              .user_name(user.getName())
+              .phone_num(user.getPhoneNum())
+              .login_id(user.getLoginId())
+              .build()
+      );
+    }
+
+    return dtos;
+  }
+  
   @Transactional
   public void changeNHResident(Long user_id, Long nhr_id) throws Exception {
     User user = userRepository.findUserByUserId(user_id)
@@ -130,11 +145,11 @@ public class UserService {
       return new ResponseLogin(user.getUserId(), nhResident.getUserRole());
   }
 
-  public UserListDTO getUserInfo(Long userId) throws Exception {
+  public kr.ac.kumoh.allimi.dto.user.UserListDTO getUserInfo(Long userId) throws Exception {
     User user = userRepository.findUserByUserId(userId)
             .orElseThrow(() -> new UserException("해당 user가 없습니다"));
 
-    UserListDTO userListDTO = UserListDTO.builder()
+    kr.ac.kumoh.allimi.dto.user.UserListDTO userListDTO = kr.ac.kumoh.allimi.dto.user.UserListDTO.builder()
             .user_name(user.getName())
             .phone_num(user.getPhoneNum())
             .login_id(user.getLoginId())

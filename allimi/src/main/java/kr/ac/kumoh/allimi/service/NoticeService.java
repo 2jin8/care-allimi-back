@@ -29,7 +29,7 @@ public class NoticeService {
   private final ImageRepository imageRepository;
   private final S3Service s3Service;
 
-  public void write(NoticeWriteDto dto, List<MultipartFile> files) throws Exception {  // notice{user_id, nhresident_id, facility_id, contents, sub_contents}, file{}
+  public Long write(NoticeWriteDto dto, List<MultipartFile> files) throws Exception {  // notice{user_id, nhresident_id, facility_id, contents, sub_contents}, file{}
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
@@ -52,7 +52,6 @@ public class NoticeService {
     List<Image> images = new ArrayList<>();
 
     if (files != null) {
-
       for (MultipartFile file : files) {
         if (!file.isEmpty()) {
           String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
@@ -65,12 +64,13 @@ public class NoticeService {
       System.out.println("@@@@@@@@@@@@@@@@@@ file null");
     }
 
-
     notice.addImages(images);
     Notice savedNotice = noticeRepository.save(notice);
 
     if (savedNotice == null)
       throw new NoticeException("알림장 저장 실패");
+
+    return savedNotice.getNoticeId();
   }
 
   //알림장 목록보기
@@ -139,7 +139,7 @@ public class NoticeService {
             .build();
   }
 
-  public void edit(NoticeEditDto editDto, List<MultipartFile> files) throws Exception {
+  public Long edit(NoticeEditDto editDto, List<MultipartFile> files) throws Exception {
     Notice notice = noticeRepository.findNoticeByNoticeId(editDto.getNotice_id())
             .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
 
@@ -176,6 +176,8 @@ public class NoticeService {
     }
 
     notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), images_url);
+
+    return notice.getNoticeId();
   }
 
   public Long delete(Long notice_id) {
