@@ -20,5 +20,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<List<UserRole>> getUserRoles(Long userId);
 
   @Query(value="select user_role from nhresident where user_id = ?1", nativeQuery = true)
-  Optional<UserRole> getUserRole(Long userId);
+  Optional<List<UserRole>> getUserRole(Long userId);
 }

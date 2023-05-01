@@ -127,8 +127,10 @@ public class LetterService {
     User user = userRepository.findUserByUserId(userId)
             .orElseThrow(() -> new UserException("해당하는 user가 없습니다"));
 
-    UserRole userRole = userRepository.getUserRole(userId)
+    List<UserRole> userRoleList = userRepository.getUserRole(userId)
             .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+
+    UserRole userRole = userRoleList.get(0);
 
     if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
       new UserAuthException("권한이 없는 사용자");
