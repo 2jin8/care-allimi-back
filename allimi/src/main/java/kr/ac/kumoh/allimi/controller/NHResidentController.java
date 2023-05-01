@@ -37,8 +37,8 @@ public class NHResidentController {
     private final UserService userService;
     private final NHResidentService nhResidentService;
 
-    //새 입소자 추가 or 직원, 시설장 등록
-    @PostMapping("/v2/nhResident")
+    //새 입소자 추가 or 직원, 시설장 등록 
+    @PostMapping("/v2/nhResidents")
     public ResponseEntity addNHResident(@RequestBody NHResidentDTO dto) { // user_id, facility_id, resident_name, birth, user_role, health_info;
 
       if (dto.getUser_id() == null || dto.getFacility_id() == null) {
@@ -57,8 +57,8 @@ public class NHResidentController {
         log.info("NHResident 추가: facility_id해당하는 시설이 없음");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
       } catch (Exception exception) {
-        log.info("NHResident 추가: facility_id해당하는 시설이 없음");
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        log.info("NHResident 추가: 그냥 오류남");
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
       }
 
       Map<String, Long> map = new HashMap<>();
@@ -67,21 +67,30 @@ public class NHResidentController {
       return ResponseEntity.status(HttpStatus.OK).body(map);
     }
 
-    //입소자 삭제 //잘못된 정보 입력 테스트
-    @DeleteMapping("/v2/nhResident")
+    //입소자 삭제 //잘못된 정보 입력 테스트 - 개선이 필요할듯
+    @DeleteMapping("/v2/nhResidents")
     public ResponseEntity deleteResident(@RequestBody Map<String, Long> resident) { //nhresident_id
+      Long userId = resident.get("user_id");
       Long residentId = resident.get("nhresident_id");
 
-      if (residentId == null) {
-        log.info("NHResidentController 입소자 삭제: nhresident_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
+      if (residentId == null || userId == null) {
+        log.info("NHResidentController 입소자 삭제: 값이 제대로 안들어옴. 사용자의 잘못된 입력");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
       }
 
+      List<NHResidentResponse> nhResidentResponses;
+
       try {
-          nhResidentService.deleteResident(residentId);
+        nhResidentService.deleteResident(residentId);
+        nhResidentResponses = userService.getNHResidents(userId);
+        if (nhResidentResponses == null) {
+          userService.setNHResidentNull(userId);
+        } else {
+          userService.changeNHResident(userId, nhResidentResponses.get(0).getResident_id());
+        }
       } catch (Exception exception) { //nhresident를 찾을 수 없을 때
         log.info("NHResidentController 입소자 삭제: 삭제 중 문제발생");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
       }
 
       return ResponseEntity.status(HttpStatus.OK).build();
@@ -112,8 +121,8 @@ public class NHResidentController {
         private List<NHResidentResponse> resident_list;
     }
 
-    // 시설 해당하는 모든 입소자 출력 - 관리자용
-  @GetMapping("/v2/nhresidents/admin/{facility_id}")
+    // 시설 해당하는 모든 입소자 출력
+  @GetMapping("/v2/nhresidents/{facility_id}")
   public ResponseEntity allResidentList(@PathVariable("facility_id") Long facilityId) {
       if (facilityId == null) {
         log.info("NHResidentController 모든 입소자 출력 - 관리자용: nhresident_id값이 제대로 안들어옴. 사용자의 잘못된 입력");

@@ -17,6 +17,8 @@ import kr.ac.kumoh.allimi.repository.NHResidentRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,8 +52,14 @@ public class NHResidentService {
 
     @Transactional
     public void deleteResident(Long residentId) throws Exception { // 입소자 삭제
-        //user삭제하면 resident는 null로 설정된다!
-        nhResidentRepository.deleteById(residentId);
+//      NHResident resident = nhResidentRepository.findById(residentId)
+//              .orElseThrow(() -> new NHResidentException("해당하는 입소자가 없음"));
+//      User user = resident.getUser();
+
+      //user삭제하면 resident는 null로 설정된다!
+      nhResidentRepository.deleteById(residentId);
+//      List<NHResidentResponse> nhResidentResponses;
+//      userRepository.
     }
 
   @Transactional
