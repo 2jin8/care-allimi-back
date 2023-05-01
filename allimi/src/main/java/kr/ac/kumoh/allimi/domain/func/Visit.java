@@ -5,12 +5,18 @@ import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.User;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Builder
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Visit {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name= "visit_id")
@@ -28,29 +34,57 @@ public class Visit {
   @NotNull
   @ManyToOne
   @JoinColumn(name = "facility_id")
-  private Facility faciltyId;
+  private Facility facility;
 
   @Column(name = "create_date")
   @CreationTimestamp
   private LocalDateTime createDate = LocalDateTime.now();
 
-    @Column(length = 1024)
-    private String texts;
+  @Column(length = 1024)
+  private String texts;
 
-    @Column(name = "want_date")
-    @NotNull
-    private LocalDateTime wantDate;
+  @Column(name = "want_date")
+  @NotNull
+  private LocalDateTime wantDate;
 
-    @Column(name = "phone_num")
-    private String phoneNum;
+  @Column(name = "phone_num")
+  private String phoneNum;
 
-    @NotNull
-    @Column(name = "visitor_name")
-    private String visitorName;
+  @NotNull
+  @Column(name = "visitor_name")
+  private String visitorName;
 
-    @Column(name = "rej_reason")
-    private String rejReson;
+  @Column(name = "rej_reason")
+  private String rejReason;
 
-    @Enumerated(EnumType.STRING) //대기중, 거절, 승인, 완료
-    private VisitState state = VisitState.WAITING;
+  @Enumerated(EnumType.STRING) //대기중, 거절, 승인, 완료
+  private VisitState state = VisitState.WAITING;
+
+
+  public static Visit newVisit(@NotNull User user, @NotNull NHResident nhResident, @NotNull Facility facility, @NotNull String visitorName,
+                               String texts, LocalDateTime dateTime) {
+
+    Visit visit = Visit.builder()
+            .user(user)
+            .nhResident(nhResident)
+            .facility(facility)
+            .visitorName(visitorName)
+            .texts(texts)
+            .wantDate(dateTime)
+            .state(VisitState.WAITING)
+            .build();
+    return visit;
+  }
+
+  public void editVisit(String texts, LocalDateTime dateTime) {
+    this.texts = texts;
+    this.wantDate = dateTime;
+  }
+
+  public void approvalVisit(VisitState state, String rejReason) {
+    this.state = state;
+    if (state == VisitState.REJECTED)
+      this.rejReason = rejReason;
+  }
+
 }

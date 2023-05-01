@@ -4,4 +4,6 @@ import kr.ac.kumoh.allimi.domain.func.Visit;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface VisitRepository extends JpaRepository<Visit, Long> {
+
+    Long deleteVisitById(Long visitId);
 }
