@@ -66,35 +66,48 @@ public class UserService {
   }
 
   @Transactional
+  public void setNHResidentNull(Long user_id) throws Exception {
+    User user = userRepository.findUserByUserId(user_id)
+            .orElseThrow(() -> new UserException("해당하는 user가 없습니다"));
+
+    user.setResidentNull();
+  }
+
+  @Transactional
   public Long addUser(SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
-      // ID 중복 체크
-      if (isDuplicateId(dto.getLogin_id()))
-          throw new UserIdDuplicateException("중복된 아이디 입니다");
+    // ID 중복 체크
+    if (isDuplicateId(dto.getLogin_id()))
+        throw new UserIdDuplicateException("중복된 아이디 입니다");
 
-      User user = User.newUser(dto.getLogin_id(), dto.getPassword(), dto.getName(), dto.getPhone_num());
-      User saved = userRepository.save(user);
+    User user = User.newUser(dto.getLogin_id(), dto.getPassword(), dto.getName(), dto.getPhone_num());
+    User saved = userRepository.save(user);
 
-      return saved.getUserId();
+    return saved.getUserId();
   }
 
   public ResponseResidentDetail getCurrNHResident(Long userId) throws Exception {
     User user = userRepository.findUserByUserId(userId)
             .orElseThrow(() -> new UserException("user not found"));
 
+    if (user.getCurrentNHResident() == null || user.getCurrentNHResident() == 0) {
+      return ResponseResidentDetail.builder().build();
+    }
+
     NHResident nhResident = nhResidentRepository.findById(user.getCurrentNHResident())
-            .orElseThrow(() -> new NHResidentException("resident not found"));
+            .orElseGet(() -> null);
 
     Facility facility = nhResident.getFacility();
 
-    ResponseResidentDetail response = ResponseResidentDetail.builder()
-            .nhr_id(nhResident.getId())
-            .facility_id(facility.getId())
-            .resident_name(nhResident.getName())
-            .facility_name(facility.getName())
-            .user_role(nhResident.getUserRole())
-            .build();
+      ResponseResidentDetail response = ResponseResidentDetail.builder()
+              .nhr_id(nhResident.getId())
+              .facility_id(facility.getId())
+              .resident_name(nhResident.getName())
+              .facility_name(facility.getName())
+              .user_role(nhResident.getUserRole())
+              .build();
 
-    return response;
+      return response;
+
   }
 
   public Boolean isDuplicateId(String id) {

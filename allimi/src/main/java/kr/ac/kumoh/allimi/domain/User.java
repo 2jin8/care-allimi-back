@@ -48,6 +48,9 @@ public class User {
     public void changeCurrNHResident(Long residentId) {
         this.currentNHResident = residentId;
     }
+    public void setResidentNull() {
+    this.currentNHResident = null;
+  }
 
     public void addNHResident(NHResident nhResident) {
         this.nhResident.add(nhResident);
