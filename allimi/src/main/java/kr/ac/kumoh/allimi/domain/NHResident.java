@@ -47,6 +47,8 @@ public class NHResident {
               .healthInfo(healthInfo)
               .build();
 
+      nhResident.id = null;
+
       user.addNHResident(nhResident);
       return nhResident;
   }
