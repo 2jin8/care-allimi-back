@@ -93,9 +93,11 @@ public class InvitationController {
     return ResponseEntity.status(HttpStatus.OK).body(invitations);
   }
 
-  //초대받아주기: user -> facility
+   //초대받아주기: user -> facility
   @PostMapping("/v2/invitations/approve")
-  public ResponseEntity approveInvitation(@RequestBody Long inviteId) { //user_id, facility_id, userRole
+  public ResponseEntity approveInvitation(@RequestBody Map<String, Long> invite) { //invite_id
+    Long inviteId = invite.get("invite_id");
+    
     if (inviteId == null) {
       log.info("InvitationController 초대받아주기: 필요한  값이 제대로 안들어옴. 사용자의 잘못된 입력");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
