@@ -83,7 +83,7 @@ public class InvitationController {
     return ResponseEntity.status(HttpStatus.OK).body(invitations);
   }
 
-  //초대받아주기: user -> facility
+   //초대받아주기: user -> facility
   @PostMapping("/v2/invitations/approve")
   public ResponseEntity approveInvitation(@RequestBody Map<String, Long> invite) { //invite_id
     Long inviteId = invite.get("invite_id");
