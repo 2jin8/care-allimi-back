@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
+//@Builder
 public class NHResidentEditDTO {
   Long resident_id;
   String resident_name;

@@ -48,12 +48,12 @@ public class NHResidentController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
       }
       
-      for (UserRole userRole : UserRole.values()) {
-        if (!userRole.name().equals(dto.getUser_role())) {
-          log.info("NHResident 추가: userRole이 올바른 값이 안들어옴. 잘못된 요청");
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-      }
+//      for (UserRole userRole : UserRole.values()) {
+//        if (!userRole.name().equals(dto.getUser_role())) {
+//          log.info("NHResident 추가: userRole이 올바른 값이 안들어옴. 잘못된 요청");
+//          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+//        }
+//      }
 
       Long residentId;
 
@@ -155,7 +155,7 @@ public class NHResidentController {
     }
 
     // 시설 해당하는 모든 입소자 출력
-    @GetMapping("/v2/nhResidents/{facility_id}")
+    @GetMapping("/v2/nhResidents/facility/{facility_id}")
     public ResponseEntity allResidentList(@PathVariable("facility_id") Long facilityId) {
         if (facilityId == null) {
           log.info("NHResidentController 모든 입소자 출력 - 관리자용: nhresident_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
