@@ -70,7 +70,7 @@ public class LetterController {
     try {
       letterService.readCheck(userId, letterId);
     } catch (UserAuthException e) {
-      log.info("LetterController 한마디 읽기: 한마디를 읽을 권한이 없음");
+      log.info("LetterController 한마디 읽기: 권한이 없음");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     } catch (UserException | LetterException e) {
       log.info("LetterController 한마디 읽기: user, letter 중 하나 찾기 실패");

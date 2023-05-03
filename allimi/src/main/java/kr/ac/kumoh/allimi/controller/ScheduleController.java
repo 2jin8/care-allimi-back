@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.controller;
 
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleDeleteDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleEditDTO;
+import kr.ac.kumoh.allimi.dto.schedule.ScheduleListDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleWriteDTO;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.ScheduleException;
@@ -13,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -80,5 +83,22 @@ public class ScheduleController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping(value = "/v2/schedule/{facility_id}")
+    public ResponseEntity list(@PathVariable Long facility_id) {
+        List<ScheduleListDTO> scheduleList;
+
+        try {
+            scheduleList = scheduleService.scheduleList(facility_id);
+        } catch (FacilityException e) {
+            log.info("ScheduleController 일정표 목록: 잘못된 시설 정보");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            log.info("ScheduleController 일정표 목록: 기타 에러");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(scheduleList);
     }
 }

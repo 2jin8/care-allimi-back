@@ -40,13 +40,11 @@ public class AllNoticeService {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    List<UserRole> userRole = userRepository.getUserRole(dto.getUser_id())
-            .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+            .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
 
-    for (UserRole role : userRole) {
-      if (role != UserRole.MANAGER && role != UserRole.WORKER)
-        throw new UserAuthException("권한이 없는 사용자");
-    }
+    if (userRole != UserRole.MANAGER && userRole != UserRole.WORKER)
+      throw new UserAuthException("권한이 없는 사용자입니다.");
 
     Facility facility = facilityRepository.findById(dto.getFacility_id())
             .orElseThrow(() -> new FacilityException("facility not found"));
@@ -101,19 +99,20 @@ public class AllNoticeService {
   }
 
   public void edit(AllNoticeEditDto editDto, List<MultipartFile> files) throws Exception {
+    AllNotice allNotice = allNoticeRepository.findById(editDto.getAllnotice_id())
+            .orElseThrow(() -> new AllNoticeException("전체공지를 찾을 수 없습니다"));
+
     User user = userRepository.findUserByUserId(editDto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    List<UserRole> userRole = userRepository.getUserRole(editDto.getUser_id())
-            .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+            .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
 
-    for (UserRole role : userRole) {
-      if (role != UserRole.MANAGER && role != UserRole.WORKER)
-        throw new UserAuthException("권한이 없는 사용자");
+    User writer = allNotice.getUser();
+
+    if (writer.getUserId() != user.getUserId() || userRole != UserRole.MANAGER && userRole != UserRole.WORKER) {
+      throw new UserAuthException("권한이 없는 사용자입니다.");
     }
-
-    AllNotice allNotice = allNoticeRepository.findById(editDto.getAllnotice_id())
-            .orElseThrow(() -> new AllNoticeException("전체공지를 찾을 수 없습니다"));
 
     // 기존 DB, S3에 저장된 이미지 삭제
     List<Image> deleteList = imageRepository.findAllByAllNotice(allNotice).orElse(new ArrayList<>());

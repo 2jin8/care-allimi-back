@@ -6,6 +6,7 @@ import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeListDTO;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeWriteDto;
 import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
+import kr.ac.kumoh.allimi.exception.AllNoticeException;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
@@ -76,12 +77,15 @@ public class AllNoticeController {
   public ResponseEntity noticeEdit(@RequestPart(value="allnotice") AllNoticeEditDto dto,
                                    @RequestPart(value="file", required = false) List<MultipartFile> files) {
 
-    try {
-      allNoticeService.edit(dto, files);
-    } catch (Exception e) {
-      log.info("error: {}", e);
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
+      try {
+          allNoticeService.edit(dto, files);
+      } catch (UserException | UserAuthException | AllNoticeException e) {
+          log.info("AllNoticeController 전체공지 수정: 사용자 또는 공지사항 에러");
+          return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      } catch (Exception e) {
+          log.info("AllNoticeController 전체공지 수정: 기타 에러");
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
 
     return ResponseEntity.status(HttpStatus.OK).build();
   }

@@ -33,13 +33,11 @@ public class NoticeService {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    List<UserRole> userRoleList = userRepository.getUserRole(dto.getUser_id())
-            .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+            .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
 
-    UserRole userRole = userRoleList.get(0);
-
-    if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
-      new UserAuthException("권한이 없는 사용자");
+    if (userRole != UserRole.MANAGER && userRole != UserRole.WORKER)
+      throw new UserAuthException("권한이 없는 사용자입니다.");
 
     NHResident targetResident = nhResidentRepository.findById(dto.getNhresident_id())
             .orElseThrow(() -> new NHResidentException("target resident not found"));
@@ -60,7 +58,7 @@ public class NoticeService {
           imageRepository.save(image);
         }
       }
-    }else {
+    } else {
       System.out.println("@@@@@@@@@@@@@@@@@@ file null");
     }
 
@@ -143,15 +141,16 @@ public class NoticeService {
     Notice notice = noticeRepository.findNoticeByNoticeId(editDto.getNotice_id())
             .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
 
+    User user = userRepository.findById(editDto.getUser_id())
+            .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다."));
+
+    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+            .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
+
     User writer = notice.getUser();
 
-    List<UserRole> userRoleList = userRepository.getUserRole(editDto.getUser_id())
-            .orElseThrow(() -> new UserException("userRole이 잘못됨"));
-
-    UserRole userRole = userRoleList.get(0);
-
-    if (writer.getUserId() != editDto.getUser_id() && userRole != UserRole.MANAGER)
-      throw new UserException("권한이 없는 사용자 입니다");
+    if (writer.getUserId() != user.getUserId() || userRole != UserRole.MANAGER && userRole != UserRole.WORKER)
+      throw new UserAuthException("권한이 없는 사용자입니다.");
 
     NHResident targetResident = nhResidentRepository.findById(editDto.getResident_id())
             .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없습니다"));
@@ -176,7 +175,7 @@ public class NoticeService {
     }
 
     notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), images_url);
-
+    System.out.println("notice id: " + notice.getNoticeId());
     return notice.getNoticeId();
   }
 

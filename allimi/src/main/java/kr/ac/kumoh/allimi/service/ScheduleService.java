@@ -7,6 +7,7 @@ import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleDeleteDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleEditDTO;
+import kr.ac.kumoh.allimi.dto.schedule.ScheduleListDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleWriteDTO;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.ScheduleException;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,11 +39,11 @@ public class ScheduleService {
         Facility facility = facilityRepository.findById(writeDTO.getFacility_id())
                 .orElseThrow(() -> new FacilityException("시설을 찾을 수 없습니다."));
 
-        UserRole userRole = userRepository.getUserCurrentRole(user.getCurrentNHResident(), user.getUserId())
+        UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
                 .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
 
         if (userRole == UserRole.PROTECTOR)
-            throw new UserAuthException("일정을 작성할 권한이 없습니다.");
+            throw new UserAuthException("권한이 없는 사용자입니다.");
 
         Schedule schedule = Schedule.newSchedule(user, facility, writeDTO.getDate(), writeDTO.getTexts());
 
@@ -58,7 +60,7 @@ public class ScheduleService {
         User user = userRepository.findUserByUserId(editDTO.getUser_id())
                 .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다."));
 
-        UserRole userRole = userRepository.getUserCurrentRole(user.getCurrentNHResident(), user.getUserId())
+        UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
                 .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
 
         if (userRole == UserRole.PROTECTOR)
@@ -75,12 +77,31 @@ public class ScheduleService {
         User user = userRepository.findUserByUserId(deleteDTO.getUser_id())
                 .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다."));
 
-        UserRole userRole = userRepository.getUserCurrentRole(user.getCurrentNHResident(), user.getUserId())
+        UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
                 .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
 
         if (userRole == UserRole.PROTECTOR)
-            throw new UserAuthException("일정을 삭제할 권한이 없습니다.");
+            throw new UserAuthException("권한이 없는 사용자입니다.");
 
         scheduleRepository.delete(schedule);
+    }
+
+    public List<ScheduleListDTO> scheduleList(Long facility_id) {
+        Facility facility = facilityRepository.findById(facility_id)
+                .orElseThrow(() -> new FacilityException("해당 시설을 찾을 수 없습니다."));
+
+        List<Schedule> schedules = scheduleRepository.findAllByFacility(facility)
+                .orElse(new ArrayList<>());
+
+        List<ScheduleListDTO> listDTOS = new ArrayList<>();
+
+        for (Schedule schedule : schedules) {
+            listDTOS.add(ScheduleListDTO.builder()
+                    .schedule_id(schedule.getId())
+                    .date(schedule.getDate())
+                    .texts(schedule.getTexts()).build());
+        }
+
+        return listDTOS;
     }
 }
