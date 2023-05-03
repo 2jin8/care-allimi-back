@@ -1,23 +1,13 @@
 package kr.ac.kumoh.allimi.controller;
 
-import com.amazonaws.Response;
 import kr.ac.kumoh.allimi.controller.response.ResponseInvitation;
-import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
-import kr.ac.kumoh.allimi.dto.invitation.ApproveInviteDto;
 import kr.ac.kumoh.allimi.dto.invitation.SendInvitationDto;
-import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
-import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
-import kr.ac.kumoh.allimi.exception.user.UserAuthException;
-import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.service.InvitationService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -97,7 +87,7 @@ public class InvitationController {
   @PostMapping("/v2/invitations/approve")
   public ResponseEntity approveInvitation(@RequestBody Map<String, Long> invite) { //invite_id
     Long inviteId = invite.get("invite_id");
-    
+
     if (inviteId == null) {
       log.info("InvitationController 초대받아주기: 필요한  값이 제대로 안들어옴. 사용자의 잘못된 입력");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

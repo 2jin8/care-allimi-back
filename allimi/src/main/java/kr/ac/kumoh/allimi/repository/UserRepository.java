@@ -17,10 +17,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findUserByUserId(Long user_id);
 
   @Query(value="select user_role from nhresident where user_id = ?1", nativeQuery = true)
-  Optional<List<UserRole>> getUserRoles(Long userId);
-
-  @Query(value="select user_role from nhresident where user_id = ?1", nativeQuery = true)
   Optional<List<UserRole>> getUserRole(Long userId);
+
+  @Query(value="select user_role from nhresident where nhr_id = ?1 and user_id = ?2", nativeQuery = true)
+  Optional<UserRole> getUserCurrentRole(Long nhrId, Long userId);
 
   Optional<List<User>> findByPhoneNum(String phoneNum);
 }

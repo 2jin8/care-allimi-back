@@ -40,7 +40,7 @@ public class AllNoticeService {
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    List<UserRole> userRole = userRepository.getUserRoles(dto.getUser_id())
+    List<UserRole> userRole = userRepository.getUserRole(dto.getUser_id())
             .orElseThrow(() -> new UserException("userRole이 잘못됨"));
 
     for (UserRole role : userRole) {
@@ -104,7 +104,7 @@ public class AllNoticeService {
     User user = userRepository.findUserByUserId(editDto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    List<UserRole> userRole = userRepository.getUserRoles(editDto.getUser_id())
+    List<UserRole> userRole = userRepository.getUserRole(editDto.getUser_id())
             .orElseThrow(() -> new UserException("userRole이 잘못됨"));
 
     for (UserRole role : userRole) {
