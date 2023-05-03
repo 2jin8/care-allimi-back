@@ -1,5 +1,6 @@
 package kr.ac.kumoh.allimi.controller;
 
+import kr.ac.kumoh.allimi.controller.response.VisitResponse;
 import kr.ac.kumoh.allimi.dto.visit.VisitApprovalDTO;
 import kr.ac.kumoh.allimi.dto.visit.VisitDeleteDTO;
 import kr.ac.kumoh.allimi.dto.visit.VisitEditDTO;
@@ -30,6 +31,7 @@ public class VisitController {
             log.info("VisitController 면회 신청: 사용자 | 시설 | 입소자 잘못 입력");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
+            log.info("{}", e);
             log.info("VisitController 면회 신청: 기타 예외");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -80,8 +82,9 @@ public class VisitController {
     @PostMapping("/visit/approval")
     public ResponseEntity approval(@RequestBody VisitApprovalDTO approvalDTO) { // 면회 승인 상태 변경
         // WAITING -> REJECTED, APPROVED, COMPLETED
+        VisitResponse visitResponse;
         try {
-            visitService.approval(approvalDTO);
+            visitResponse = visitService.approval(approvalDTO);
         } catch (VisitException e) {
             log.info("VisitController 면회 승인 상태 변경: 해당 면회가 존재하지 않음");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -90,7 +93,7 @@ public class VisitController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).body(visitResponse);
     }
 }
 

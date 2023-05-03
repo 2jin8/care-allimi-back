@@ -1,5 +1,6 @@
 package kr.ac.kumoh.allimi.service;
 
+import kr.ac.kumoh.allimi.controller.response.VisitResponse;
 import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.User;
@@ -13,6 +14,7 @@ import kr.ac.kumoh.allimi.dto.visit.VisitWriteDTO;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.VisitException;
+import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;
@@ -44,15 +46,12 @@ public class VisitService {
         NHResident nhResident = nhResidentRepository.findById(writeDTO.getNhresident_id())
                 .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없습니다."));
 
-        List<UserRole> userRoleList = userRepository.getUserRole(writeDTO.getUser_id())
-                .orElseThrow(() -> new UserException("권한을 찾을 수 없습니다."));
+        UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+                .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
 
-        UserRole userRole = userRoleList.get(0);
+        if (userRole != userRole.PROTECTOR)
+            throw new UserAuthException("권한이 없는 사용자입니다.");
 
-        if (userRole != UserRole.PROTECTOR)
-            throw new UserException("보호자 외에는 면회를 신청할 수 없습니다.");
-
-        System.out.println("visit 넣기");
         Visit visit = Visit.newVisit(user, nhResident, facility, user.getName(), writeDTO.getTexts(), writeDTO.getDateTime());
 
         Visit savedVisit = visitRepository.save(visit);
@@ -67,15 +66,14 @@ public class VisitService {
         NHResident nhResident = nhResidentRepository.findById(editDTO.getNhresident_id())
                 .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없습니다."));
 
-      List<UserRole> userRoleList = userRepository.getUserRole(editDTO.getUser_id())
-              .orElseThrow(() -> new UserException("권한을 찾을 수 없습니다."));
-
-      UserRole userRole = userRoleList.get(0);
+        UserRole userRole = userRepository.getUserRole(nhResident.getId(), editDTO.getUser_id())
+                .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
 
         User user = visit.getUser();
 
-        if (user.getUserId() != editDTO.getUser_id() || userRole != UserRole.PROTECTOR)
-            throw new UserException("면회를 신청할 권한이 없습니다.");
+        if (user.getUserId() != editDTO.getUser_id() || userRole != UserRole.PROTECTOR) {
+            throw new UserAuthException("권한이 없는 사용자입니다.");
+        }
 
         visit.editVisit(editDTO.getTexts(), editDTO.getDateTime());
     }
@@ -88,10 +86,17 @@ public class VisitService {
         return deleted;
     }
 
-    public void approval(VisitApprovalDTO approvalDTO) {
+    public VisitResponse approval(VisitApprovalDTO approvalDTO) {
         Visit visit = visitRepository.findById(approvalDTO.getVisit_id())
                 .orElseThrow(() -> new VisitException("해당 면회 신청이 존재하지 않습니다."));
 
         visit.approvalVisit(approvalDTO.getState(), approvalDTO.getRejReason());
+
+        VisitResponse visitResponse = VisitResponse.builder()
+                .state(visit.getState())
+                .texts(visit.getRejReason())
+                .build();
+
+        return visitResponse;
     }
 }

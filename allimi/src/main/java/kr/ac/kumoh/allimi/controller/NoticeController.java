@@ -6,6 +6,7 @@ import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
+import kr.ac.kumoh.allimi.exception.NoticeException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.service.NoticeService;
@@ -55,6 +56,7 @@ public class NoticeController {
     Map<String, Long> map = new HashMap<>();
     map.put("notice_id", noticeId);
 
+    System.out.println(noticeId);
     return ResponseEntity.status(HttpStatus.OK).body(map);
   }
 
@@ -100,10 +102,13 @@ public class NoticeController {
     Long noticeId = null;
 
     try {
-      noticeService.edit(dto, files);
+      noticeId = noticeService.edit(dto, files);
+    } catch (NoticeException | UserException | UserAuthException | NHResidentException e) {
+      log.info("NoticeController 알림장 수정: 알림장 또는 사용자 또는 입소자 예외");
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     } catch (Exception e) {
-      log.info("error: {}", e);
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      log.info("NoticeController 알림장 수정: 기타 예외");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     Map<String, Long> map = new HashMap<>();

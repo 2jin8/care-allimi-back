@@ -41,6 +41,12 @@ public class LetterService {
     Facility facility = facilityRepository.findById(dto.getFacility_id())
             .orElseThrow(() -> new FacilityException("facility not found"));
 
+    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+            .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
+
+    if (userRole != UserRole.PROTECTOR)
+      throw new UserAuthException("권한이 없는 사용자입니다.");
+
     Letter letter = Letter.newLetter(user, targetResident, facility, dto.getContents());
     Letter savedLetter = letterRepository.save(letter);
 
@@ -57,7 +63,14 @@ public class LetterService {
     User user = letter.getUser();
 
     if (!letter.getUser().equals(user))
-      new UserAuthException("권한이 없는 사용자입니다.");
+      throw new UserAuthException("권한이 없는 사용자입니다.");
+
+    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+            .orElseThrow(() -> new UserAuthException("권한이 없는 사용자입니다."));
+
+    if (userRole != UserRole.PROTECTOR) {
+      throw new UserAuthException("권한이 없는 사용자입니다.");
+    }
 
     NHResident resident = nhResidentRepository.findById(dto.getNhresident_id())
             .orElseThrow(() -> new NHResidentException("resident를 찾을 수 없음"));
@@ -124,19 +137,18 @@ public class LetterService {
   }
 
   public void readCheck(Long userId, Long letterId) throws Exception {
+    Letter letter = letterRepository.findById(letterId)
+            .orElseThrow(() -> new LetterException("해당하는 한마디가 없음"));
+
     User user = userRepository.findUserByUserId(userId)
             .orElseThrow(() -> new UserException("해당하는 user가 없습니다"));
 
-    List<UserRole> userRoleList = userRepository.getUserRole(userId)
-            .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+            .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
 
-    UserRole userRole = userRoleList.get(0);
-
-    if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
-      new UserAuthException("권한이 없는 사용자");
-
-    Letter letter = letterRepository.findById(letterId)
-            .orElseThrow(() -> new LetterException("해당하는 한마디가 없음"));
+    if (userRole != UserRole.MANAGER && userRole != UserRole.WORKER) {
+      throw new UserAuthException("권한이 없는 사용자입니다.");
+    }
 
     letter.readCheck();
   }
