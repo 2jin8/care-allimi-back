@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,9 +36,10 @@ public class NoticeController {
       log.info("NoticeController 알림장 작성: 필요한  값이 제대로 안들어옴. 사용자의 잘못된 입력");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
-    
+    Long noticeId;
+
     try {
-      noticeService.write(dto, files);
+      noticeId = noticeService.write(dto, files);
     } catch (UserAuthException e) { //알림장 쓸 권한 없음
       log.info("NoticeController 알림장 작성: 권한이 없는 사용자");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -50,17 +52,23 @@ public class NoticeController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    return ResponseEntity.status(HttpStatus.OK).build();
+    Map<String, Long> map = new HashMap<>();
+    map.put("notice_id", noticeId);
+
+    return ResponseEntity.status(HttpStatus.OK).body(map);
   }
 
   @GetMapping("/v2/notices/{resident_id}") // 알림장 목록
   public ResponseEntity noticeList(@PathVariable("resident_id") Long residentId) {
+    if (residentId == null)
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
     List<NoticeListDTO> noticeList;
 
     try {
       noticeList = noticeService.noticeList(residentId);
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     return ResponseEntity.status(HttpStatus.OK).body(noticeList);
@@ -68,15 +76,15 @@ public class NoticeController {
 
   @GetMapping("/v2/notices/detail/{notice_id}") // 알림장 상세보기
   public ResponseEntity noticeDetail(@PathVariable("notice_id") Long noticeId) {
-    NoticeResponse noticeResponse;
-
     if (noticeId == null)
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+    NoticeResponse noticeResponse;
 
     try {
       noticeResponse = noticeService.getDetail(noticeId);
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeResponse);
@@ -85,14 +93,23 @@ public class NoticeController {
   @PatchMapping("/v2/notices") // 알림장 수정
   public ResponseEntity noticeEdit(@RequestPart(value = "notice") NoticeEditDto dto,
                                    @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+
+    if (dto.getNotice_id() == 0 || dto.getUser_id() == 0 || dto.getResident_id() == 0)
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+    Long noticeId = null;
+
     try {
       noticeService.edit(dto, files);
     } catch (Exception e) {
       log.info("error: {}", e);
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
-    return ResponseEntity.status(HttpStatus.OK).build();
+    Map<String, Long> map = new HashMap<>();
+    map.put("notice_id", noticeId);
+
+    return ResponseEntity.status(HttpStatus.OK).body(map);
   }
 
   @DeleteMapping("/v2/notices") // 알림장 삭제
@@ -100,12 +117,12 @@ public class NoticeController {
     Long noticeId = notice.get("notice_id");
 
     if (noticeId == null)
-      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
     Long deletedCnt = noticeService.delete(noticeId);
 
     if (deletedCnt == 0)
-      return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
     return ResponseEntity.status(HttpStatus.OK).build();
   }

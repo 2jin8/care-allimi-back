@@ -29,12 +29,14 @@ public class NoticeService {
   private final ImageRepository imageRepository;
   private final S3Service s3Service;
 
-  public void write(NoticeWriteDto dto, List<MultipartFile> files) throws Exception {  // notice{user_id, nhresident_id, facility_id, contents, sub_contents}, file{}
+  public Long write(NoticeWriteDto dto, List<MultipartFile> files) throws Exception {  // notice{user_id, nhresident_id, facility_id, contents, sub_contents}, file{}
     User user = userRepository.findUserByUserId(dto.getUser_id())
             .orElseThrow(() -> new UserException("user not found"));
 
-    UserRole userRole = userRepository.getUserRole(dto.getUser_id())
+    List<UserRole> userRoleList = userRepository.getUserRole(dto.getUser_id())
             .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+
+    UserRole userRole = userRoleList.get(0);
 
     if (userRole != UserRole.MANAGER || userRole != UserRole.WORKER)
       new UserAuthException("권한이 없는 사용자");
@@ -48,13 +50,18 @@ public class NoticeService {
     Notice notice = Notice.newNotice(user, targetResident, facility, dto.getContents(), dto.getSub_contents());
 
     List<Image> images = new ArrayList<>();
-    for (MultipartFile file : files) {
-      if (!file.isEmpty()) {
-        String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
-        Image image = Image.newNoticeImage(notice, url);
-        images.add(image);
-        imageRepository.save(image);
+
+    if (files != null) {
+      for (MultipartFile file : files) {
+        if (!file.isEmpty()) {
+          String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
+          Image image = Image.newNoticeImage(notice, url);
+          images.add(image);
+          imageRepository.save(image);
+        }
       }
+    }else {
+      System.out.println("@@@@@@@@@@@@@@@@@@ file null");
     }
 
     notice.addImages(images);
@@ -62,6 +69,8 @@ public class NoticeService {
 
     if (savedNotice == null)
       throw new NoticeException("알림장 저장 실패");
+
+    return savedNotice.getNoticeId();
   }
 
   //알림장 목록보기
@@ -130,14 +139,16 @@ public class NoticeService {
             .build();
   }
 
-  public void edit(NoticeEditDto editDto, List<MultipartFile> files) throws Exception {
+  public Long edit(NoticeEditDto editDto, List<MultipartFile> files) throws Exception {
     Notice notice = noticeRepository.findNoticeByNoticeId(editDto.getNotice_id())
             .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
 
     User writer = notice.getUser();
 
-    UserRole userRole = userRepository.getUserRole(editDto.getUser_id())
+    List<UserRole> userRoleList = userRepository.getUserRole(editDto.getUser_id())
             .orElseThrow(() -> new UserException("userRole이 잘못됨"));
+
+    UserRole userRole = userRoleList.get(0);
 
     if (writer.getUserId() != editDto.getUser_id() && userRole != UserRole.MANAGER)
       throw new UserException("권한이 없는 사용자 입니다");
@@ -165,6 +176,8 @@ public class NoticeService {
     }
 
     notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), images_url);
+
+    return notice.getNoticeId();
   }
 
   public Long delete(Long notice_id) {

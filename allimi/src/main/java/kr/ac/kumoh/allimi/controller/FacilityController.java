@@ -5,8 +5,6 @@ import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
 import kr.ac.kumoh.allimi.dto.facility.EditFacilityDTO;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.service.FacilityService;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -31,7 +28,6 @@ public class FacilityController {
   //시설 추가
   @PostMapping("/v2/facilities")
   public ResponseEntity addFacility(@RequestBody AddFacilityDTO dto) { // name, address, tel, fm_name
-
     if (dto.getName() == null) {
       log.info("FacilityController 시설추가: 시설 이름은 필수임");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +44,10 @@ public class VisitService {
         NHResident nhResident = nhResidentRepository.findById(writeDTO.getNhresident_id())
                 .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없습니다."));
 
-        UserRole userRole = userRepository.getUserRole(writeDTO.getUser_id())
+        List<UserRole> userRoleList = userRepository.getUserRole(writeDTO.getUser_id())
                 .orElseThrow(() -> new UserException("권한을 찾을 수 없습니다."));
+
+        UserRole userRole = userRoleList.get(0);
 
         if (userRole != UserRole.PROTECTOR)
             throw new UserException("보호자 외에는 면회를 신청할 수 없습니다.");
@@ -64,8 +67,10 @@ public class VisitService {
         NHResident nhResident = nhResidentRepository.findById(editDTO.getNhresident_id())
                 .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없습니다."));
 
-        UserRole userRole = userRepository.getUserRole(editDTO.getUser_id())
-                .orElseThrow(() -> new UserException("권한을 찾을 수 없습니다."));
+      List<UserRole> userRoleList = userRepository.getUserRole(editDTO.getUser_id())
+              .orElseThrow(() -> new UserException("권한을 찾을 수 없습니다."));
+
+      UserRole userRole = userRoleList.get(0);
 
         User user = visit.getUser();
 
