@@ -74,7 +74,6 @@ public class UserController {
   //회원가입
   @PostMapping("/v2/users")
   public ResponseEntity addUser(@RequestBody SignUpDTO dto) { // login_id, password, name, phone_num;
-
     if(dto.getLogin_id() == null || dto.getPassword() == null || dto.getName() == null) {
       log.info("UserController 회원가입: 필수적인 정보가 들어오지 않음");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

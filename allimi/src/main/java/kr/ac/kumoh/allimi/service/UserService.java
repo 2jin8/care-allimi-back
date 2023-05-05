@@ -138,6 +138,9 @@ public class UserService {
       if (user.getCurrentNHResident() == null) { //입소자가 한 명도 없음
         return ResponseLogin.builder()
                 .user_id(user.getUserId())
+                .user_name(user.getName())
+                .login_id(user.getLoginId())
+                .phone_num(user.getPhoneNum())
                 .build();
       }
 

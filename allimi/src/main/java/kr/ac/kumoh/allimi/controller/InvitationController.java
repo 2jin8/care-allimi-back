@@ -85,7 +85,7 @@ public class InvitationController {
     return ResponseEntity.status(HttpStatus.OK).body(invitations); // id, user_id, facility_id, name, facility_name, userRole, date;
   }
 
-   //초대받아주기: user -> facility
+  //초대받아주기: user -> facility
   @PostMapping("/v2/invitations/approve")
   public ResponseEntity approveInvitation(@RequestBody Map<String, Long> invite) { //invite_id
     Long inviteId = invite.get("invite_id");
@@ -102,6 +102,22 @@ public class InvitationController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
     return ResponseEntity.status(HttpStatus.OK).build(); // user_id
+  }
+
+  //초대 삭제
+  @DeleteMapping("/v2/invitations") // 초대 삭제
+  public ResponseEntity invitationDelete(@RequestBody Map<String, Long> invitation) {
+    Long invitationId = invitation.get("invit_id");
+
+    if (invitation == null)
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+    int deletedCnt = invitationService.delete(invitationId);
+
+    if (deletedCnt == 0)
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+    return ResponseEntity.status(HttpStatus.OK).build();
   }
 
 }

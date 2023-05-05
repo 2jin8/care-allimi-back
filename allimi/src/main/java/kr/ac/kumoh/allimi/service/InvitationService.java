@@ -44,6 +44,11 @@ public class InvitationService {
     return invitation.getId();
   }
 
+  public int  delete(Long invitId) {
+    int deleted = invitationRepository.deleteByInvitId(invitId);
+    return deleted;
+  }
+
   public List<ResponseInvitation> findByFacility(Long facilityId) throws Exception {
     List<Invitation> invitations = invitationRepository.findByFacilityId(facilityId)
             .orElseGet(() -> new ArrayList<>());
