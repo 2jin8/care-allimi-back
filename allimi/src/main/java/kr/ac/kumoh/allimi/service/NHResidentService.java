@@ -5,6 +5,7 @@ import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.domain.UserRole;
+import kr.ac.kumoh.allimi.dto.nhresident.NHResidentChangeDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentEditDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
@@ -25,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -110,6 +110,29 @@ public class NHResidentService {
     return list;
   }
 
+
+  @Transactional
+  public NHResidentResponse change(NHResidentChangeDTO changeDTO) {
+
+        User user = userRepository.findById(changeDTO.getUser_id())
+                .orElseThrow(() -> new UserException("사용자를 찾을 수 없음"));
+        Facility facility = facilityRepository.findById(changeDTO.getFacility_id())
+                .orElseThrow(() -> new FacilityException("시설을 찾을 수 없음"));
+        NHResident nhResident = nhResidentRepository.findById(changeDTO.getResident_id())
+                .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없음"));
+
+        UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+                .orElseThrow(() -> new UserException("역할을 찾을 수 없음"));
+
+        user.changeCurrNHResident(nhResident.getId());
+        return NHResidentResponse.builder()
+                .resident_id(nhResident.getId())
+                .resident_name(nhResident.getName())
+                .facility_id(facility.getId())
+                .facility_name(facility.getName())
+                .user_role(userRole)
+                .build();
+    }
 
 
 //    @Transactional(readOnly = true)
