@@ -78,13 +78,16 @@ public class InvitationService {
 
     List<ResponseInvitation> list = new ArrayList<>();
 
-    for (Invitation i: invitations) {
+    for (Invitation i : invitations) {
       User user = i.getUser();
+      Facility facility = i.getFacility();
 
       list.add(ResponseInvitation.builder()
               .id(i.getId())
               .user_id(user.getUserId())
+              .facility_id(facility.getId())
               .name(user.getName())
+              .facility_name(facility.getName())
               .userRole(i.getUserRole())
               .date(i.getCreateDate())
               .build());
