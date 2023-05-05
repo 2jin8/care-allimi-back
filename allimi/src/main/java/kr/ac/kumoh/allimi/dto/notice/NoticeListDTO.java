@@ -13,5 +13,6 @@ public class NoticeListDTO {
     Long noticeId;
     LocalDateTime create_date;
     String content;
+    String user_name;
     List<String> imageUrl = new ArrayList<>();
 }

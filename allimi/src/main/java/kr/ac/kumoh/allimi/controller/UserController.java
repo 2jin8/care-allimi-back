@@ -103,7 +103,7 @@ public class UserController {
       ResponseLogin responseLogin;
 
       try {
-          responseLogin = userService.login(dto.getLogin_id(), dto.getPassword());
+        responseLogin = userService.login(dto.getLogin_id(), dto.getPassword());
       } catch (UserAuthException exception) {
         log.info("일치하는 id, password가 없거나 로그인 중 에러 발생");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); //해당 id password 일치하는 게 없음
@@ -112,7 +112,7 @@ public class UserController {
           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //해당 id password 일치하는 게 없음
       } 
 
-      return ResponseEntity.status(HttpStatus.OK).body(responseLogin);  //user_id, userRole
+      return ResponseEntity.status(HttpStatus.OK).body(responseLogin);  // user_id, user_role, user_name, phone_num, login_id;
   }
 
   @GetMapping("/v2/users/{user_id}") // 사용자 정보 조회
@@ -138,7 +138,7 @@ public class UserController {
   }
 
   //전체 user조회 - 관리자용
-  @GetMapping("/v2/users/admin")
+  @GetMapping("/v2/users")
   public ResponseEntity getAllUser() {
     List<UserListDTO> dtos = null;
     try {

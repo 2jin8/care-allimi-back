@@ -103,11 +103,14 @@ public class NoticeService {
         urls.add(image.getImageUrl());
       }
 
+      User user = notice.getUser();
+
       NoticeListDTO dto = NoticeListDTO.builder()
               .noticeId(notice.getNoticeId())
               .create_date(notice.getCreateDate())
               .content(notice.getContents())
               .imageUrl(urls)
+              .user_name(user.getName())
               .build();
       noticeList.add(dto);
     }

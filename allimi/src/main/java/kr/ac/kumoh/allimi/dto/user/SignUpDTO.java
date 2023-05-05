@@ -5,6 +5,7 @@ import lombok.*;
 
 @Getter
 @ToString
+@AllArgsConstructor
 //@Builder
 public class SignUpDTO {
   private String login_id;
