@@ -23,7 +23,9 @@ import java.time.LocalDateTime;
 public class ResponseInvitation {
       private Long id;
       private Long user_id;
+      private Long facility_id;
       private String name; //입소자명
+      private String facility_name;
       private UserRole userRole;
       private LocalDate date;
 }

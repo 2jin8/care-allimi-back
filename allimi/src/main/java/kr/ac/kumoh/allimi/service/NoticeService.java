@@ -103,11 +103,14 @@ public class NoticeService {
         urls.add(image.getImageUrl());
       }
 
+      NHResident nhResident = notice.getNhResident();
+
       NoticeListDTO dto = NoticeListDTO.builder()
               .noticeId(notice.getNoticeId())
               .create_date(notice.getCreateDate())
               .content(notice.getContents())
               .imageUrl(urls)
+              .resident_name(nhResident.getName())
               .build();
       noticeList.add(dto);
     }

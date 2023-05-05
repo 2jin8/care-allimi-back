@@ -3,13 +3,12 @@ package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.domain.func.Letter;
 import kr.ac.kumoh.allimi.domain.func.Notice;
+import kr.ac.kumoh.allimi.domain.func.Visit;
 import kr.ac.kumoh.allimi.dto.letter.LetterEditDto;
 import kr.ac.kumoh.allimi.dto.letter.LetterListDTO;
 import kr.ac.kumoh.allimi.dto.letter.LetterWriteDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
-import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.LetterException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
+import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.*;
@@ -134,6 +133,11 @@ public class LetterService {
     List<Letter> letters = letterRepository.findAllByNhResident(nhResident).orElse(new ArrayList<Notice>());
 
     return letters;
+  }
+
+  public Long delete(Long letter_id) {
+    Long deleted = letterRepository.deleteLetterByLetterId(letter_id);
+    return deleted;
   }
 
   public void readCheck(Long userId, Long letterId) throws Exception {
