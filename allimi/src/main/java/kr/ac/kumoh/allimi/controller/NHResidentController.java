@@ -1,7 +1,9 @@
 package kr.ac.kumoh.allimi.controller;
 
 import kr.ac.kumoh.allimi.controller.response.ResponseResident;
+import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.UserRole;
+import kr.ac.kumoh.allimi.dto.nhresident.NHResidentChangeDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentEditDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
@@ -47,7 +49,7 @@ public class NHResidentController {
         log.info("NHResident 추가: user_id가 null로 들어옴. 잘못된 요청");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
       }
-      
+
 //      for (UserRole userRole : UserRole.values()) {
 //        if (!userRole.name().equals(dto.getUser_role())) {
 //          log.info("NHResident 추가: userRole이 올바른 값이 안들어옴. 잘못된 요청");
@@ -196,5 +198,20 @@ public class NHResidentController {
       map.put("resident_id", editDTO.getResident_id());
 
       return ResponseEntity.status(HttpStatus.OK).body(map);
+    }
+
+    @PostMapping("/v2/nhResident/change")
+    public ResponseEntity residentChange(@RequestBody NHResidentChangeDTO changeDTO) {
+
+        NHResidentResponse nhResidentResponse;
+
+        try {
+            nhResidentResponse = nhResidentService.change(changeDTO);
+        } catch (Exception e) {
+            log.info("NHResidentController 입소자 변경: 사용자 or 시설 or 입소자 찾을 수 없음");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(nhResidentResponse);
     }
 }
