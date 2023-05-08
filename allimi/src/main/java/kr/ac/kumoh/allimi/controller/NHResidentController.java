@@ -94,7 +94,7 @@ public class NHResidentController {
       try {
         nhResidentService.deleteResident(residentId);
         nhResidentResponses = userService.getNHResidents(userId);
-        if (nhResidentResponses == null) {
+        if (nhResidentResponses.size() == 0) {
           userService.setNHResidentNull(userId);
         } else {
           userService.changeNHResident(userId, nhResidentResponses.get(0).getResident_id());
