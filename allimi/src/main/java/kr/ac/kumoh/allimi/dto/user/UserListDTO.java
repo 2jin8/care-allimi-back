@@ -14,10 +14,12 @@ public class UserListDTO{
     private String user_name;
     private String phone_num;
     private String login_id;
+    private String user_role;
 
-    public UserListDTO(String userName, String phoneNum, String loginId) {
+    public UserListDTO(String userName, String phoneNum, String loginId, String userRole) {
         this.user_name = userName;
         this.phone_num = phoneNum;
         this.login_id = loginId;
+        this.user_role = userRole;
     }
 }

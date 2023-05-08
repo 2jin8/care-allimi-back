@@ -136,13 +136,29 @@ public class UserService {
               .orElseThrow(() -> new UserAuthException("user not found"));
 
       if (user.getCurrentNHResident() == null) { //입소자가 한 명도 없음
-        return new ResponseLogin(user.getUserId(), null);
+        return ResponseLogin.builder()
+                .user_id(user.getUserId())
+                .user_name(user.getName())
+                .login_id(user.getLoginId())
+                .phone_num(user.getPhoneNum())
+                .build();
       }
 
       NHResident nhResident = nhResidentRepository.findById(user.getCurrentNHResident())
               .orElseThrow(() -> new NHResidentException("입소자 찾기에서 오류가 발생"));
 
-      return new ResponseLogin(user.getUserId(), nhResident.getUserRole());
+      UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+              .orElseGet(() -> null);
+
+      ResponseLogin responseLogin = ResponseLogin.builder()
+              .user_id(user.getUserId())
+              .user_name(user.getName())
+              .user_role(userRole)
+              .login_id(user.getLoginId())
+              .phone_num(user.getPhoneNum())
+              .build();
+
+      return responseLogin;
   }
 
   public kr.ac.kumoh.allimi.dto.user.UserListDTO getUserInfo(Long userId) throws Exception {

@@ -113,6 +113,21 @@ public class LetterController {
     return ResponseEntity.status(HttpStatus.OK).body(map);
   }
 
+  @DeleteMapping("/v2/letters") // 한마디 삭제
+  public ResponseEntity letterDelete(@RequestBody Map<String, Long> letter) {
+    Long letterId = letter.get("letter_id");
+
+    if (letterId == null)
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+    Long deletedCnt = letterService.delete(letterId);
+
+    if (deletedCnt == 0)
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
   @GetMapping("/v2/letters/{resident_id}") // 한마디 목록
   public ResponseEntity noticeList(@PathVariable("resident_id") Long residentId) {
     if (residentId == null) {

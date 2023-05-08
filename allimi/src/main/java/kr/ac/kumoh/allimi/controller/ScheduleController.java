@@ -35,13 +35,13 @@ public class ScheduleController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (UserAuthException e) {
             log.info("ScheduleController 일정표 작성: 작성할 권한 없음");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (ScheduleException e) {
             log.info("ScheduleController 일정표 작성: 일정표 저장 에러");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (Exception e) {
             log.info("ScheduleController 일정표 작성: 기타 에러");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         return ResponseEntity.status(HttpStatus.OK).build();

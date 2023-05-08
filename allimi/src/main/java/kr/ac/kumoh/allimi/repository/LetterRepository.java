@@ -21,6 +21,8 @@ public interface LetterRepository extends JpaRepository<Letter, Long> {
 
     Optional<Letter> findByLetterId(Long letterId);
 
+  Long deleteLetterByLetterId(Long letterId);
+
 //    Long deleteNoticeById(Long letterId);
 
 //    void deleteByIdIn(List<Long> ids);
