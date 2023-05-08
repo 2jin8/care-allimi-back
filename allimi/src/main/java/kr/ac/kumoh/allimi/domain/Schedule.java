@@ -30,7 +30,7 @@ public class Schedule {
     private Facility facility;
 
     @NotNull
-    private LocalDate date;
+    private LocalDate dates;
 
     @NotNull
     private String texts;
@@ -40,7 +40,7 @@ public class Schedule {
         Schedule schedule = Schedule.builder()
                 .user(user)
                 .facility(facility)
-                .date(date)
+                .dates(date)
                 .texts(texts)
                 .build();
 
@@ -49,7 +49,7 @@ public class Schedule {
 
     public void editSchedule(@NotNull User user, @NotNull LocalDate date, @NotNull String texts) {
         this.user = user;
-        this.date = date;
+        this.dates = date;
         this.texts = texts;
     }
 }

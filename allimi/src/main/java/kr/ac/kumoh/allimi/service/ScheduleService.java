@@ -85,7 +85,7 @@ public class ScheduleService {
 
         scheduleRepository.delete(schedule);
     }
-
+//내림차순으로 받아오는게 좋은듯
     public List<ScheduleListDTO> scheduleList(Long facility_id) {
         Facility facility = facilityRepository.findById(facility_id)
                 .orElseThrow(() -> new FacilityException("해당 시설을 찾을 수 없습니다."));
@@ -98,7 +98,7 @@ public class ScheduleService {
         for (Schedule schedule : schedules) {
             listDTOS.add(ScheduleListDTO.builder()
                     .schedule_id(schedule.getId())
-                    .date(schedule.getDate())
+                    .date(schedule.getDates())
                     .texts(schedule.getTexts()).build());
         }
 

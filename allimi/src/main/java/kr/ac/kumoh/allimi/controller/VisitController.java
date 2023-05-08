@@ -1,10 +1,8 @@
 package kr.ac.kumoh.allimi.controller;
 
 import kr.ac.kumoh.allimi.controller.response.VisitResponse;
-import kr.ac.kumoh.allimi.dto.visit.VisitApprovalDTO;
-import kr.ac.kumoh.allimi.dto.visit.VisitDeleteDTO;
-import kr.ac.kumoh.allimi.dto.visit.VisitEditDTO;
-import kr.ac.kumoh.allimi.dto.visit.VisitWriteDTO;
+import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
+import kr.ac.kumoh.allimi.dto.visit.*;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.VisitException;
@@ -15,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -37,6 +37,22 @@ public class VisitController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/v2/visit/{user_id}") // 면회신청 목록
+    public ResponseEntity visitList(@PathVariable("user_id") Long userId) {
+      if (userId == null)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+      List<VisitListDTO> visitList;
+
+      try {
+        visitList = visitService.visitList(userId);
+      } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }
+
+      return ResponseEntity.status(HttpStatus.OK).body(visitList);
     }
 
     @PatchMapping("/visit")
