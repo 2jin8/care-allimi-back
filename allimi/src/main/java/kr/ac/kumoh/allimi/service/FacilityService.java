@@ -1,10 +1,17 @@
 package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.domain.Facility;
+import kr.ac.kumoh.allimi.domain.Invitation;
+import kr.ac.kumoh.allimi.domain.NHResident;
+import kr.ac.kumoh.allimi.domain.func.AllNotice;
+import kr.ac.kumoh.allimi.domain.func.Letter;
+import kr.ac.kumoh.allimi.domain.func.Notice;
+import kr.ac.kumoh.allimi.domain.func.Visit;
 import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
 import kr.ac.kumoh.allimi.dto.facility.EditFacilityDTO;
 import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.repository.FacilityRepository;
+import kr.ac.kumoh.allimi.exception.NHResidentException;
+import kr.ac.kumoh.allimi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +26,12 @@ import java.util.List;
 @Transactional
 public class FacilityService {
   private final FacilityRepository facilityRepository;
+  private final NHResidentRepository nhResidentRepository;
+  private final InvitationRepository invitationRepository;
+  private final LetterRepository letterRepository;
+  private final NoticeRepository noticeRepository;
+  private final VisitRepository visitRepository;
+  private final AllNoticeRepository allNoticeRepository;
 
   public Long addFacility(AddFacilityDTO dto){ // name, address, tel, fm_name
       Facility facility = Facility.makeFacility(dto.getName(), dto.getAddress(), dto.getTel(), dto.getFm_name());
@@ -45,6 +58,58 @@ public class FacilityService {
 
   @Transactional
   public void deleteFacility(Long facility_id) throws Exception { // 회원탈퇴
+
+    Facility facility = facilityRepository.findById(facility_id)
+            .orElseThrow(() -> new FacilityException("시설을 찾을 수 없음"));
+
+    //딸린 한마디 삭제
+    List<Letter> letters = letterRepository.findAllByFacility(facility)
+            .orElseGet(() -> new ArrayList<>());
+
+    for (Letter letter : letters) {
+      letterRepository.deleteById(letter.getLetterId());
+    }
+
+    //딸린 면회 삭제
+    List<Visit> visits = visitRepository.findAllByFacility(facility)
+            .orElseGet(() -> new ArrayList<>());
+
+    for (Visit visit : visits) {
+      visitRepository.deleteById(visit.getId());
+    }
+
+    //딸린 알림장 삭제
+    List<Notice> notices = noticeRepository.findAllByFacility(facility)
+            .orElseGet(() -> new ArrayList<>());
+
+    for (Notice not : notices) {
+      noticeRepository.deleteById(not.getNoticeId());
+    }
+
+    //딸린 전체공지 삭제
+    List<AllNotice> allNotices = allNoticeRepository.findByFacility(facility)
+            .orElseGet(() -> new ArrayList<>());
+
+    for (AllNotice allnot : allNotices) {
+      allNoticeRepository.deleteById(allnot.getAllNoticeId());
+    }
+
+    //딸린 초대 삭제
+    List<Invitation> invitations = invitationRepository.findByFacilityId(facility_id)
+            .orElseGet(() -> new ArrayList<>());
+
+    for (Invitation invit : invitations) {
+      invitationRepository.deleteById(invit.getId());
+    }
+
+    //딸린 입소자 삭제
+    List<NHResident> residents = nhResidentRepository.findProtectorByFacilityId(facility_id)
+            .orElseThrow(() -> new NHResidentException("입소자 리스트 찾기 실패"));
+
+    for (NHResident nhResident : residents) {
+      nhResidentRepository.deleteById(nhResident.getId());
+    }
+
     facilityRepository.deleteById(facility_id);
   }
 }

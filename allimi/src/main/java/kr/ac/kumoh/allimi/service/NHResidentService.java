@@ -13,10 +13,7 @@ import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
-import kr.ac.kumoh.allimi.repository.FacilityRepository;
-import kr.ac.kumoh.allimi.repository.InvitationRepository;
-import kr.ac.kumoh.allimi.repository.NHResidentRepository;
-import kr.ac.kumoh.allimi.repository.UserRepository;
+import kr.ac.kumoh.allimi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,7 +31,7 @@ public class NHResidentService {
     private final NHResidentRepository nhResidentRepository;
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
-    private final InvitationRepository invitationRepository;
+
 
     @Transactional
     public Long addNHResident(NHResidentDTO dto) throws Exception { // user_id, facility_id, resident_name, birth, user_role, health_info;
@@ -57,11 +54,11 @@ public class NHResidentService {
 //      NHResident resident = nhResidentRepository.findById(residentId)
 //              .orElseThrow(() -> new NHResidentException("해당하는 입소자가 없음"));
 //      User user = resident.getUser();
+      //      List<NHResidentResponse> nhResidentResponses;
+//      userRepository.
 
       //user삭제하면 resident는 null로 설정된다!
       nhResidentRepository.deleteById(residentId);
-//      List<NHResidentResponse> nhResidentResponses;
-//      userRepository.
     }
 
   @Transactional
