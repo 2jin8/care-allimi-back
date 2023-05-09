@@ -18,6 +18,7 @@ public class VisitListDTO {
     LocalDateTime want_date;
     String texts;
     String phoneNum;
+    String residentName;
     String visitorName;
     String rejReason;
     VisitState state;
