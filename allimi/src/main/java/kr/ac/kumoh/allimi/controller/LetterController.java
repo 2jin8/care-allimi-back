@@ -44,9 +44,12 @@ public class LetterController {
     } catch (UserException | NHResidentException | FacilityException e) { //알림장 쓰기 실패
       log.info("LetterController 한마디 작성: user, resident, facility 중 하나 찾기 실패");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    } catch (UserAuthException e) { //권한이 없다
+      log.info("LetterController 한마디 작성: 권한이 없는 사용자");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     } catch (Exception e) { //알림장 쓰기 실패
       log.info("LetterController 한마디 작성: 한마디 쓰기 실패");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     Map<String, Long> map = new HashMap<>();

@@ -1,16 +1,12 @@
 package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.controller.response.VisitResponse;
-import kr.ac.kumoh.allimi.domain.Facility;
-import kr.ac.kumoh.allimi.domain.NHResident;
-import kr.ac.kumoh.allimi.domain.User;
-import kr.ac.kumoh.allimi.domain.UserRole;
+import kr.ac.kumoh.allimi.domain.*;
+import kr.ac.kumoh.allimi.domain.func.Notice;
 import kr.ac.kumoh.allimi.domain.func.Visit;
 import kr.ac.kumoh.allimi.domain.func.VisitState;
-import kr.ac.kumoh.allimi.dto.visit.VisitApprovalDTO;
-import kr.ac.kumoh.allimi.dto.visit.VisitDeleteDTO;
-import kr.ac.kumoh.allimi.dto.visit.VisitEditDTO;
-import kr.ac.kumoh.allimi.dto.visit.VisitWriteDTO;
+import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
+import kr.ac.kumoh.allimi.dto.visit.*;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.VisitException;
@@ -25,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,7 +33,63 @@ public class VisitService {
     private final FacilityRepository facilityRepository;
     private final NHResidentRepository nhResidentRepository;
 
-    public void write(VisitWriteDTO writeDTO) {
+    //면회신청 목록보기
+    public List<VisitListDTO> visitList(Long userId) throws Exception {
+      User user = userRepository.findUserByUserId(userId)
+              .orElseThrow(() -> new UserException("user를 찾을 수 없음"));
+
+      NHResident nhResident = nhResidentRepository.findById(user.getCurrentNHResident())
+              .orElseThrow(()-> new NHResidentException("입소자를 찾을 수 없음"));
+
+      UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+              .orElseThrow(() -> new UserException("user의 역할을 찾을 수 없음"));
+
+      List<VisitListDTO> visitList = new ArrayList<>();
+
+      if (userRole == UserRole.MANAGER || userRole == UserRole.WORKER) { // 직원, 시설장인 경우: 시설 알림장 모두 확인 가능
+        Facility facility = nhResident.getFacility();
+        List<Visit> managerVisitList = visitRepository.findAllByFacility(facility)
+                .orElse(new ArrayList<Visit>());
+        visitList = parseVisitList(managerVisitList);
+      } else if (userRole == UserRole.PROTECTOR) { // 보호자인 경우: 개별 알림장만 확인 가능
+        List<Visit> userNoticeList = visitRepository.findAllByTarget(nhResident)
+                .orElse(new ArrayList<Visit>());
+        visitList = parseVisitList(userNoticeList);
+      } else {
+        throw new NHResidentException("user의 역할이 잘못됨");
+      }
+
+      return visitList;
+    }
+
+  public List<VisitListDTO> parseVisitList(List<Visit> visits) {
+    List<VisitListDTO> visitList = new ArrayList<>();
+
+    for (Visit v : visits) {
+      User user = v.getUser();
+      NHResident resident = v.getNhResident();
+
+      VisitListDTO dto = VisitListDTO.builder()
+              .visit_id(v.getId())
+              .user_id(user.getUserId())
+              .resident_id(resident.getId())
+              .create_date(v.getCreateDate())
+              .want_date(v.getWantDate())
+              .texts(v.getTexts())
+              .phoneNum(v.getPhoneNum())
+              .residentName(resident.getName())
+              .visitorName(v.getVisitorName())
+              .rejReason(v.getRejReason())
+              .state(v.getState())
+              .build();
+      visitList.add(dto);
+    }
+
+    return visitList;
+  }
+
+
+  public void write(VisitWriteDTO writeDTO) {
         User user = userRepository.findUserByUserId(writeDTO.getUser_id())
                 .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다."));
 
