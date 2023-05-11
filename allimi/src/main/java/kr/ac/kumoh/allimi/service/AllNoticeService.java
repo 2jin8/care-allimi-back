@@ -52,15 +52,16 @@ public class AllNoticeService {
     AllNotice allNotice = AllNotice.newAllNotice(user, facility, dto.getTitle(), dto.getContents(), dto.isImportant());
 
     List<Image> images = new ArrayList<>();
-    for (MultipartFile file : files) {
-      if (!file.isEmpty()) {
-        String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
-        Image image = Image.newAllNoticeImage(allNotice, url);
-        images.add(image);
-        imageRepository.save(image);
+    if (files != null) {
+      for (MultipartFile file : files) {
+        if (!file.isEmpty()) {
+          String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
+          Image image = Image.newAllNoticeImage(allNotice, url);
+          images.add(image);
+          imageRepository.save(image);
+        }
       }
     }
-
     allNotice.addImages(images);
     AllNotice savedAllNotice = allNoticeRepository.save(allNotice);
 

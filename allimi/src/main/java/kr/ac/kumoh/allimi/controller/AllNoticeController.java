@@ -49,7 +49,7 @@ public class AllNoticeController {
     } catch (Exception e) {
       log.info("AllNoticeController 전체공지 작성: 쓰기 실패");
       System.out.println(e.getMessage());
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     return ResponseEntity.status(HttpStatus.OK).build();
