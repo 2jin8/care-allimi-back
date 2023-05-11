@@ -2,7 +2,7 @@ use allimi;
 
 show tables;
 
--- drop table if exists all_notice, facility, image, letter, invitation, nhresident, notice,users, visit;-- 
+-- drop table if exists all_notice, facility, image, letter, invitation, nhresident, notice,users, visit, schedules;
 
 create table all_notice (
    allnotice_id bigint not null auto_increment,
@@ -37,6 +37,7 @@ create table invitation (
 	dates date,
 	user_role smallint not null,
 	facility_id bigint not null,
+    create_date date,
 	user_id bigint not null,
 	primary key (invit_id)
 ) engine=InnoDB;
@@ -99,6 +100,15 @@ create table visit (
 	primary key (visit_id)
 ) engine=InnoDB;
 
+create table schedules (
+   schedule_id bigint not null auto_increment,
+	dates date not null,
+	texts varchar(255) not null,
+	facility_id bigint not null,
+	user_id bigint not null,
+	primary key (schedule_id)
+) engine=InnoDB;
+
 alter table all_notice 
    add constraint FKtch021huph6qocdd4nrftbh5 
    foreign key (facility_id) 
@@ -107,7 +117,7 @@ alter table all_notice
 alter table all_notice 
    add constraint FKobxalty2mvdlowcv0dut7fbnt 
    foreign key (user_id) 
-   references users (user_id) ON DELETE set null;
+   references users (user_id) ON DELETE cascade;
    
 alter table image 
    add constraint FK2upt0ce363186b049swfeec7r 
@@ -142,7 +152,7 @@ alter table letter
 alter table letter 
    add constraint FK10amltainvpyo3f174ytomgal 
    foreign key (user_id) 
-   references users (user_id) ON DELETE set null;
+   references users (user_id) ON DELETE cascade;
    
 alter table nhresident 
    add constraint FKnc3cjtrturjr63jfahcvirmtr 
@@ -184,5 +194,26 @@ alter table visit
    foreign key (user_id) 
    references users (user_id) ON DELETE CASCADE;
    
-   
-   
+alter table schedules 
+   add constraint FK9lfqaxkg1ek6cw7e12ouqpk7f 
+   foreign key (facility_id) 
+   references facility (facility_id) ON DELETE cascade;
+       
+alter table schedules 
+   add constraint FKd4y4xekwahv9boo6lc8gfl3jv 
+   foreign key (user_id) 
+   references users (user_id) on delete cascade;
+
+ALTER TABLE schedules CHANGE COLUMN date dates date not null;
+-- use allimi;
+-- show tables;
+
+-- select * from users;
+-- select * from facility;
+-- select * from nhresident;
+-- select * from notice;
+-- select * from image;
+-- select * from all_notice;
+-- select * from visit;
+-- select * from letter;
+-- select * from schedules;

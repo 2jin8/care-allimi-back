@@ -77,6 +77,7 @@ public class VisitService {
               .want_date(v.getWantDate())
               .texts(v.getTexts())
               .phoneNum(v.getPhoneNum())
+              .residentName(resident.getName())
               .visitorName(v.getVisitorName())
               .rejReason(v.getRejReason())
               .state(v.getState())

@@ -1,11 +1,8 @@
 package kr.ac.kumoh.allimi.controller;
 
-import kr.ac.kumoh.allimi.controller.response.AllNoticeResponse;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeEditDto;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeListDTO;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeWriteDto;
-import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
-import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.exception.AllNoticeException;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
@@ -18,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Map;
 
