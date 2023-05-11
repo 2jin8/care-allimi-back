@@ -181,19 +181,28 @@ public class UserService {
 
   public List<NHResidentResponse> getNHResidents(Long userId) {
     User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new UserException("user를 찾을 수 없습니다"));
+    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+            .orElseThrow(() -> new UserException("사용자 역할 찾기 실패"));
 
     List<NHResident> nhResidents = user.getNhResident();
     List<NHResidentResponse> nhResidentResponses = new ArrayList<>();
 
     for (NHResident nhr: nhResidents) {
-          Facility facility = nhr.getFacility();
-          nhResidentResponses.add(NHResidentResponse.builder()
-                  .resident_id(nhr.getId())
-                  .resident_name(nhr.getName())
-                  .user_role(nhr.getUserRole())
-                  .facility_id(facility.getId())
-                  .facility_name(facility.getName())
-                  .build());
+      Facility facility = nhr.getFacility();
+      String name = "";
+      if (userRole == UserRole.WORKER || userRole == UserRole.MANAGER) {
+        name = facility.getFmName();
+      } else {
+        name = nhr.getName();
+      }
+
+      nhResidentResponses.add(NHResidentResponse.builder()
+              .resident_id(nhr.getId())
+              .resident_name(name)
+              .user_role(nhr.getUserRole())
+              .facility_id(facility.getId())
+              .facility_name(facility.getName())
+              .build());
       }
 
     return nhResidentResponses;
