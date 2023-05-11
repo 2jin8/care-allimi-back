@@ -62,7 +62,6 @@ public class AllNoticeService {
         }
       }
     }
-
     allNotice.addImages(images);
     AllNotice savedAllNotice = allNoticeRepository.save(allNotice);
 
