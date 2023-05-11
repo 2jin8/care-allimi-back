@@ -204,7 +204,6 @@ alter table schedules
    foreign key (user_id) 
    references users (user_id) on delete cascade;
 
-ALTER TABLE schedules CHANGE COLUMN date dates date not null;
 -- use allimi;
 -- show tables;
 

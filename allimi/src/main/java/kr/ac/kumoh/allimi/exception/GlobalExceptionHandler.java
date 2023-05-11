@@ -13,6 +13,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler({InputException.class})
+    protected ResponseEntity handleInputException(InputException e) {
+      log.info("InputException = {}", e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
     @ExceptionHandler({UserException.class})
     protected ResponseEntity handleUserException(UserException e) {
         log.info("UserException = {}", e.getMessage());
@@ -34,7 +40,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({FacilityException.class})
     protected ResponseEntity handleFacilityException(FacilityException e) {
         log.info("FacilityException={}", e);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     @ExceptionHandler({AllNoticeException.class})
