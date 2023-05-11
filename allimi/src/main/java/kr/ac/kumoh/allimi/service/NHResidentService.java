@@ -76,7 +76,7 @@ public class NHResidentService {
     List<ResponseResident> list = new ArrayList<>();
 
     for (NHResident r: residents) {
-      list.add(ResponseResident
+        list.add(ResponseResident
               .builder()
               .id(r.getId())
               .user_id(r.getUser().getUserId())
@@ -94,15 +94,16 @@ public class NHResidentService {
 
     List<ResponseResident> list = new ArrayList<>();
 
-    for (NHResident r: residents) {
-      list.add(ResponseResident
-              .builder()
-              .id(r.getId())
-              .user_id(r.getUser().getUserId())
-              .name(r.getName())
-              .user_role(r.getUserRole())
-              .build());
-    }
+      for (NHResident r : residents) {
+
+          list.add(ResponseResident
+                  .builder()
+                  .id(r.getId())
+                  .user_id(r.getUser().getUserId())
+                  .name(r.getUser().getName())
+                  .user_role(r.getUserRole())
+                  .build());
+      }
 
     return list;
   }
