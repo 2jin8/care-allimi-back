@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional
@@ -103,5 +104,22 @@ public class ScheduleService {
         }
 
         return listDTOS;
+    }
+
+    public List<ScheduleListDTO> monthlyList(Long facility_id, String yearMonth) {
+
+      List<Schedule> schedules = scheduleRepository.findAllByMonth(facility_id, yearMonth)
+              .orElse(new ArrayList<>());
+
+      List<ScheduleListDTO> listDTOS = new ArrayList<>();
+
+      for (Schedule schedule : schedules) {
+        listDTOS.add(ScheduleListDTO.builder()
+                .schedule_id(schedule.getId())
+                .date(schedule.getDates())
+                .texts(schedule.getTexts()).build());
+      }
+
+      return listDTOS;
     }
 }

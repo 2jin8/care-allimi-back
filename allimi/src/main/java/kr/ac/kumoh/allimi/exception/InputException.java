@@ -1,23 +1,23 @@
 package kr.ac.kumoh.allimi.exception;
 
-public class AllNoticeException extends RuntimeException{
-    public AllNoticeException() {
+public class InputException extends RuntimeException{
+    public InputException() {
         super();
     }
 
-    public AllNoticeException(String message) {
+    public InputException(String message) {
         super(message);
     }
 
-    public AllNoticeException(String message, Throwable cause) {
+    public InputException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public AllNoticeException(Throwable cause) {
+    public InputException(Throwable cause) {
         super(cause);
     }
 
-    protected AllNoticeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected InputException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }
