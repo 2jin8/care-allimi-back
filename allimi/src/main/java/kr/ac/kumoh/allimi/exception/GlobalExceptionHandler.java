@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.NoSuchElementException;
+
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -19,6 +21,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       log.info("InputException = {}", e.getMessage());
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
+
+  @ExceptionHandler({NoSuchElementException.class})
+  protected ResponseEntity handleNoSuchElementException(NoSuchElementException e) {
+    log.info("NoSuchElementException = {}", e.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+  }
 
     @ExceptionHandler({UserException.class})
     protected ResponseEntity handleUserException(UserException e) {
