@@ -101,4 +101,13 @@ public class ScheduleController {
 
         return ResponseEntity.status(HttpStatus.OK).body(scheduleList);
     }
+
+  @GetMapping(value = "/v2/schedule/{facility_id}/{year_month}") //2023-05
+  public ResponseEntity monthList(@PathVariable("facility_id")Long facilityId, @PathVariable("year_month")String yearMonth) throws Exception {
+    List<ScheduleListDTO> scheduleList;
+
+    scheduleList = scheduleService.monthlyList(facilityId, yearMonth);
+
+    return ResponseEntity.status(HttpStatus.OK).body(scheduleList);
+  }
 }
