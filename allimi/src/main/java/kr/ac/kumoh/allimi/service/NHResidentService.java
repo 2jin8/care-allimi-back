@@ -5,19 +5,15 @@ import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.domain.UserRole;
-import kr.ac.kumoh.allimi.dto.nhresident.NHResidentChangeDTO;
+import kr.ac.kumoh.allimi.dto.nhresident.NHResidentUFDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentEditDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
-import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,15 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class NHResidentService {
     private final NHResidentRepository nhResidentRepository;
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
 
-
-    @Transactional
     public Long addNHResident(NHResidentDTO dto) throws Exception { // user_id, facility_id, resident_name, birth, user_role, health_info;
         User user = userRepository.findUserByUserId(dto.getUser_id())
                 .orElseThrow(() -> new UserException("해당 user가 없습니다"));
@@ -49,7 +43,6 @@ public class NHResidentService {
         return nhResident.getId();
     }
 
-    @Transactional
     public void deleteResident(Long residentId) throws Exception { // 입소자 삭제
 //      NHResident resident = nhResidentRepository.findById(residentId)
 //              .orElseThrow(() -> new NHResidentException("해당하는 입소자가 없음"));
@@ -61,7 +54,6 @@ public class NHResidentService {
       nhResidentRepository.deleteById(residentId);
     }
 
-  @Transactional
   public void editNHResident(NHResidentEditDTO dto) throws Exception { //resident_id, resident_name, birth, health_info
     NHResident nhResident = nhResidentRepository.findById(dto.getResident_id())
                     .orElseThrow(() -> new NHResidentException("해당하는 resident가 없음"));
@@ -69,6 +61,7 @@ public class NHResidentService {
     nhResident.edit(dto.getResident_name(), dto.getBirth(), dto.getHealth_info());
   }
 
+  @Transactional(readOnly = true)
   public List<ResponseResident> findProtectorByFacility(Long facilityId) throws Exception {
     List<NHResident> residents = nhResidentRepository.findProtectorByFacilityId(facilityId)
             .orElseThrow(() -> new NHResidentException("입소자 리스트 찾기 실패"));
@@ -77,17 +70,19 @@ public class NHResidentService {
 
     for (NHResident r: residents) {
         list.add(ResponseResident
-              .builder()
-              .id(r.getId())
-              .user_id(r.getUser().getUserId())
-              .name(r.getName())
-              .user_role(r.getUserRole())
-              .build());
+                .builder()
+                .id(r.getId())
+                .user_id(r.getUser().getUserId())
+                .name(r.getName())
+                .user_role(r.getUserRole())
+                .worker_id(r.getWorkers())
+                .build());
     }
 
     return list;
   }
 
+  @Transactional(readOnly = true)
   public List<ResponseResident> findAllByFacility(Long facilityId) throws Exception {
     List<NHResident> residents = nhResidentRepository.findByFacilityId(facilityId)
             .orElseThrow(() -> new NHResidentException("입소자 리스트 찾기 실패"));
@@ -102,6 +97,7 @@ public class NHResidentService {
                   .user_id(r.getUser().getUserId())
                   .name(r.getUser().getName())
                   .user_role(r.getUserRole())
+                  .worker_id(r.getWorkers())
                   .build());
       }
 
@@ -109,18 +105,17 @@ public class NHResidentService {
   }
 
 
-  @Transactional
-  public NHResidentResponse change(NHResidentChangeDTO changeDTO) {
+  public NHResidentResponse changeCurrentResident(NHResidentUFDTO changeDTO) {
 
         User user = userRepository.findById(changeDTO.getUser_id())
-                .orElseThrow(() -> new UserException("사용자를 찾을 수 없음"));
+                .orElseThrow(() -> new UserException("사용자 찾기 실패"));
         Facility facility = facilityRepository.findById(changeDTO.getFacility_id())
-                .orElseThrow(() -> new FacilityException("시설을 찾을 수 없음"));
-        NHResident nhResident = nhResidentRepository.findById(changeDTO.getResident_id())
-                .orElseThrow(() -> new NHResidentException("입소자를 찾을 수 없음"));
+                .orElseThrow(() -> new FacilityException("시설 찾기 실패"));
+        NHResident nhResident = nhResidentRepository.findById(changeDTO.getNhresident_id())
+                .orElseThrow(() -> new NHResidentException("입소자 찾기 실패"));
 
         UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
-                .orElseThrow(() -> new UserException("역할을 찾을 수 없음"));
+                .orElseThrow(() -> new UserException("역할 찾기 실패"));
 
         user.changeCurrNHResident(nhResident.getId());
         return NHResidentResponse.builder()
@@ -132,46 +127,39 @@ public class NHResidentService {
                 .build();
     }
 
+    public void setWorker(NHResidentUFDTO setDTO) throws Exception {
 
-//    @Transactional(readOnly = true)
-//    public List<NHResidentResponse> nhResidentList(Long facilityId) throws Exception {
-//        List<NHResident> list = nhResidentRepository.findByFacilityId(facilityId)
-//                .orElseGet(() -> new ArrayList<>());
-//
-//        List<NHResidentResponse> responseList = new ArrayList<>();
-//
-//        for (NHResident nhResident : list) {
-//            NHResidentResponse response = NHResidentResponse.builder()
-//                    .resident_id(nhResident.getId())
-//                    .resident_name(nhResident.getName())
-//                    .user_role(nhResident.getUserRole())
-//                    .is_approved(nhResident.isApproved())
-//                    .build();
-//            responseList.add(response);
-//        }
-//        return responseList;
-//    }
+        NHResident nhResident = nhResidentRepository.findById(setDTO.getNhresident_id())
+                .orElseThrow(() -> new NHResidentException("입소자 찾기 실패"));
 
-//    @Transactional(readOnly = true)
-//    public List<NHResidentResponse> getList(Long userId) throws Exception {
-//
-//        List<NHResident> list = nhResidentRepository.findByUserId(userId).orElseThrow(() ->
-//                new NHResidentException("불러오기 실패"));
-//
-//        List<NHResidentResponse> nhResidentResponses = new ArrayList<>();
-//
-//        for (NHResident nhr: list) {
-//            User user = nhr.getUser();
-//            Facility facility = nhr.getFacility();
-//
-//            nhResidentResponses.add(NHResidentResponse.builder()
-//                    .user_id(user.getUserId())
-//                    .facility_name(facility.getName())
-//                    .name(nhr.getName())
-//                    .userRole(nhr.getUserRole())
-//                    .build());
-//        }
-//
-//        return nhResidentResponses;
-//    }
+        NHResident userNHResident = nhResidentRepository.findNHResidentByUserIdAAndFacilityId(setDTO.getUser_id(), setDTO.getFacility_id())
+                .orElseThrow(() -> new NHResidentException("userId로 입소자 찾기 실패"));
+
+        if (nhResident.getUserRole() != UserRole.PROTECTOR || userNHResident.getUserRole() == UserRole.PROTECTOR)
+            throw new UserException("역할이 올바르지 않음");
+
+        nhResident.setWorker(userNHResident.getId());
+    }
+
+    public List<NHResidentResponse> workerList(Long userId, Long facilityId) throws Exception {
+        NHResident nhResident = nhResidentRepository.findNHResidentByUserIdAAndFacilityId(userId, facilityId)
+                .orElseThrow(() -> new NHResidentException("userId로 입소자 찾기 실패"));
+
+        Long workerId = nhResident.getId();
+
+        List<NHResident> nhResidents = nhResidentRepository.findByWorkerId(workerId)
+                .orElseThrow(() -> new NHResidentException("workerId로 입소자 찾기 실패"));
+
+        List<NHResidentResponse> responseList = new ArrayList<>();
+        for (NHResident resident : nhResidents) {
+            responseList.add(NHResidentResponse.builder()
+                    .facility_id(resident.getFacility().getId())
+                    .facility_name(resident.getFacility().getName())
+                    .resident_id(resident.getId())
+                    .resident_name(resident.getName())
+                    .user_role(resident.getUserRole()).build());
+        }
+        return responseList;
+    }
+
 }

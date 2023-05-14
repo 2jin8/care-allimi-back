@@ -31,6 +31,9 @@ public class NHResident {
   @Enumerated(EnumType.STRING)
   private UserRole userRole;
 
+  @Column(name = "worker_id")
+  private Long workers;
+
   @Column(name = "health_info", length = 20000)
   @Lob
   private String healthInfo;
@@ -60,6 +63,10 @@ public class NHResident {
       this.birth = birth;
     if (healthInfo != null)
       this.healthInfo = healthInfo;
+  }
+
+  public void setWorker(Long workerId) {
+    this.workers = workerId;
   }
 
   @Override
