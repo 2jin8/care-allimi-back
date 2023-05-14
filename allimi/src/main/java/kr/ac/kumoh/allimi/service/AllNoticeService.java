@@ -62,7 +62,6 @@ public class AllNoticeService {
         }
       }
     }
-
     allNotice.addImages(images);
     AllNotice savedAllNotice = allNoticeRepository.save(allNotice);
 
@@ -126,12 +125,14 @@ public class AllNoticeService {
 
     // 수정된 이미지 넣기
     List<String> images_url = new ArrayList<>();
-    for (MultipartFile file : files) {
-      if (!file.isEmpty()) {
-        String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
-        Image image = Image.newAllNoticeImage(allNotice, url);
-        images_url.add(url);
-        imageRepository.save(image);
+    if (files != null) {
+      for (MultipartFile file : files) {
+        if (!file.isEmpty()) {
+          String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
+          Image image = Image.newAllNoticeImage(allNotice, url);
+          images_url.add(url);
+          imageRepository.save(image);
+        }
       }
     }
 

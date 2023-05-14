@@ -9,6 +9,7 @@ import kr.ac.kumoh.allimi.domain.func.Notice;
 import kr.ac.kumoh.allimi.domain.func.Visit;
 import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
 import kr.ac.kumoh.allimi.dto.facility.EditFacilityDTO;
+import kr.ac.kumoh.allimi.dto.facility.FacilityInfoDto;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.repository.*;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,20 @@ public class FacilityService {
       facilityRepository.save(facility);
 
       return facility.getId();
+  }
+
+  public FacilityInfoDto getInfo(Long facilityId) {
+    Facility facility = facilityRepository.findById(facilityId)
+            .orElseThrow(() -> new NoSuchElementException("해당하는 시설을 찾을 수 없음"));
+
+    FacilityInfoDto dto = FacilityInfoDto.builder()
+            .name(facility.getName())
+            .tel(facility.getTel())
+            .address(facility.getAddress())
+            .fm_name(facility.getFmName())
+            .build();
+
+    return dto;
   }
 
   public Long editFacility(EditFacilityDTO dto){ // facility_id, name, address, tel, fm_name

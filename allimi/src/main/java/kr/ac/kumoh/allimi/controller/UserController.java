@@ -39,29 +39,11 @@ public class UserController {
     userService.changeNHResident(userId, nhrId);
 
     return ResponseEntity.status(HttpStatus.OK).build();
-
-//    if (userId == null || nhrId == null) {
-//      log.info("UserController 현재 user의 nhresident 변경: nhr_id 혹은 user_id가 null로 들어옴. 잘못된 요청");
-//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//    }
-//
-//    try {
-//      userService.changeNHResident(userId, nhrId);
-//    } catch (UserException exception) {
-//      log.info("UserController 현재 user의 nhresident 변경: 해당하는 user가 없음");
-//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//    } catch (Exception exception) {
-//      log.info("UserController 현재 user의 nhresident 변경: 변경 중 문제가 생김");
-//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//    }
-//
-//    return ResponseEntity.status(HttpStatus.OK).build();
   }
 
   //user가 현재 가리키는 nhresident를 반환
   @GetMapping("/v2/users/nhrs/{user_id}")
   public ResponseEntity getUsersCurrNHR(@PathVariable("user_id") Long userId) throws Exception { //user_id
-
     if (userId == null) {
       log.info("UserController 현재 user의 nhresident 반환: nhr_id 혹은 user_id가 null로 들어옴. 잘못된 요청");
       throw new UserException("UserController");
@@ -71,17 +53,6 @@ public class UserController {
     response = userService.getCurrNHResident(userId);
 
     return ResponseEntity.status(HttpStatus.OK).body(response); // nhr_id, facility_id resident_name, facility_name, user_role;
-//    if (userId == null) {
-//      log.info("UserController 현재 user의 nhresident 반환: nhr_id 혹은 user_id가 null로 들어옴. 잘못된 요청");
-//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//    }
-
-//    try {
-//      response = userService.getCurrNHResident(userId);
-//    }catch (Exception exception) {
-//      log.info("UserController 현재 user의 nhresident 반환: 문제가 생김");
-//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//    }
   }
 
   //회원가입
@@ -91,6 +62,8 @@ public class UserController {
       throw new UserException("UserController 회원가입: 필수적인 정보가 들어오지 않음");
     }
 
+    log.info("@@@dto.getName = " + dto.getName());
+
     Long userId;
     userId = userService.addUser(dto);
 
@@ -98,25 +71,6 @@ public class UserController {
     map.put("user_id", userId);
 
     return ResponseEntity.status(HttpStatus.OK).body(map); // user_id
-
-//    if(dto.getLogin_id() == null || dto.getPassword() == null || dto.getName() == null) {
-//      log.info("UserController 회원가입: 필수적인 정보가 들어오지 않음");
-//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//    }
-//      try {
-//          userId = userService.addUser(dto);
-//      } catch(UserIdDuplicateException exception) { //중복된 id 에러
-//        log.info("회원가입: 중복된 id로 회원가입");
-//          return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//      } catch(Exception exception) { //그냥 에러
-//        log.info("회원가입: 회원가입하는데 exception이 발생");
-//          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//      }
-//
-//    Map<String, Long> map = new HashMap<>();
-//    map.put("user_id", userId);
-//
-//    return ResponseEntity.status(HttpStatus.OK).body(map); // user_id
   }
 
   @PostMapping("/v2/login") // 로그인
@@ -124,18 +78,6 @@ public class UserController {
     ResponseLogin responseLogin = userService.login(dto.getLogin_id(), dto.getPassword());
 
     return ResponseEntity.status(HttpStatus.OK).body(responseLogin);  // user_id, user_role, user_name, phone_num, login_id;
-
-//      try {
-//        responseLogin = userService.login(dto.getLogin_id(), dto.getPassword());
-//      } catch (UserAuthException exception) {
-//        log.info("일치하는 id, password가 없거나 로그인 중 에러 발생");
-//        return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); //해당 id password 일치하는 게 없음
-//      } catch (Exception exception) {
-//        log.info("UserController 로그인: 로그인 중 에러 발생");
-//          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //해당 id password 일치하는 게 없음
-//      }
-//
-//      return ResponseEntity.status(HttpStatus.OK).body(responseLogin);  // user_id, user_role, user_name, phone_num, login_id;
   }
 
   @GetMapping("/v2/users/{user_id}") // 사용자 정보 조회
@@ -146,24 +88,6 @@ public class UserController {
      kr.ac.kumoh.allimi.dto.user.UserListDTO userListDTO = userService.getUserInfo(userId);
 
      return ResponseEntity.status(HttpStatus.OK).body(userListDTO); // user_name, phone_num, login_id;
-
-//      if (userId == null) {
-//        log.info("사용자 정보조회: user_id가 null로 들어옴. 잘못된 요청");
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//      }
-//      kr.ac.kumoh.allimi.dto.user.UserListDTO userListDTO;
-//
-//      try {
-//          userListDTO = userService.getUserInfo(userId);
-//      } catch (UserException exception) {
-//        log.info("사용자 정보 조회: 일치하는 user가 없음");
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //user가 없는 경우
-//      } catch (Exception exception) {
-//        log.info("사용자 정보 조회: user조회 중 에러 발생");
-//          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); //user가 없는 경우
-//      }
-//
-//      return ResponseEntity.status(HttpStatus.OK).body(userListDTO); // user_name, phone_num, login_id;
   }
 
   //전체 user조회 - 관리자용
@@ -173,16 +97,6 @@ public class UserController {
     List<UserListDTO>  dtos = userService.getAllUser();
 
     return ResponseEntity.status(HttpStatus.OK).body(dtos);
-
-//    List<UserListDTO> dtos = null;
-//    try {
-//      dtos = userService.getAllUser();
-//    }catch (Exception exception) {
-//      log.info("관리자 전체 user조회: 조회 중 문제가 생김");
-//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//    }
-//
-//    return ResponseEntity.status(HttpStatus.OK).body(dtos);
   }
 
   //전화번호 맞는 user 모두 출력

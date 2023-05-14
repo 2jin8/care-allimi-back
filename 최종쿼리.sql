@@ -1,3 +1,6 @@
+	
+-- CREATE DATABASE 이름 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 use allimi;
 
 show tables;
@@ -59,6 +62,7 @@ create table nhresident (
 	health_info text,
 	resident_name varchar(255),
 	user_role varchar(255),
+	worker_id bigint,
 	facility_id bigint,
 	user_id bigint,
 	primary key (nhr_id)
@@ -204,7 +208,6 @@ alter table schedules
    foreign key (user_id) 
    references users (user_id) on delete cascade;
 
-ALTER TABLE schedules CHANGE COLUMN date dates date not null;
 -- use allimi;
 -- show tables;
 

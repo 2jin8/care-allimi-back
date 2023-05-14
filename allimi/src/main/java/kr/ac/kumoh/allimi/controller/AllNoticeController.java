@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class AllNoticeController {
     } catch (Exception e) {
       log.info("AllNoticeController 전체공지 작성: 쓰기 실패");
       System.out.println(e.getMessage());
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     return ResponseEntity.status(HttpStatus.OK).build();
@@ -75,8 +76,11 @@ public class AllNoticeController {
   public ResponseEntity noticeEdit(@RequestPart(value="allnotice") AllNoticeEditDto dto,
                                    @RequestPart(value="file", required = false) List<MultipartFile> files) {
 
+    if (dto.getAllnotice_id() == 0 || dto.getUser_id() == 0)
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
       try {
-          allNoticeService.edit(dto, files);
+        allNoticeService.edit(dto, files);
       } catch (UserException | UserAuthException | AllNoticeException e) {
           log.info("AllNoticeController 전체공지 수정: 사용자 또는 공지사항 에러");
           return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

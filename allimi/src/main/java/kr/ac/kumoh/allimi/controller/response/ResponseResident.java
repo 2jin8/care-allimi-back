@@ -13,4 +13,5 @@ public class ResponseResident {
       private Long user_id;
       private String name; //입소자명
       private UserRole user_role;
+      private Long worker_id;
 }
