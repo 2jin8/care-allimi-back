@@ -62,6 +62,7 @@ create table nhresident (
 	health_info text,
 	resident_name varchar(255),
 	user_role varchar(255),
+	worker_id bigint,
 	facility_id bigint,
 	user_id bigint,
 	primary key (nhr_id)
