@@ -1,3 +1,6 @@
+	
+-- CREATE DATABASE 이름 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 use allimi;
 
 show tables;

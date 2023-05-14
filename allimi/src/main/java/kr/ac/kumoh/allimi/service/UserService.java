@@ -90,8 +90,8 @@ public class UserService {
 
   @Transactional
   public Long addUser(SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
-    // ID 중복 체크
-    if (isDuplicateId(dto.getLogin_id()))
+
+    if (isDuplicateId(dto.getLogin_id()))// ID 중복 체크
         throw new UserIdDuplicateException("중복된 아이디 입니다");
 
     User user = User.newUser(dto.getLogin_id(), dto.getPassword(), dto.getName(), dto.getPhone_num());
@@ -207,6 +207,7 @@ public class UserService {
 
     return nhResidentResponses;
   }
+
 
 //
 ////    public UserRole getUserRole(Long userId) throws Exception {
