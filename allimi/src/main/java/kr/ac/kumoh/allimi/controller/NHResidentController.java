@@ -34,12 +34,6 @@ public class NHResidentController {
     private final UserService userService;
     private final NHResidentService nhResidentService;
 
-    @Getter
-    @AllArgsConstructor
-    public class ResponseResidentList {
-        private int count;
-        private List<NHResidentResponse> resident_list;
-    }
 
     //새 입소자 추가 or 직원, 시설장 등록
     @PostMapping("/v2/nhResidents")
