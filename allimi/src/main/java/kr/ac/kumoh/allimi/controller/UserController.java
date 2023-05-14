@@ -62,6 +62,8 @@ public class UserController {
       throw new UserException("UserController 회원가입: 필수적인 정보가 들어오지 않음");
     }
 
+    log.info("@@@dto.getName = " + dto.getName());
+
     Long userId;
     userId = userService.addUser(dto);
 

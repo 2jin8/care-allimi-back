@@ -1,5 +1,6 @@
 package kr.ac.kumoh.allimi.service;
 
+import kr.ac.kumoh.allimi.controller.response.NHResidentDetailResponse;
 import kr.ac.kumoh.allimi.controller.response.ResponseResident;
 import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.NHResident;
@@ -28,6 +29,36 @@ public class NHResidentService {
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
 
+  @Transactional(readOnly = true)
+  public NHResidentDetailResponse getNHResidentInfo(Long nhrId) throws Exception {
+    NHResident nhResident = nhResidentRepository.findById(nhrId)
+            .orElseThrow(() -> new NHResidentException("해당하는 입소자가 없습니다"));
+
+    User user = nhResident.getUser();
+
+    Facility facility = nhResident.getFacility();
+
+    String name = "";
+    if (nhResident.getUserRole() == UserRole.WORKER || nhResident.getUserRole() == UserRole.MANAGER) {
+      name = facility.getFmName();
+    } else {
+      name = nhResident.getName();
+    }
+
+    //    String resident_name;
+    //    String birth;
+    //    String protector_name;
+    //    String protector_phone_num;
+
+    return NHResidentDetailResponse.builder()
+            .resident_name(nhResident.getName())
+            .birth(nhResident.getBirth())
+            .protector_name(user.getName())
+            .protector_phone_num(user.getPhoneNum())
+            .build();
+  }
+
+    @Transactional
     public Long addNHResident(NHResidentDTO dto) throws Exception { // user_id, facility_id, resident_name, birth, user_role, health_info;
         User user = userRepository.findUserByUserId(dto.getUser_id())
                 .orElseThrow(() -> new UserException("해당 user가 없습니다"));

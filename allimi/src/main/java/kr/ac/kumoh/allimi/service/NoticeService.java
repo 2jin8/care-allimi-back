@@ -118,7 +118,6 @@ public class NoticeService {
     return noticeList;
   }
 
-
   //알림장 상세보기
   public NoticeResponse getDetail(Long noticeId) throws Exception {
     Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new NoticeException("해당 알림장을 찾을 수 없습니다"));
@@ -168,17 +167,18 @@ public class NoticeService {
 
     // 수정된 이미지 넣기
     List<String> images_url = new ArrayList<>();
-    for (MultipartFile file : files) {
-      if (!file.isEmpty()) {
-        String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
-        Image image = Image.newNoticeImage(notice, url);
-        images_url.add(url);
-        imageRepository.save(image);
+    if (files != null) {
+      for (MultipartFile file : files) {
+        if (!file.isEmpty()) {
+          String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
+          Image image = Image.newNoticeImage(notice, url);
+          images_url.add(url);
+          imageRepository.save(image);
+        }
       }
     }
 
     notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), images_url);
-    System.out.println("notice id: " + notice.getNoticeId());
     return notice.getNoticeId();
   }
 

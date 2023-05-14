@@ -20,12 +20,12 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/v2")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ScheduleController {
-
     private final ScheduleService scheduleService;
 
-    @PostMapping(value = "/v2/schedule")
+    @PostMapping(value = "/schedule")
     public ResponseEntity write(@RequestBody ScheduleWriteDTO writeDTO) {
 
         try {
@@ -47,7 +47,7 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PatchMapping(value = "/v2/schedule")
+    @PatchMapping(value = "/schedule")
     public ResponseEntity edit(@RequestBody ScheduleEditDTO editDTO) {
 
         try {
@@ -66,7 +66,7 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @DeleteMapping(value = "/v2/schedule")
+    @DeleteMapping(value = "/schedule")
     public ResponseEntity delete(@RequestBody ScheduleDeleteDTO deleteDTO) {
 
         try {
@@ -85,7 +85,7 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping(value = "/v2/schedule/{facility_id}")
+    @GetMapping(value = "/schedule/{facility_id}")
     public ResponseEntity list(@PathVariable Long facility_id) {
         List<ScheduleListDTO> scheduleList;
 
@@ -102,7 +102,7 @@ public class ScheduleController {
         return ResponseEntity.status(HttpStatus.OK).body(scheduleList);
     }
 
-  @GetMapping(value = "/v2/schedule/{facility_id}/{year_month}") //2023-05
+  @GetMapping(value = "/schedule/{facility_id}/{year_month}") //2023-05
   public ResponseEntity monthList(@PathVariable("facility_id")Long facilityId, @PathVariable("year_month")String yearMonth) throws Exception {
     List<ScheduleListDTO> scheduleList;
 

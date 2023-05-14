@@ -1,5 +1,6 @@
 package kr.ac.kumoh.allimi.controller;
 
+import kr.ac.kumoh.allimi.controller.response.NHResidentDetailResponse;
 import kr.ac.kumoh.allimi.controller.response.ResponseResident;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentUFDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentDTO;
@@ -106,9 +107,31 @@ public class NHResidentController {
       return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+  // 사용자의 입소자 리스트 출력 - v2
+  @GetMapping("/v2/nhResidents/{user_id}")
+  public ResponseEntity v2UsersNHResidentList(@PathVariable("user_id") Long userId) { //user_id
+
+    if (userId == null)
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+    List<NHResidentResponse> nhResidentResponses;
+
+    try {
+      nhResidentResponses = userService.getNHResidents(userId);
+    } catch (UserException exception) {
+      log.info("NHResidentController 사용자 입소자 리스트 출력: user를 찾을 수 없음");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (Exception exception) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(new ResponseResidentList(nhResidentResponses.size(), nhResidentResponses));
+    // count, resident_list: {resident_id, acility_id, facility_name, resident_name, user_role};
+  }
+
     // 사용자의 입소자 리스트 출력
-    @GetMapping("/v2/nhResidents/{user_id}")
-    public ResponseEntity nhresidentList(@PathVariable("user_id") Long userId) { //user_id
+    @GetMapping("/v3/nhResidents/users/{user_id}")
+    public ResponseEntity usersNHResidentList(@PathVariable("user_id") Long userId) { //user_id
 
       if (userId == null)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -127,6 +150,37 @@ public class NHResidentController {
       return ResponseEntity.status(HttpStatus.OK).body(new ResponseResidentList(nhResidentResponses.size(), nhResidentResponses));
       // count, resident_list: {resident_id, acility_id, facility_name, resident_name, user_role};
     }
+
+  // 입소자의 상세정보 출력
+  @GetMapping("/v3/nhResidents/{nhr_id}")
+  public ResponseEntity nhresidentList(@PathVariable("nhr_id") Long nhrId) { //nhr_id
+
+    if (nhrId == null)
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+
+    NHResidentDetailResponse response;
+
+    try {
+      response = nhResidentService.getNHResidentInfo(nhrId);
+    } catch (NHResidentException exception) {
+      log.info("NHResidentController 사용자 입소자 리스트 출력: nhResident를 찾을 수 없음");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (Exception exception) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+    // count, resident_list: {resident_id, acility_id, facility_name, resident_name, user_role};
+  }
+
+
+  @Getter
+    @AllArgsConstructor
+    public class ResponseResidentList {
+        private int count;
+        private List<NHResidentResponse> resident_list;
+    }
+
 
     // 시설에 포함된 모든 protector 출력
     @GetMapping("/v2/nhResidents/protectors/{facility_id}")
