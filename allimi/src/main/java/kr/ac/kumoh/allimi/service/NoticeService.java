@@ -176,12 +176,9 @@ public class NoticeService {
           imageRepository.save(image);
         }
       }
-    } else {
-      System.out.println("@@@@@@@@@@@@@@@@@@ file null");
     }
 
     notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), images_url);
-    System.out.println("notice id: " + notice.getNoticeId());
     return notice.getNoticeId();
   }
 
