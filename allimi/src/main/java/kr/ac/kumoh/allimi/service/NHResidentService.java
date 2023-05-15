@@ -29,6 +29,8 @@ public class NHResidentService {
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
 
+
+
   @Transactional(readOnly = true)
   public NHResidentDetailResponse getNHResidentInfo(Long nhrId) throws Exception {
     NHResident nhResident = nhResidentRepository.findById(nhrId)
@@ -59,7 +61,7 @@ public class NHResidentService {
   }
 
     @Transactional
-    public Long addNHResident(NHResidentDTO dto) throws Exception { // user_id, facility_id, resident_name, birth, user_role, health_info;
+    public Long addNHResident(NHResidentDTO dto) { // user_id, facility_id, resident_name, birth, user_role, health_info;
         User user = userRepository.findUserByUserId(dto.getUser_id())
                 .orElseThrow(() -> new UserException("해당 user가 없습니다"));
 
@@ -73,6 +75,16 @@ public class NHResidentService {
 
         return nhResident.getId();
     }
+
+  public boolean findByFacilityAndUserExists(Long facilityId, Long userId) {
+    List<NHResident> residents =  nhResidentRepository.findByFacilityAndUser(facilityId, userId)
+            .orElseGet(() -> new ArrayList<>());
+
+    if (residents.size() == 0)
+      return false;
+
+    return true;
+  }
 
     public void deleteResident(Long residentId) throws Exception { // 입소자 삭제
 //      NHResident resident = nhResidentRepository.findById(residentId)
@@ -159,24 +171,23 @@ public class NHResidentService {
     }
 
     public void setWorker(NHResidentUFDTO setDTO) throws Exception {
-
         NHResident nhResident = nhResidentRepository.findById(setDTO.getNhresident_id())
                 .orElseThrow(() -> new NHResidentException("입소자 찾기 실패"));
 
-        NHResident userNHResident = nhResidentRepository.findNHResidentByUserIdAAndFacilityId(setDTO.getUser_id(), setDTO.getFacility_id())
+        List<NHResident> userNHResident = nhResidentRepository.findNHResidentByUserIdAAndFacilityId(setDTO.getUser_id(), setDTO.getFacility_id())
                 .orElseThrow(() -> new NHResidentException("userId로 입소자 찾기 실패"));
 
-        if (nhResident.getUserRole() != UserRole.PROTECTOR || userNHResident.getUserRole() == UserRole.PROTECTOR)
+        if (nhResident.getUserRole() != UserRole.PROTECTOR || userNHResident.get(0).getUserRole() == UserRole.PROTECTOR)
             throw new UserException("역할이 올바르지 않음");
 
-        nhResident.setWorker(userNHResident.getId());
+        nhResident.setWorker(userNHResident.get(0).getId());
     }
 
     public List<NHResidentResponse> workerList(Long userId, Long facilityId) throws Exception {
-        NHResident nhResident = nhResidentRepository.findNHResidentByUserIdAAndFacilityId(userId, facilityId)
+      List<NHResident> nhResident = nhResidentRepository.findNHResidentByUserIdAAndFacilityId(userId, facilityId)
                 .orElseThrow(() -> new NHResidentException("userId로 입소자 찾기 실패"));
 
-        Long workerId = nhResident.getId();
+        Long workerId = nhResident.get(0).getId();
 
         List<NHResident> nhResidents = nhResidentRepository.findByWorkerId(workerId)
                 .orElseThrow(() -> new NHResidentException("workerId로 입소자 찾기 실패"));

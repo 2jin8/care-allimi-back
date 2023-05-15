@@ -1,5 +1,6 @@
 package kr.ac.kumoh.allimi.controller;
 
+import jakarta.validation.Valid;
 import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
@@ -30,13 +31,9 @@ public class NoticeController {
   
   // 알림장 작성 
   @PostMapping(value = "/v2/notices")  // notice{user_id, nhresident_id, facility_id, contents, sub_contents}, file{}
-  public ResponseEntity noticeWrite(@RequestPart(value="notice") NoticeWriteDto dto,
-                                    @RequestPart(value="file", required = false) List<MultipartFile> files) {
+  public ResponseEntity noticeWrite(@Valid @RequestPart(value="notice") NoticeWriteDto dto,
+                                    @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
 
-    if (dto.getUser_id() == null || dto.getNhresident_id() == null || dto.getFacility_id() == null) {
-      log.info("NoticeController 알림장 작성: 필요한  값이 제대로 안들어옴. 사용자의 잘못된 입력");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
     Long noticeId;
 
     try {
@@ -96,16 +93,25 @@ public class NoticeController {
   public ResponseEntity noticeEdit(@RequestPart(value = "notice") NoticeEditDto dto,
                                    @RequestPart(value = "file", required = false) List<MultipartFile> files) {
 
-    if (dto.getNotice_id() == 0 || dto.getUser_id() == 0 || dto.getResident_id() == 0)
+    if (dto.getNotice_id() == null || dto.getUser_id() == null || dto.getResident_id() == null)
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
     Long noticeId = null;
 
     try {
       noticeId = noticeService.edit(dto, files);
-    } catch (NoticeException | UserException | UserAuthException | NHResidentException e) {
-      log.info("NoticeController 알림장 수정: 알림장 또는 사용자 또는 입소자 예외");
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    } catch (NoticeException e) {
+      log.info("NoticeController 알림장 수정: 해당하는 알림장이 없음");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    } catch (UserException e) {
+      log.info("NoticeController 알림장 수정: 해당하는 user가 없음");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    } catch (UserAuthException e) {
+      log.info("NoticeController 알림장 수정: 권한이 없는 사용자");
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    } catch (NHResidentException e) {
+      log.info("NoticeController 알림장 수정: 해당하는 입소자가 없음");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     } catch (Exception e) {
       log.info("NoticeController 알림장 수정: 기타 예외");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

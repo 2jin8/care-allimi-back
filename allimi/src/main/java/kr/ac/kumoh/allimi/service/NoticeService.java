@@ -132,6 +132,7 @@ public class NoticeService {
     return NoticeResponse.builder()
             .create_date(notice.getCreateDate())
             .user_id(user.getUserId())
+            .writer_name(user.getName())
             .notice_id(notice.getNoticeId())
             .sub_content(notice.getSubContents())
             .content(notice.getContents())
