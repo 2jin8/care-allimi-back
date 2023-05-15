@@ -302,7 +302,7 @@ public class NHResidentController {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
       }
 
-      List<NHResidentResponse> responseList = nhResidentService.workerList(user_id, facility_id);
+      List<NHResidentResponse> responseList = nhResidentService.workerList(user_id);
 
       return ResponseEntity.status(HttpStatus.OK).body(responseList);
   }
