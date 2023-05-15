@@ -43,9 +43,11 @@ public class Letter {
   private String contents;
 
   @Column(name = "create_date")
+  @Builder.Default
   @CreationTimestamp
   private LocalDateTime createDate = LocalDateTime.now();
 
+  @Builder.Default
   @Column(name = "is_read", nullable = false) //false로 초기화
   private boolean isRead = false;
 
