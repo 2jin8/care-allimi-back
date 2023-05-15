@@ -37,6 +37,7 @@ public class Visit {
   private Facility facility;
 
   @Column(name = "create_date")
+  @Builder.Default
   @CreationTimestamp
   private LocalDateTime createDate = LocalDateTime.now();
 
@@ -57,6 +58,7 @@ public class Visit {
   @Column(name = "rej_reason")
   private String rejReason;
 
+  @Builder.Default
   @Enumerated(EnumType.STRING) //대기중, 거절, 승인, 완료
   private VisitState state = VisitState.WAITING;
 

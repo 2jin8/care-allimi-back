@@ -36,6 +36,7 @@ public class Notice {
   private Facility facility;
 
   @Column(name = "create_date")
+  @Builder.Default
   @CreationTimestamp
   private LocalDateTime createDate = LocalDateTime.now();
 
@@ -48,6 +49,7 @@ public class Notice {
   private String subContents;
 
   @OneToMany(mappedBy = "imageId")
+  @Builder.Default
   @Column(name = "image_id")
   private List<Image> images = new ArrayList<>();
 
