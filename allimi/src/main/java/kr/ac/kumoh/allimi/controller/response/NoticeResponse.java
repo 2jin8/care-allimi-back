@@ -12,6 +12,7 @@ import java.util.List;
 public class NoticeResponse {
     Long notice_id;
     Long user_id;
+    String writer_name;
     LocalDateTime create_date;
     String content;
     String sub_content;

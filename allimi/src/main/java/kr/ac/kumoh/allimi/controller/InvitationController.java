@@ -30,6 +30,20 @@ public class InvitationController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+    //중복 초대 방지
+    List<ResponseInvitation> invitations;
+    boolean hasData = invitationService.findByFacilityAndUserAndRoleExists(dto.getFacility_id(),
+                                                dto.getUser_id(), UserRole.valueOf(dto.getUser_role()));
+
+    if (hasData) {
+      log.info("NoticeController 초대보내기: 중복된 초대장");
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    //이미 있는 입소자 경우 초대장 보내면 안됨
+    //@TODO
+
+    //초대 보내기
     Long inviteId;
 
     try {
@@ -119,5 +133,4 @@ public class InvitationController {
 
     return ResponseEntity.status(HttpStatus.OK).build();
   }
-
 }
