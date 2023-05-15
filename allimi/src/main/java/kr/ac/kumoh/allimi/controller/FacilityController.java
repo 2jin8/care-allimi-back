@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.controller;
 
 import com.amazonaws.Response;
 import jakarta.persistence.Column;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
@@ -76,15 +77,10 @@ public class FacilityController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  //시설 수정 - 빈 값이 들어왔을 때 어떻게 처리할지 test
+  //시설 수정
   @PatchMapping("/facilities")
-  public ResponseEntity modifyFacility(@RequestBody EditFacilityDTO dto) { // facility_id, name, address, tel, fm_name
-    Long facilityId = dto.getFacility_id();
-
-    if (facilityId == null) {
-      log.info("FacilityController 시설 수정: facility_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
+  public ResponseEntity modifyFacility(@Valid @RequestBody EditFacilityDTO dto) { // facility_id (NotNull), name, address, tel, fm_name
+    Long facilityId = 0L;
 
     try {
       facilityId = facilityService.editFacility(dto);
