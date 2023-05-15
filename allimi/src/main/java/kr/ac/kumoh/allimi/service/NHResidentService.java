@@ -87,11 +87,28 @@ public class NHResidentService {
   }
 
     public void deleteResident(Long residentId) throws Exception { // 입소자 삭제
-//      NHResident resident = nhResidentRepository.findById(residentId)
-//              .orElseThrow(() -> new NHResidentException("해당하는 입소자가 없음"));
-//      User user = resident.getUser();
-      //      List<NHResidentResponse> nhResidentResponses;
-//      userRepository.
+      NHResident resident = nhResidentRepository.findById(residentId)
+              .orElseThrow(() -> new NHResidentException("해당하는 입소자가 없음"));
+      User user = resident.getUser();
+
+      //만약 user의 현재 입소자가 residentId라면 -> 삭제할거니까 오류가 발생할 수 있음
+      if (user.getCurrentNHResident() == residentId) {
+        List<NHResident> nhResidentList = user.getNhResident();
+
+        for (NHResident nhr: nhResidentList) {
+          if (nhr.getId() == residentId) {
+            nhResidentList.remove(nhr);
+            break;
+          }
+        }
+
+        if (nhResidentList.size() == 0) {
+          //현재 입소자가 마지막 입소자라면
+          user.setResidentNull();
+        } else {
+          user.changeCurrNHResident(nhResidentList.get(0).getId());
+        }
+      }
 
       //user삭제하면 resident는 null로 설정된다!
       nhResidentRepository.deleteById(residentId);
