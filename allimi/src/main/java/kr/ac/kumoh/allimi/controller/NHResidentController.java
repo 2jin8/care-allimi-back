@@ -56,7 +56,7 @@ public class NHResidentController {
 
       if (hasData) {
         log.info("NHResident 추가: 중복된 요청. 이미 있는 입소자임");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).build(); //409
       }
 
       Long residentId;
