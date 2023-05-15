@@ -193,11 +193,10 @@ public class NHResidentService {
           throw new UserException("역할이 올바르지 않음");
         }
 
-        nhResident.setWorker(user.getUserId());
+        nhResident.setWorker(user.getCurrentNHResident());
     }
 
     public List<NHResidentResponse> workerList(Long userId) throws Exception {
-
       User user = userRepository.findUserByUserId(userId)
               .orElseThrow(() -> new UserException("해당하는 user가 없음"));
 
