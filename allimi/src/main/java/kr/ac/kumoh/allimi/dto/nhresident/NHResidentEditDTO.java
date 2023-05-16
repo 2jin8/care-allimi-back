@@ -1,13 +1,14 @@
 package kr.ac.kumoh.allimi.dto.nhresident;
 
-import lombok.Builder;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-//@Builder
 public class NHResidentEditDTO {
-  Long resident_id;
-  String resident_name;
-  String birth;
-  String health_info;
+  @NotNull(message = "resident_id가 널이어서는 안됩니다")
+  private Long resident_id;
+
+  private String resident_name;
+  private String birth;
+  private String health_info;
 }

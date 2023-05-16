@@ -1,13 +1,12 @@
 package kr.ac.kumoh.allimi.controller;
+import jakarta.validation.Valid;
 import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
 import kr.ac.kumoh.allimi.controller.response.ResponseResidentDetail;
 import kr.ac.kumoh.allimi.dto.admin.UserListDTO;
 import kr.ac.kumoh.allimi.dto.user.LoginDTO;
 import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
-import kr.ac.kumoh.allimi.exception.user.UserAuthException;
+import kr.ac.kumoh.allimi.dto.ids.UserNHResidentDTO;
 import kr.ac.kumoh.allimi.exception.user.UserException;
-import kr.ac.kumoh.allimi.exception.user.UserIdDuplicateException;
-import kr.ac.kumoh.allimi.service.NHResidentService;
 import lombok.RequiredArgsConstructor;
 import kr.ac.kumoh.allimi.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,18 +24,11 @@ import java.util.Map;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
   private final UserService userService;
-  private final NHResidentService nhResidentService;
 
   //현재 가리키는 nhresident 변경
   @PatchMapping("/v2/users/nhrs")
-  public ResponseEntity changeNHResident(@RequestBody Map<String, Long> input) throws Exception {
-    Long userId = input.get("user_id");
-    Long nhrId = input.get("nhr_id");
-
-    if (userId == null || nhrId == null)
-      throw new UserException("UserController 현재 user의 nhresident 변경: nhr_id 혹은 user_id가 null로 들어옴. 잘못된 요청");
-
-    userService.changeNHResident(userId, nhrId);
+  public ResponseEntity changeNHResident(@Valid @RequestBody UserNHResidentDTO userNHResidentDTO) throws Exception {
+    userService.changeNHResident(userNHResidentDTO.getUser_id(), userNHResidentDTO.getNhr_id());
 
     return ResponseEntity.status(HttpStatus.OK).build();
   }
@@ -44,29 +36,18 @@ public class UserController {
   //user가 현재 가리키는 nhresident를 반환
   @GetMapping("/v2/users/nhrs/{user_id}")
   public ResponseEntity getUsersCurrNHR(@PathVariable("user_id") Long userId) throws Exception { //user_id
-    if (userId == null) {
-      log.info("UserController 현재 user의 nhresident 반환: nhr_id 혹은 user_id가 null로 들어옴. 잘못된 요청");
-      throw new UserException("UserController");
-    }
+    if (userId == null)
+      throw new UserException("UserController user의 현재 nhresident 반환: user_id가 null. 잘못된 요청");
 
-    ResponseResidentDetail response;
-    response = userService.getCurrNHResident(userId);
+    ResponseResidentDetail response = userService.getCurrNHResident(userId);
 
     return ResponseEntity.status(HttpStatus.OK).body(response); // nhr_id, facility_id resident_name, facility_name, user_role;
   }
 
   //회원가입
   @PostMapping("/v2/users")
-  public ResponseEntity addUser(@RequestBody SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
-    if(dto.getLogin_id() == null || dto.getPassword() == null || dto.getName() == null) {
-      throw new UserException("UserController 회원가입: 필수적인 정보가 들어오지 않음");
-    }
-
-    log.info("@@@dto.getName = " + dto.getName());
-
-    Long userId;
-    userId = userService.addUser(dto);
-
+  public ResponseEntity addUser(@Valid @RequestBody SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
+    Long userId = userService.addUser(dto);
     Map<String, Long> map = new HashMap<>();
     map.put("user_id", userId);
 
@@ -82,8 +63,8 @@ public class UserController {
 
   @GetMapping("/v2/users/{user_id}") // 사용자 정보 조회
   public ResponseEntity userInfo(@PathVariable("user_id") Long userId) throws Exception { // user_id
-     if (userId == null)
-       throw new UserException("사용자 정보조회: user_id가 null로 들어옴. 잘못된 요청");
+    if (userId == null)
+      throw new UserException("UserController 사용자 정보조회: user_id가 null로 들어옴. 잘못된 요청");
 
      kr.ac.kumoh.allimi.dto.user.UserListDTO userListDTO = userService.getUserInfo(userId);
 
@@ -93,8 +74,7 @@ public class UserController {
   //전체 user조회 - 관리자용
   @GetMapping("/v2/users")
   public ResponseEntity getAllUser() throws Exception {
-
-    List<UserListDTO>  dtos = userService.getAllUser();
+    List<UserListDTO> dtos = userService.getAllUser();
 
     return ResponseEntity.status(HttpStatus.OK).body(dtos);
   }
@@ -102,56 +82,24 @@ public class UserController {
   //전화번호 맞는 user 모두 출력
   @GetMapping(value = "/v2/users/phone-num/{phone_num}")
   public ResponseEntity getUserByPhoneNum(@PathVariable("phone_num") String phoneNum) throws Exception {
-
     if (phoneNum == null)
       throw new UserException("UserController 전화번호 맞는 user list출력: 전화번호가 안들어옴. 잘못된 요청");
 
     List<UserListDTO> dtos = userService.getUserByPhoneNum(phoneNum);
 
     return ResponseEntity.status(HttpStatus.OK).body(dtos);
-
-//    if (phoneNum == null) {
-//      log.info("UserController 전화번호 맞는 user list출력: 전화번호가 안들어옴. 잘못된 요청");
-//      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//    }
-//
-//    List<UserListDTO> dtos = null;
-//
-//    try {
-//      dtos = userService.getUserByPhoneNum(phoneNum);
-//    }catch (Exception exception) {
-//      log.info("관리자 전체 user조회: 조회 중 문제가 생김");
-//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//    }
-//
-//    return ResponseEntity.status(HttpStatus.OK).body(dtos);
   }
 
   // 회원 탈퇴
   @DeleteMapping("/v1/users")
-  public ResponseEntity deleteUser(@RequestBody Map<String, Long> user) throws Exception { //user_id
+  public ResponseEntity deleteUser(@RequestBody Map<String, Long> user) throws Exception { //user_id // TODO: 오류 수정
     Long userId = user.get("user_id");
-
     if (userId == null)
-      throw new UserException("회원 탈퇴: user_id가 null로 들어옴. 잘못된 요청");
+      throw new UserException("UserController 회원 탈퇴: user_id가 null로 들어옴. 잘못된 요청");
 
     userService.deleteUser(userId);
 
     return ResponseEntity.status(HttpStatus.OK).build(); //none
-
-//    if (userId == null) {
-//      log.info("회원 탈퇴: user_id가 null로 들어옴. 잘못된 요청");
-//      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//    }
-//
-//    try {
-//      userService.deleteUser(userId);
-//    } catch (Exception exception) { //user를 찾을 수 없을 때
-//      log.info("회원 탈퇴: 해당하는 user를 찾을 수 없음");
-//      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-//    }
-//
-//    return ResponseEntity.status(HttpStatus.OK).build(); //none
   }
 
   @PostMapping("/v2/logout") // 로그아웃 - 그냥 프론트 단에서 처리해도 될듯

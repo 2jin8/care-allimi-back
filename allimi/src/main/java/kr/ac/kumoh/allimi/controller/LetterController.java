@@ -1,15 +1,11 @@
 package kr.ac.kumoh.allimi.controller;
 
-import kr.ac.kumoh.allimi.domain.func.Letter;
+import jakarta.validation.Valid;
 import kr.ac.kumoh.allimi.dto.letter.LetterEditDto;
 import kr.ac.kumoh.allimi.dto.letter.LetterListDTO;
 import kr.ac.kumoh.allimi.dto.letter.LetterWriteDto;
-import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
-import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.LetterException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
-import kr.ac.kumoh.allimi.exception.user.UserAuthException;
-import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.service.LetterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,28 +26,8 @@ public class LetterController {
 
   // 한마디 작성
   @PostMapping(value = "/v2/letters")  // user_id, nhresident_id, facility_id, contents
-  public ResponseEntity letterWrite(@RequestBody LetterWriteDto dto) {
-
-    if (dto.getUser_id() == null || dto.getNhresident_id() == null || dto.getFacility_id() == null) {
-      log.info("LetterController 한마디 작성: 필요한  값이 제대로 안들어옴. 사용자의 잘못된 입력");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    Long letterId = null;
-
-    try {
-      letterId = letterService.write(dto);
-    } catch (UserException | NHResidentException | FacilityException e) { //알림장 쓰기 실패
-      log.info("LetterController 한마디 작성: user, resident, facility 중 하나 찾기 실패");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    } catch (UserAuthException e) { //권한이 없다
-      log.info("LetterController 한마디 작성: 권한이 없는 사용자");
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    } catch (Exception e) { //알림장 쓰기 실패
-      log.info("LetterController 한마디 작성: 한마디 쓰기 실패");
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-
+  public ResponseEntity letterWrite(@Valid @RequestBody LetterWriteDto dto) throws Exception {
+    Long letterId = letterService.write(dto);
     Map<String, Long> map = new HashMap<>();
     map.put("letter_id", letterId);
 
@@ -60,29 +36,13 @@ public class LetterController {
   
   // 읽음 표시
   @PostMapping("/v2/letters/read")
-  public ResponseEntity readCheck(@RequestBody Map<String, Long> info) { // user_id, letter_id
-
+  public ResponseEntity readCheck(@RequestBody Map<String, Long> info) throws Exception { // user_id, letter_id
     Long userId = info.get("user_id");
     Long letterId = info.get("letter_id");
+    if (userId == null || letterId == null)
+      throw new LetterException("LetterController 한마디 읽기: user_id 또는 letter_id가 null. 사용자의 잘못된 입력");
 
-    if (userId == null || letterId == null) {
-      log.info("LetterController 한마디 읽기: 필요한  값이 제대로 안들어옴. 사용자의 잘못된 입력");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    try {
-      letterService.readCheck(userId, letterId);
-    } catch (UserAuthException e) {
-      log.info("LetterController 한마디 읽기: 권한이 없음");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    } catch (UserException | LetterException e) {
-      log.info("LetterController 한마디 읽기: user, letter 중 하나 찾기 실패");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    } catch (Exception e) {
-      log.info("LetterController 한마디 읽기: 한마디 읽기 실패");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
+    letterService.readCheck(userId, letterId);
     Map<String, Long> map = new HashMap<>();
     map.put("letter_id", letterId);
 
@@ -91,25 +51,8 @@ public class LetterController {
 
   // 한마디 수정
   @PatchMapping(value = "/v2/letters")
-  public ResponseEntity letterEdit(@RequestBody LetterEditDto dto) {  // letter_id, user_id, nhresident_id, contents
-    if (dto.getLetter_id() == null || dto.getNhresident_id() == null || dto.getUser_id() == null) {
-      log.info("LetterController 한마디 수정: 필요한  값이 제대로 안들어옴. 사용자의 잘못된 입력");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    try {
-      letterService.edit(dto);
-    } catch (UserAuthException e) { //알림장 쓰기 실패
-      log.info("LetterController 한마디 수정: user, resident, facility 중 하나 찾기 실패");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    } catch (UserException | NHResidentException | LetterException e) { //알림장 쓰기 실패
-      log.info("LetterController 한마디 수정: user, resident, letter 중 하나 찾기 실패");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    } catch (Exception e) { //알림장 쓰기 실패
-      log.info("LetterController 한마디 수정: 한마디 쓰기 실패");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
+  public ResponseEntity letterEdit(@Valid @RequestBody LetterEditDto dto) throws Exception {  // letter_id, user_id, nhresident_id, contents
+    letterService.edit(dto);
     Map<String, Long> map = new HashMap<>();
     map.put("letter_id", dto.getLetter_id());
 
@@ -119,12 +62,10 @@ public class LetterController {
   @DeleteMapping("/v2/letters") // 한마디 삭제
   public ResponseEntity letterDelete(@RequestBody Map<String, Long> letter) {
     Long letterId = letter.get("letter_id");
-
     if (letterId == null)
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      throw new LetterException("LetterController 한마디 삭제: letter_id가 null. 사용자의 잘못된 입력");
 
     Long deletedCnt = letterService.delete(letterId);
-
     if (deletedCnt == 0)
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
@@ -132,22 +73,11 @@ public class LetterController {
   }
 
   @GetMapping("/v2/letters/{resident_id}") // 한마디 목록
-  public ResponseEntity noticeList(@PathVariable("resident_id") Long residentId) {
-    if (residentId == null) {
-      log.info("LetterController 한마디 목록보기: 필요한 값이 제대로 안들어옴. 사용자의 잘못된 입력");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
+  public ResponseEntity noticeList(@PathVariable("resident_id") Long residentId) throws Exception {
+    if (residentId == null)
+      throw new NHResidentException("LetterController 한마디 목록보기: resident_id가 null. 사용자의 잘못된 입력");
 
-    List<LetterListDTO> letterList;
-
-    try {
-      letterList = letterService.letterList(residentId);
-    } catch (NHResidentException e) {
-      log.info("LetterController 한마디 목록 확인: 해당하는 resident 찾기 실패");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
+    List<LetterListDTO> letterList = letterService.letterList(residentId);
 
     return ResponseEntity.status(HttpStatus.OK).body(letterList);
   }
