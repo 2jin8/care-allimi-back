@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-<<<<<<< HEAD
 public class LetterEditDto {
     @NotNull(message = "letter_id가 널이어서는 안됩니다")
     private Long letter_id;
