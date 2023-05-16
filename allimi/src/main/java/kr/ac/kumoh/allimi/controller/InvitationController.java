@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.controller;
 
 import jakarta.validation.Valid;
 import kr.ac.kumoh.allimi.controller.response.ResponseInvitation;
+import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.invitation.SendInvitationDto;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.InvitationException;
@@ -27,7 +28,23 @@ public class InvitationController {
   //초대보내기: facility -> user //phone_num으로 받아서 해당하는 user가 있는지 확인 후 진행
   @PostMapping(value = "/v2/invitations")
   public ResponseEntity sendInvitation(@Valid @RequestBody SendInvitationDto dto) throws Exception { //user_id, facility_id, userRole
+
+    //중복 초대 방지
+    List<ResponseInvitation> invitations;
+    boolean hasData = invitationService.findByFacilityAndUserAndRoleExists(dto.getFacility_id(),
+            dto.getUser_id(), UserRole.valueOf(dto.getUser_role()));
+
+    if (hasData) {
+      log.info("NoticeController 초대보내기: 중복된 초대장");
+      return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    //이미 있는 입소자 경우 초대장 보내면 안됨
+    //@TODO
+
+    //초대 보내기
     Long inviteId = invitationService.sendInvitation(dto);
+
     Map<String, Long> map = new HashMap<>();
     map.put("invitation_id", inviteId);
 

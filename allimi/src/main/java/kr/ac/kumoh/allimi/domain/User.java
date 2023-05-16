@@ -61,6 +61,7 @@ public class User {
         return user;
     }
 
+
 //    public UserRole getUserRole() {
 //        return this.nhResident.get(this.getCurrentNHResident()).getUserRole();
 //    }

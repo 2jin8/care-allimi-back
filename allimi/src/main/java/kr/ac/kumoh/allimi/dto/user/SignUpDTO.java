@@ -7,6 +7,7 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class SignUpDTO {
   @NotNull(message = "login_id가 널이어서는 안됩니다")
   private String login_id;

@@ -52,10 +52,11 @@ public class FacilityController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  //시설 수정 - 빈 값이 들어왔을 때 어떻게 처리할지 test
+  //시설 수정
   @PatchMapping("/facilities")
   public ResponseEntity modifyFacility(@NotNull @RequestBody EditFacilityDTO dto) throws Exception { // facility_id, name, address, tel, fm_name
     Long facilityId = facilityService.editFacility(dto);
+
     Map<String, Long> map = new HashMap<>();
     map.put("facility_id", facilityId);
 

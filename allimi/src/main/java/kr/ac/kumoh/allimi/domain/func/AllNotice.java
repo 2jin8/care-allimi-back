@@ -36,6 +36,7 @@ public class AllNotice {
   private Facility facility;
 
   @Column(name = "create_date")
+  @Builder.Default
   @CreationTimestamp
   private LocalDateTime createDate = LocalDateTime.now();
 
@@ -48,9 +49,11 @@ public class AllNotice {
   private String contents;
 
   @Column(nullable = false) //false로 초기화
+  @Builder.Default
   private boolean important = false;
 
   @OneToMany(mappedBy = "imageId")
+  @Builder.Default
   @Column(name = "image_id")
   private List<Image> images = new ArrayList<>();
 

@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.repository;
 
 import kr.ac.kumoh.allimi.domain.Invitation;
 import kr.ac.kumoh.allimi.domain.NHResident;
+import kr.ac.kumoh.allimi.domain.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,7 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
   @Modifying
   @Query("delete from Invitation iv where iv.id = ?1")
   int deleteByInvitId(Long invitId);
+
+  @Query(value = "select * from invitation where facility_id = ?1 and user_id = ?2 and user_role = ?3", nativeQuery = true)
+  Optional<List<Invitation>> findByFacilityAndUserAndRole(Long facilityId, Long userId, String userRole);
 }
