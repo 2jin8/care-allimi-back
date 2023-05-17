@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class AddFacilityDTO {
     @NotNull(message = "name이 널이어서는 안됩니다")
     private String name;

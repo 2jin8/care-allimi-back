@@ -138,7 +138,6 @@ public class NHResidentController {
         return ResponseEntity.status(HttpStatus.OK).body(facilitys);
     }
 
-
     //입소자 수정
     @PatchMapping("/v2/nhResidents") //resident_id
     public ResponseEntity nhresidentEdit(@Valid @RequestBody NHResidentEditDTO editDTO) throws Exception { //resident_id, resident_name, birth, health_info
@@ -148,14 +147,6 @@ public class NHResidentController {
         map.put("resident_id", editDTO.getResident_id());
 
         return ResponseEntity.status(HttpStatus.OK).body(map);
-    }
-
-    // currentResident 수정
-    @PostMapping("/v2/nhResidents/change")
-    public ResponseEntity residentChange(@Valid @RequestBody NHResidentUFDTO changeDTO) throws Exception {
-        NHResidentResponse nhResidentResponse = nhResidentService.changeCurrentResident(changeDTO);
-
-        return ResponseEntity.status(HttpStatus.OK).body(nhResidentResponse);
     }
 
     // 사용자가 등록한 요양원 목록

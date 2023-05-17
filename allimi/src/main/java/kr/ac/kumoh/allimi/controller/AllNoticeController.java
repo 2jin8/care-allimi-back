@@ -4,11 +4,6 @@ import jakarta.validation.Valid;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeEditDto;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeListDTO;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeWriteDto;
-import kr.ac.kumoh.allimi.exception.AllNoticeException;
-import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
-import kr.ac.kumoh.allimi.exception.user.UserAuthException;
-import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.service.AllNoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +25,7 @@ public class AllNoticeController {
     // 전체 공지사항 작성
     @PostMapping(value = "/v2/all-notices")  // allnotice{user_id, facility_id, title, contents, important}, file{}
     public ResponseEntity allNoticeWrite(@Valid @RequestPart(value="allnotice") AllNoticeWriteDto dto,
-                                    @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
+                                         @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
 
         allNoticeService.write(dto, files);
 
@@ -44,17 +39,17 @@ public class AllNoticeController {
 
         // allNoticeId, create_date, title, content, important,  List<String> imageUrl
         return ResponseEntity.status(HttpStatus.OK).body(allNoticeList);
-  }
+    }
 
     // 전체공지 수정
     @PatchMapping("/v2/all-notices")
     public ResponseEntity noticeEdit(@Valid @RequestPart(value="allnotice") AllNoticeEditDto dto,
-                                   @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
+                                     @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
 
         allNoticeService.edit(dto, files);
 
         return ResponseEntity.status(HttpStatus.OK).build();
-  }
+    }
 
     // 공지사항 삭제
     @DeleteMapping("/v2/all-notices")
@@ -91,4 +86,3 @@ public class AllNoticeController {
 //    }
 
 }
-

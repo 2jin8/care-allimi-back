@@ -3,6 +3,7 @@ package kr.ac.kumoh.allimi.controller;
 import jakarta.validation.Valid;
 import kr.ac.kumoh.allimi.controller.response.VisitResponse;
 import kr.ac.kumoh.allimi.dto.visit.*;
+import kr.ac.kumoh.allimi.exception.VisitException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.service.VisitService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -45,13 +47,16 @@ public class VisitController {
     }
 
     @DeleteMapping("/visit")
-    public ResponseEntity delete(@Valid @RequestBody VisitDeleteDTO deleteDTO) throws Exception { // 면회 삭제
-        Long deleted = visitService.delete(deleteDTO.getVisit_id());
+    public ResponseEntity delete(@RequestBody Map<String, Long> delete) throws Exception { // 면회 삭제
+        Long visitId = delete.get("visit_id");
+        if (visitId == null)
+            throw new VisitException("VisitController 면회 삭제: visit_id가 null. 잘못된 입력");
+
+        Long deleted = visitService.delete(visitId);
         if (deleted == 0)
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
         return ResponseEntity.status(HttpStatus.OK).build();
-
     }
 
     @PostMapping("/visit/approval")
