@@ -42,7 +42,7 @@ public class FacilityService {
       return facility.getId();
   }
 
-  public FacilityInfoDto getInfo(Long facilityId) {
+  public FacilityInfoDto getInfo(Long facilityId) throws Exception {
     Facility facility = facilityRepository.findById(facilityId)
             .orElseThrow(() -> new NoSuchElementException("해당하는 시설을 찾을 수 없음"));
 
@@ -56,7 +56,7 @@ public class FacilityService {
     return dto;
   }
 
-  public Long editFacility(EditFacilityDTO dto){ // facility_id, name, address, tel, fm_name
+  public Long editFacility(EditFacilityDTO dto) throws Exception { // facility_id, name, address, tel, fm_name
     Facility facility = facilityRepository.findById(dto.getFacility_id())
                     .orElseThrow(() -> new FacilityException("시설을 찾을 수 없음"));
 

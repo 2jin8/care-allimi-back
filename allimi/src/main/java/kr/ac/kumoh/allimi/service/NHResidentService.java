@@ -87,31 +87,31 @@ public class NHResidentService {
   }
 
     public void deleteResident(Long residentId) throws Exception { // 입소자 삭제
-      NHResident resident = nhResidentRepository.findById(residentId)
-              .orElseThrow(() -> new NHResidentException("해당하는 입소자가 없음"));
-      User user = resident.getUser();
+        NHResident resident = nhResidentRepository.findById(residentId)
+                .orElseThrow(() -> new NHResidentException("해당하는 입소자가 없음"));
+        User user = resident.getUser();
 
-      //만약 user의 현재 입소자가 residentId라면 -> 삭제할거니까 오류가 발생할 수 있음
-      if (user.getCurrentNHResident() == residentId) {
-        List<NHResident> nhResidentList = user.getNhResident();
+        //만약 user의 현재 입소자가 residentId라면 -> 삭제할거니까 오류가 발생할 수 있음
+        if (user.getCurrentNHResident() == residentId) {
+            List<NHResident> nhResidentList = user.getNhResident();
 
-        for (NHResident nhr: nhResidentList) {
-          if (nhr.getId() == residentId) {
-            nhResidentList.remove(nhr);
-            break;
-          }
+            for (NHResident nhr: nhResidentList) {
+                if (nhr.getId() == residentId) {
+                    nhResidentList.remove(nhr);
+                    break;
+                }
+            }
+
+            if (nhResidentList.size() == 0) {
+                //현재 입소자가 마지막 입소자라면
+                user.setResidentNull();
+            } else {
+                user.changeCurrNHResident(nhResidentList.get(0).getId());
+            }
         }
 
-        if (nhResidentList.size() == 0) {
-          //현재 입소자가 마지막 입소자라면
-          user.setResidentNull();
-        } else {
-          user.changeCurrNHResident(nhResidentList.get(0).getId());
-        }
-      }
-
-      //user삭제하면 resident는 null로 설정된다!
-      nhResidentRepository.deleteById(residentId);
+        //user삭제하면 resident는 null로 설정된다!
+        nhResidentRepository.deleteById(residentId);
     }
 
   public void editNHResident(NHResidentEditDTO dto) throws Exception { //resident_id, resident_name, birth, health_info
@@ -123,12 +123,15 @@ public class NHResidentService {
 
   @Transactional(readOnly = true)
   public List<ResponseResident> findProtectorByFacility(Long facilityId) throws Exception {
-    List<NHResident> residents = nhResidentRepository.findProtectorByFacilityId(facilityId)
+      Facility facility = facilityRepository.findById(facilityId)
+              .orElseThrow(() -> new FacilityException("시설 찾기 실패"));
+
+      List<NHResident> residents = nhResidentRepository.findProtectorByFacilityId(facility.getId())
             .orElseThrow(() -> new NHResidentException("입소자 리스트 찾기 실패"));
 
-    List<ResponseResident> list = new ArrayList<>();
+      List<ResponseResident> list = new ArrayList<>();
 
-    for (NHResident r: residents) {
+      for (NHResident r: residents) {
         list.add(ResponseResident
                 .builder()
                 .id(r.getId())
@@ -137,17 +140,19 @@ public class NHResidentService {
                 .user_role(r.getUserRole())
                 .worker_id(r.getWorkers())
                 .build());
-    }
+      }
 
-    return list;
+      return list;
   }
 
   @Transactional(readOnly = true)
   public List<ResponseResident> findAllByFacility(Long facilityId) throws Exception {
-    List<NHResident> residents = nhResidentRepository.findByFacilityId(facilityId)
-            .orElseThrow(() -> new NHResidentException("입소자 리스트 찾기 실패"));
+      Facility facility = facilityRepository.findById(facilityId)
+              .orElseThrow(() -> new FacilityException("시설 찾기 실패"));
+      List<NHResident> residents = nhResidentRepository.findByFacilityId(facility.getId())
+              .orElseThrow(() -> new NHResidentException("입소자 리스트 찾기 실패"));
 
-    List<ResponseResident> list = new ArrayList<>();
+      List<ResponseResident> list = new ArrayList<>();
 
       for (NHResident r : residents) {
 
@@ -161,21 +166,21 @@ public class NHResidentService {
                   .build());
       }
 
-    return list;
+      return list;
   }
 
 
-  public NHResidentResponse changeCurrentResident(NHResidentUFDTO changeDTO) {
+  public NHResidentResponse changeCurrentResident(NHResidentUFDTO changeDTO) throws Exception {
 
-        User user = userRepository.findById(changeDTO.getUser_id())
-                .orElseThrow(() -> new UserException("사용자 찾기 실패"));
-        Facility facility = facilityRepository.findById(changeDTO.getFacility_id())
-                .orElseThrow(() -> new FacilityException("시설 찾기 실패"));
-        NHResident nhResident = nhResidentRepository.findById(changeDTO.getNhresident_id())
-                .orElseThrow(() -> new NHResidentException("입소자 찾기 실패"));
+      User user = userRepository.findById(changeDTO.getUser_id())
+              .orElseThrow(() -> new UserException("사용자 찾기 실패"));
+      Facility facility = facilityRepository.findById(changeDTO.getFacility_id())
+              .orElseThrow(() -> new FacilityException("시설 찾기 실패"));
+      NHResident nhResident = nhResidentRepository.findById(changeDTO.getNhresident_id())
+              .orElseThrow(() -> new NHResidentException("입소자 찾기 실패"));
 
-        UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
-                .orElseThrow(() -> new UserException("역할 찾기 실패"));
+      UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+              .orElseThrow(() -> new UserException("역할 찾기 실패"));
 
         user.changeCurrNHResident(nhResident.getId());
         return NHResidentResponse.builder()

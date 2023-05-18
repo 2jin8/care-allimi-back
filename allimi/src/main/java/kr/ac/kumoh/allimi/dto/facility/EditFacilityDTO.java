@@ -9,7 +9,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class EditFacilityDTO {
-  @NotNull
+  @NotNull(message = "시설 id가 널이어서는 안됩니다")
   private Long facility_id;
   private String name;
   private String address;

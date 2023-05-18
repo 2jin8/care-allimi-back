@@ -1,6 +1,6 @@
 package kr.ac.kumoh.allimi.dto.user;
 
-import kr.ac.kumoh.allimi.domain.UserRole;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -9,8 +9,14 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class SignUpDTO {
+  @NotNull(message = "login_id가 널이어서는 안됩니다")
   private String login_id;
+
+  @NotNull(message = "password가 널이어서는 안됩니다")
   private String password;
+
+  @NotNull(message = "name이 널이어서는 안됩니다")
   private String name;
+
   private String phone_num;
 }

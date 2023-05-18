@@ -1,10 +1,8 @@
 package kr.ac.kumoh.allimi.controller;
 
+import jakarta.validation.Valid;
 import kr.ac.kumoh.allimi.controller.response.VisitResponse;
-import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.dto.visit.*;
-import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.VisitException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.service.VisitService;
@@ -15,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -24,90 +23,45 @@ public class VisitController {
     private final VisitService visitService;
 
     @PostMapping("/visit")
-    public ResponseEntity write(@RequestBody VisitWriteDTO writeDTO) { // 면회 신청
-        try {
-            visitService.write(writeDTO);
-        } catch (UserException | FacilityException | NHResidentException e) {
-            log.info("VisitController 면회 신청: 사용자 | 시설 | 입소자 잘못 입력");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            log.info("{}", e);
-            log.info("VisitController 면회 신청: 기타 예외");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    public ResponseEntity write(@Valid @RequestBody VisitWriteDTO writeDTO) throws Exception { // 면회 신청
+        visitService.write(writeDTO);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @GetMapping("/v2/visit/{user_id}") // 면회신청 목록
-    public ResponseEntity visitList(@PathVariable("user_id") Long userId) {
-      if (userId == null)
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity visitList(@PathVariable("user_id") Long userId) throws Exception {
+        if (userId == null)
+            throw new UserException("VisitController 면회신청 목록: user_id가 null. 잘못된 입력");
 
-      List<VisitListDTO> visitList;
+        List<VisitListDTO> visitList = visitService.visitList(userId);
 
-      try {
-        visitList = visitService.visitList(userId);
-      } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-      }
-
-      return ResponseEntity.status(HttpStatus.OK).body(visitList);
+        return ResponseEntity.status(HttpStatus.OK).body(visitList);
     }
 
     @PatchMapping("/visit")
-    public ResponseEntity edit(@RequestBody VisitEditDTO editDTO) { // 면회 수정
-        try {
-            visitService.edit(editDTO);
-        } catch (UserException | NHResidentException | VisitException e) {
-            log.info("VisitController 면회 수정: 사용자 | 시설 | 입소자 잘못 입력");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            log.info("VisitController 면회 수정: 기타 예외");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    public ResponseEntity edit(@Valid @RequestBody VisitEditDTO editDTO) throws Exception { // 면회 수정
+        visitService.edit(editDTO);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @DeleteMapping("/visit")
-    public ResponseEntity delete(@RequestBody VisitDeleteDTO deleteDTO) { // 면회 삭제
-        Long visitId = deleteDTO.getVisit_id();
-        if (visitId == null) {
-            log.info("VisitController 면회 삭제: 면회 id가 null로 들어옴");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public ResponseEntity delete(@RequestBody Map<String, Long> delete) throws Exception { // 면회 삭제
+        Long visitId = delete.get("visit_id");
+        if (visitId == null)
+            throw new VisitException("VisitController 면회 삭제: visit_id가 null. 잘못된 입력");
 
-        try {
-            Long deleted = visitService.delete(visitId);
-            if (deleted == 0) {
-                log.info("VisitController 면회 삭제: 제대로 삭제되지 않음");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        } catch (VisitException e) {
-            log.info("VisitController 면회 삭제: 해당 면회가 존재하지 않음");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            log.info("VisitController 면회 삭제: 기타 예외");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        Long deleted = visitService.delete(visitId);
+        if (deleted == 0)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping("/visit/approval")
-    public ResponseEntity approval(@RequestBody VisitApprovalDTO approvalDTO) { // 면회 승인 상태 변경
-        // WAITING -> REJECTED, APPROVED, COMPLETED
-        VisitResponse visitResponse;
-        try {
-            visitResponse = visitService.approval(approvalDTO);
-        } catch (VisitException e) {
-            log.info("VisitController 면회 승인 상태 변경: 해당 면회가 존재하지 않음");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            log.info("VisitController 면회 승인 상태 변경: 기타 예외");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    public ResponseEntity approval(@Valid @RequestBody VisitApprovalDTO approvalDTO) throws Exception { // 면회 승인 상태 변경
+        VisitResponse visitResponse = visitService.approval(approvalDTO); // WAITING -> REJECTED, APPROVED, COMPLETED
 
         return ResponseEntity.status(HttpStatus.OK).body(visitResponse);
     }
