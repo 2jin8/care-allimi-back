@@ -1,7 +1,6 @@
 package kr.ac.kumoh.allimi.controller;
 
-import com.amazonaws.Response;
-import jakarta.persistence.Column;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
@@ -10,8 +9,6 @@ import kr.ac.kumoh.allimi.dto.facility.FacilityInfoDto;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.InputException;
 import kr.ac.kumoh.allimi.service.FacilityService;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -35,66 +32,30 @@ public class FacilityController {
 
   //시설 추가
   @PostMapping("/facilities")
-  public ResponseEntity addFacility(@RequestBody AddFacilityDTO dto) { // name, address, tel, fm_name
-    if (dto.getName() == null) {
-      log.info("FacilityController 시설추가: 시설 이름은 필수임");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    Long facilityId;
-
-    try {
-        facilityId = facilityService.addFacility(dto);
-    } catch(Exception exception) { //그냥 에러
-      log.info("FacilityController 시설추가: 에러남");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-
+  public ResponseEntity addFacility(@Valid @RequestBody AddFacilityDTO dto) { // name, address, tel, fm_name
+    Long facilityId = facilityService.addFacility(dto);
     Map<String, Long> map = new HashMap<>();
     map.put("facility_id", facilityId);
 
-      return ResponseEntity.status(HttpStatus.OK).body(map);
+    return ResponseEntity.status(HttpStatus.OK).body(map);
   }
 
   //시설 삭제
   @DeleteMapping("/facilities")
-  public ResponseEntity deleteFacility(@RequestBody Map<String, Long> facility) {
+  public ResponseEntity deleteFacility(@RequestBody Map<String, Long> facility) throws Exception {
     Long facilityId = facility.get("facility_id");
+    if (facilityId == null)
+      throw new FacilityException("FacilityController 시설 삭제: facility_id가 null. 사용자의 잘못된 입력");
 
-    if (facilityId == null) {
-      log.info("FacilityController 시설 삭제: facility_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    try {
-      facilityService.deleteFacility(facilityId);
-    } catch (Exception e) {
-      log.info("FacilityController 시설 삭제: 에러남");
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
+    facilityService.deleteFacility(facilityId);
 
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  //시설 수정 - 빈 값이 들어왔을 때 어떻게 처리할지 test
+  //시설 수정
   @PatchMapping("/facilities")
-  public ResponseEntity modifyFacility(@RequestBody EditFacilityDTO dto) { // facility_id, name, address, tel, fm_name
-    Long facilityId = dto.getFacility_id();
-
-    if (facilityId == null) {
-      log.info("FacilityController 시설 수정: facility_id값이 제대로 안들어옴. 사용자의 잘못된 입력");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    try {
-      facilityId = facilityService.editFacility(dto);
-    } catch(FacilityException exception) { //그냥 에러
-      log.info("FacilityController 시설추가: 해당 시설을 찾을 수 없음");
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    } catch(Exception exception) { //그냥 에러
-      log.info("FacilityController 시설추가: 에러남");
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
+  public ResponseEntity modifyFacility(@NotNull @RequestBody EditFacilityDTO dto) throws Exception { // facility_id, name, address, tel, fm_name
+    Long facilityId = facilityService.editFacility(dto);
 
     Map<String, Long> map = new HashMap<>();
     map.put("facility_id", facilityId);
@@ -102,10 +63,11 @@ public class FacilityController {
     return ResponseEntity.status(HttpStatus.OK).body(map);
   }
 
+  // 시설 정보 조회
   @GetMapping("/facilities/{facility_id}")
   public ResponseEntity facilityInfo(@PathVariable("facility_id") Long facilityId) throws Exception {
     if (facilityId == null)
-      throw new InputException("시설 정보 조회: facility_id가 null로 들어옴. 사용자의 잘못된 요청");
+      throw new InputException("FacilityController 시설 정보 조회: facility_id가 null로 들어옴. 사용자의 잘못된 요청");
 
     FacilityInfoDto dto = facilityService.getInfo(facilityId);
 
@@ -114,15 +76,9 @@ public class FacilityController {
 
   //시설 전체보기 - 관리자용
   @GetMapping("/facilities/admin")
-  public ResponseEntity adminFacilityList(@PageableDefault(size=20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
-    Page<Facility> facilities;
+  public ResponseEntity adminFacilityList(@PageableDefault(size = 20, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) throws Exception {
 
-    try {
-      facilities = facilityService.findAll(pageable);
-    } catch (Exception e) {
-      log.info("FacilityController 시설 전체보기 관리자용: 에러남");
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
+    Page<Facility> facilities = facilityService.findAll(pageable);
 
     return ResponseEntity.status(HttpStatus.OK).body(facilities.getContent());
   }

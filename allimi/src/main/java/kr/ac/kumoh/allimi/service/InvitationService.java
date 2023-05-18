@@ -14,6 +14,7 @@ import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.InvitationRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 @Service
 public class InvitationService {
   private final InvitationRepository invitationRepository;
@@ -76,6 +78,17 @@ public class InvitationService {
     
     invitationRepository.deleteById(inviteId);
   }
+
+  public boolean findByFacilityAndUserAndRoleExists(Long facilityId, Long userId, UserRole userRole) {
+    List<Invitation> invitations = invitationRepository.findByFacilityAndUserAndRole(facilityId, userId, userRole.toString())
+            .orElseGet(() -> new ArrayList<>());
+
+    if (invitations.size() > 0)
+      return true;
+    else
+      return false;
+  }
+
 
   public List<ResponseInvitation> findByUser(Long userId) throws Exception {
     List<Invitation> invitations = invitationRepository.findByUserId(userId)
