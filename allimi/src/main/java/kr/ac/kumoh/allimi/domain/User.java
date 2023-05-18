@@ -14,9 +14,8 @@ import java.util.List;
 @Table(name="users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
     @NotNull
@@ -45,10 +44,9 @@ public class User {
     this.name = name;
   }
 
-    public void changeCurrNHResident(Long residentId) {
+  public void changeCurrNHResident(Long residentId) {
         this.currentNHResident = residentId;
-    }
-    public void setResidentNull() {
+    }public void setResidentNull() {
     this.currentNHResident = null;
   }
 

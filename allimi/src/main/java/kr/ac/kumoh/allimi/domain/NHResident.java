@@ -31,7 +31,7 @@ public class NHResident {
   @Enumerated(EnumType.STRING)
   private UserRole userRole;
 
-  @Column(name = "worker_id")
+  @Column(name = "worker_id") //nhresidnet!id
   private Long workers;
 
   @Column(name = "health_info", length = 20000)

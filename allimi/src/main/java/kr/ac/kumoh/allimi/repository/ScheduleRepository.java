@@ -1,7 +1,7 @@
 package kr.ac.kumoh.allimi.repository;
 
 import kr.ac.kumoh.allimi.domain.Facility;
-import kr.ac.kumoh.allimi.domain.Schedule;
+import kr.ac.kumoh.allimi.domain.func.Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

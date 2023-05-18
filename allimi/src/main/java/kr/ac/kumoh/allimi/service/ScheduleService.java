@@ -2,7 +2,7 @@ package kr.ac.kumoh.allimi.service;
 
 
 import kr.ac.kumoh.allimi.domain.Facility;
-import kr.ac.kumoh.allimi.domain.Schedule;
+import kr.ac.kumoh.allimi.domain.func.Schedule;
 import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleDeleteDTO;
@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @Transactional

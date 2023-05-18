@@ -1,7 +1,9 @@
-package kr.ac.kumoh.allimi.domain;
+package kr.ac.kumoh.allimi.domain.func;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import kr.ac.kumoh.allimi.domain.Facility;
+import kr.ac.kumoh.allimi.domain.User;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -13,9 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "schedules")
 public class Schedule {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "schedule_id")
     private Long id;
 
