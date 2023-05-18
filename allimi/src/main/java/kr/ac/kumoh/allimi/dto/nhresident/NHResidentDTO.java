@@ -1,18 +1,19 @@
 package kr.ac.kumoh.allimi.dto.nhresident;
 
+import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.domain.UserRole;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-//@Builder
 public class NHResidentDTO {
-    Long user_id;
-    Long facility_id;
-    String resident_name;
-    String birth;
-    UserRole user_role;
-    String health_info;
+    @NotNull(message = "user_id가 널이어서는 안됩니다")
+    private Long user_id;
+
+    @NotNull(message = "facility_id가 널이어서는 안됩니다")
+    private Long facility_id;
+
+    private String resident_name;
+    private String birth;
+    private UserRole user_role;
+    private String health_info;
 }

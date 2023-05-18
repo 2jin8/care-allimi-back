@@ -32,7 +32,7 @@ public class ScheduleService {
     private final UserRepository userRepository;
     private final FacilityRepository facilityRepository;
 
-    public void write(ScheduleWriteDTO writeDTO) {
+    public void write(ScheduleWriteDTO writeDTO) throws Exception {
         User user = userRepository.findUserByUserId(writeDTO.getUser_id())
                 .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다."));
 
@@ -52,7 +52,7 @@ public class ScheduleService {
             throw new ScheduleException("일정 저장 실패");
     }
 
-    public void edit(ScheduleEditDTO editDTO) {
+    public void edit(ScheduleEditDTO editDTO) throws Exception {
 
         Schedule schedule = scheduleRepository.findById(editDTO.getSchedule_id())
                 .orElseThrow(() -> new ScheduleException("해당 일정을 찾을 수 없습니다."));
@@ -69,7 +69,7 @@ public class ScheduleService {
         schedule.editSchedule(user, editDTO.getDate(), editDTO.getTexts());
     }
 
-    public void delete(ScheduleDeleteDTO deleteDTO) {
+    public void delete(ScheduleDeleteDTO deleteDTO) throws Exception {
 
         Schedule schedule = scheduleRepository.findById(deleteDTO.getSchedule_id())
                 .orElseThrow(() -> new ScheduleException("해당 일정을 찾을 수 없습니다."));
@@ -86,7 +86,7 @@ public class ScheduleService {
         scheduleRepository.delete(schedule);
     }
 //내림차순으로 받아오는게 좋은듯
-    public List<ScheduleListDTO> scheduleList(Long facility_id) {
+    public List<ScheduleListDTO> scheduleList(Long facility_id) throws Exception {
         Facility facility = facilityRepository.findById(facility_id)
                 .orElseThrow(() -> new FacilityException("해당 시설을 찾을 수 없습니다."));
 

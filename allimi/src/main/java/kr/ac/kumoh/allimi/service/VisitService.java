@@ -35,31 +35,31 @@ public class VisitService {
 
     //면회신청 목록보기
     public List<VisitListDTO> visitList(Long userId) throws Exception {
-      User user = userRepository.findUserByUserId(userId)
+        User user = userRepository.findUserByUserId(userId)
               .orElseThrow(() -> new UserException("user를 찾을 수 없음"));
 
-      NHResident nhResident = nhResidentRepository.findById(user.getCurrentNHResident())
+        NHResident nhResident = nhResidentRepository.findById(user.getCurrentNHResident())
               .orElseThrow(()-> new NHResidentException("입소자를 찾을 수 없음"));
 
-      UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
+        UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
               .orElseThrow(() -> new UserException("user의 역할을 찾을 수 없음"));
 
-      List<VisitListDTO> visitList = new ArrayList<>();
+        List<VisitListDTO> visitList = new ArrayList<>();
 
-      if (userRole == UserRole.MANAGER || userRole == UserRole.WORKER) { // 직원, 시설장인 경우: 시설 알림장 모두 확인 가능
-        Facility facility = nhResident.getFacility();
-        List<Visit> managerVisitList = visitRepository.findAllByFacility(facility)
-                .orElse(new ArrayList<Visit>());
-        visitList = parseVisitList(managerVisitList);
-      } else if (userRole == UserRole.PROTECTOR) { // 보호자인 경우: 개별 알림장만 확인 가능
-        List<Visit> userNoticeList = visitRepository.findAllByTarget(nhResident)
-                .orElse(new ArrayList<Visit>());
-        visitList = parseVisitList(userNoticeList);
-      } else {
-        throw new NHResidentException("user의 역할이 잘못됨");
-      }
+        if (userRole == UserRole.MANAGER || userRole == UserRole.WORKER) { // 직원, 시설장인 경우: 시설 알림장 모두 확인 가능
+            Facility facility = nhResident.getFacility();
+            List<Visit> managerVisitList = visitRepository.findAllByFacility(facility)
+                    .orElse(new ArrayList<Visit>());
+            visitList = parseVisitList(managerVisitList);
+        } else if (userRole == UserRole.PROTECTOR) { // 보호자인 경우: 개별 알림장만 확인 가능
+            List<Visit> userNoticeList = visitRepository.findAllByTarget(nhResident)
+                    .orElse(new ArrayList<Visit>());
+            visitList = parseVisitList(userNoticeList);
+        } else {
+            throw new NHResidentException("user의 역할이 잘못됨");
+        }
 
-      return visitList;
+        return visitList;
     }
 
   public List<VisitListDTO> parseVisitList(List<Visit> visits) {
@@ -89,7 +89,7 @@ public class VisitService {
   }
 
 
-  public void write(VisitWriteDTO writeDTO) {
+  public void write(VisitWriteDTO writeDTO) throws Exception {
         User user = userRepository.findUserByUserId(writeDTO.getUser_id())
                 .orElseThrow(() -> new UserException("사용자를 찾을 수 없습니다."));
 
@@ -112,7 +112,7 @@ public class VisitService {
             throw new VisitException("면회 신청이 실패했습니다.");
     }
 
-    public void edit(VisitEditDTO editDTO) {
+    public void edit(VisitEditDTO editDTO) throws Exception {
         Visit visit = visitRepository.findById(editDTO.getVisit_id())
                 .orElseThrow(() -> new VisitException("해당 면회가 없습니다."));
 
@@ -131,7 +131,7 @@ public class VisitService {
         visit.editVisit(editDTO.getTexts(), editDTO.getDateTime());
     }
 
-    public Long delete(Long visitId) {
+    public Long delete(Long visitId) throws Exception {
         Visit visit = visitRepository.findById(visitId)
                 .orElseThrow(() -> new VisitException("해당 면회 신청이 존재하지 않습니다."));
 
@@ -139,7 +139,7 @@ public class VisitService {
         return deleted;
     }
 
-    public VisitResponse approval(VisitApprovalDTO approvalDTO) {
+    public VisitResponse approval(VisitApprovalDTO approvalDTO) throws Exception {
         Visit visit = visitRepository.findById(approvalDTO.getVisit_id())
                 .orElseThrow(() -> new VisitException("해당 면회 신청이 존재하지 않습니다."));
 

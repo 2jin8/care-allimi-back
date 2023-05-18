@@ -102,7 +102,7 @@ public class UserService {
 
   public ResponseResidentDetail getCurrNHResident(Long userId) throws Exception {
     User user = userRepository.findUserByUserId(userId)
-            .orElseThrow(() -> new UserException("user not found"));
+            .orElseThrow(() -> new UserException("사용자 찾기 실패"));
 
     if (user.getCurrentNHResident() == null || user.getCurrentNHResident() == 0) {
       return ResponseResidentDetail.builder().build();
@@ -133,7 +133,7 @@ public class UserService {
 
   public ResponseLogin login(String loginId, String password) throws Exception { // login_id, password
       User user = userRepository.findByLoginIdAndPasswords(loginId, password)
-              .orElseThrow(() -> new UserAuthException("user not found"));
+              .orElseThrow(() -> new UserAuthException("사용자 찾기 실패"));
 
       if (user.getCurrentNHResident() == null) { //입소자가 한 명도 없음
         return ResponseLogin.builder()
@@ -205,10 +205,8 @@ public class UserService {
     return nhResidentResponses;
   }
 
-  public List<NHResidentResponse> getNHResidents(Long userId) {
+  public List<NHResidentResponse> getNHResidents(Long userId) throws Exception {
     User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new UserException("user를 찾을 수 없습니다"));
-    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
-            .orElseThrow(() -> new UserException("사용자 역할 찾기 실패"));
 
     List<NHResident> nhResidents = user.getNhResident();
     List<NHResidentResponse> nhResidentResponses = new ArrayList<>();

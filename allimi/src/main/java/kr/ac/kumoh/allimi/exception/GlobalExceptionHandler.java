@@ -22,11 +22,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-  @ExceptionHandler({NoSuchElementException.class})
-  protected ResponseEntity handleNoSuchElementException(NoSuchElementException e) {
-    log.info("NoSuchElementException = {}", e.getMessage());
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-  }
+    @ExceptionHandler({NoSuchElementException.class})
+    protected ResponseEntity handleNoSuchElementException(NoSuchElementException e) {
+        log.info("NoSuchElementException = {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
 
     @ExceptionHandler({UserException.class})
     protected ResponseEntity handleUserException(UserException e) {
