@@ -16,6 +16,12 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+  @ExceptionHandler({IllegalArgumentException.class})
+  protected ResponseEntity handleInputException(IllegalArgumentException e) {
+    log.info("IllegalArgumentException = {}", e.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+  }
+
     @ExceptionHandler({InputException.class})
     protected ResponseEntity handleInputException(InputException e) {
       log.info("InputException = {}", e.getMessage());
@@ -25,19 +31,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({NoSuchElementException.class})
     protected ResponseEntity handleNoSuchElementException(NoSuchElementException e) {
         log.info("NoSuchElementException = {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); //404
     }
 
     @ExceptionHandler({UserException.class})
     protected ResponseEntity handleUserException(UserException e) {
         log.info("UserException = {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     @ExceptionHandler({UserIdDuplicateException.class})
     protected ResponseEntity handleUserDuplicateException(UserIdDuplicateException e) {
         log.info("UserIdDuplicateException = {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).build(); //409
     }
 
     @ExceptionHandler({UserAuthException.class})

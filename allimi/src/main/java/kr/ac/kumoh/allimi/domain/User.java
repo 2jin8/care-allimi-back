@@ -59,6 +59,19 @@ public class User {
         return user;
     }
 
+    public void edit(String loginId, String password, String name, String phoneNum) {
+      if (loginId != null)
+        this.loginId = loginId;
+
+      if (password != null)
+        this.passwords = password;
+
+      if (name != null)
+        this.name = name;
+
+      if (phoneNum != null)
+        this.phoneNum = phoneNum;
+    }
 
 //    public UserRole getUserRole() {
 //        return this.nhResident.get(this.getCurrentNHResident()).getUserRole();
