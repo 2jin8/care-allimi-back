@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserListDTO {
+public class UserListAdminDTO {
 
   @NotNull(message = "user_id가 널이어서는 안됩니다")
   private Long user_id;
@@ -19,7 +19,7 @@ public class UserListDTO {
   private String phone_num;
   private String login_id;
 
-  public UserListDTO(Long userId, String userName, String phoneNum, String loginId) {
+  public UserListAdminDTO(Long userId, String userName, String phoneNum, String loginId) {
     this.user_id = userId;
     this.user_name = userName;
     this.phone_num = phoneNum;

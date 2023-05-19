@@ -1,5 +1,6 @@
 package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.domain.*;
+import kr.ac.kumoh.allimi.domain.func.Image;
 import kr.ac.kumoh.allimi.domain.func.Notice;
 import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;

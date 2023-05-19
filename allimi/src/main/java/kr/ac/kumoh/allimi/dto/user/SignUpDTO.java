@@ -18,5 +18,6 @@ public class SignUpDTO {
   @NotNull(message = "name이 널이어서는 안됩니다")
   private String name;
 
+  @NotNull(message = "전화번호가 null이면 안됩니다")
   private String phone_num;
 }

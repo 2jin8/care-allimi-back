@@ -14,9 +14,8 @@ import java.util.List;
 @Table(name="users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
     @NotNull
@@ -45,10 +44,9 @@ public class User {
     this.name = name;
   }
 
-    public void changeCurrNHResident(Long residentId) {
+  public void changeCurrNHResident(Long residentId) {
         this.currentNHResident = residentId;
-    }
-    public void setResidentNull() {
+    }public void setResidentNull() {
     this.currentNHResident = null;
   }
 
@@ -61,6 +59,19 @@ public class User {
         return user;
     }
 
+    public void edit(String loginId, String password, String name, String phoneNum) {
+      if (loginId != null)
+        this.loginId = loginId;
+
+      if (password != null)
+        this.passwords = password;
+
+      if (name != null)
+        this.name = name;
+
+      if (phoneNum != null)
+        this.phoneNum = phoneNum;
+    }
 
 //    public UserRole getUserRole() {
 //        return this.nhResident.get(this.getCurrentNHResident()).getUserRole();

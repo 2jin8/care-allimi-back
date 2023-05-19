@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.domain.Facility;
 
-import kr.ac.kumoh.allimi.domain.Image;
-import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.User;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

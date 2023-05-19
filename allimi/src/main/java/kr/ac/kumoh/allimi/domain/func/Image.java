@@ -1,8 +1,6 @@
-package kr.ac.kumoh.allimi.domain;
+package kr.ac.kumoh.allimi.domain.func;
 
 import jakarta.persistence.*;
-import kr.ac.kumoh.allimi.domain.func.AllNotice;
-import kr.ac.kumoh.allimi.domain.func.Notice;
 import lombok.*;
 
 @Entity
