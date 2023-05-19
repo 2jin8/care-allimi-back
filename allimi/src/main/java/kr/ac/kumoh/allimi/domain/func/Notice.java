@@ -16,8 +16,7 @@ import java.util.List;
 @Builder
 @Entity
 public class Notice {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "notice_id")
   private Long noticeId;
 
@@ -50,7 +49,6 @@ public class Notice {
 
   @OneToMany(mappedBy = "imageId")
   @Builder.Default
-  @Column(name = "image_id")
   private List<Image> images = new ArrayList<>();
 
   public static Notice newNotice(@NotNull User user, @NotNull NHResident target, @NotNull Facility facility,

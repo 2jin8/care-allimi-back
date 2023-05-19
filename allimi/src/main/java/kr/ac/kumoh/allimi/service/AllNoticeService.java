@@ -227,18 +227,14 @@
 //}
 package kr.ac.kumoh.allimi.service;
 
-import kr.ac.kumoh.allimi.controller.response.AllNoticeResponse;
-import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.domain.func.AllNotice;
-import kr.ac.kumoh.allimi.domain.func.Notice;
+import kr.ac.kumoh.allimi.domain.func.Image;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeEditDto;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeListDTO;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeWriteDto;
-import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.exception.AllNoticeException;
 import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.NoticeException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
