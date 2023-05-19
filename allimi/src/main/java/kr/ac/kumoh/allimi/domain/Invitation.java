@@ -37,7 +37,8 @@ public class Invitation {
 
   @CreatedDate
   @CreationTimestamp
-  private LocalDate createDate = LocalDate.now();
+  @Column(name = "create_date")
+  private LocalDate createdDate = LocalDate.now();
 
   public static Invitation makeInvitation(User user, Facility facility, UserRole userRole) {
     return new Invitation(null, userRole, facility, user, null);
