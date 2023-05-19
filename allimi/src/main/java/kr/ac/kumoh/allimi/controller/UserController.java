@@ -26,7 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-public class UserController {  //crud
+public class UserController {
   private final UserService userService;
 
   //회원가입

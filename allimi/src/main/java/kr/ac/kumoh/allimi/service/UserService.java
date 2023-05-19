@@ -192,9 +192,9 @@ public class UserService {
   }
 
   public List<NHResidentResponse> getNHResidentsWithFacility(Long userId) throws Exception {
-    User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new UserException("사용자 찾기 실패"));
-
+    User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new NoSuchElementException("사용자 찾기 실패"));
     List<NHResident> nhResidents = user.getNhResident();
+
     List<NHResidentResponse> nhResidentResponses = new ArrayList<>();
 
     for (NHResident nhr: nhResidents) {
@@ -205,6 +205,7 @@ public class UserService {
       } else {
         name = facility.getFmName();
       }
+
       nhResidentResponses.add(NHResidentResponse.builder()
               .resident_id(nhr.getId())
               .resident_name(name)
@@ -218,7 +219,8 @@ public class UserService {
   }
 
   public List<NHResidentResponse> getNHResidents(Long userId) throws Exception {
-    User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new UserException("user를 찾을 수 없습니다"));
+    User user = userRepository.findUserByUserId(userId)
+            .orElseThrow(() -> new NoSuchElementException("user를 찾을 수 없습니다"));
 
     List<NHResident> nhResidents = user.getNhResident();
     List<NHResidentResponse> nhResidentResponses = new ArrayList<>();

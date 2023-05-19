@@ -16,8 +16,14 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+  @ExceptionHandler({NHRAlreadyExistsException.class})
+  protected ResponseEntity handleNHRAlreadyExistsException(NHRAlreadyExistsException e) {
+    log.info("NHRAlreadyExistsException = {}", e.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).build();
+  }
+
   @ExceptionHandler({IllegalArgumentException.class})
-  protected ResponseEntity handleInputException(IllegalArgumentException e) {
+  protected ResponseEntity handleIllegalArgumentException(IllegalArgumentException e) {
     log.info("IllegalArgumentException = {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
   }
