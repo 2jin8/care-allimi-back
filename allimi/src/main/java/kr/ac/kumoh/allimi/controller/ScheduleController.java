@@ -2,6 +2,7 @@ package kr.ac.kumoh.allimi.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleDeleteDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleEditDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleListDTO;
@@ -52,19 +53,20 @@ public class ScheduleController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-//    @GetMapping(value = "/schedule/{facility_id}")
-//    public ResponseEntity list(@PathVariable Long facility_id) throws Exception {
-//        List<ScheduleListDTO> scheduleList = scheduleService.scheduleList(facility_id);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(scheduleList);
-//    }
-//
-//    @GetMapping(value = "/schedule/{facility_id}/{year_month}") //2023-05
-//    public ResponseEntity monthList(@PathVariable("facility_id") Long facilityId, @PathVariable("year_month") String yearMonth) {
-//        List<ScheduleListDTO> scheduleList;
-//
-//        scheduleList = scheduleService.monthlyList(facilityId, yearMonth);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(scheduleList);
-//    }
+  // 잘 안쓸듯. 관리자만 쓸거같다
+  @GetMapping(value = "/schedule/{facility_id}")
+  public ResponseEntity list(@PathVariable Long facility_id) throws Exception {
+    List<ScheduleListDTO> scheduleList = scheduleService.scheduleList(facility_id);
+
+    return ResponseEntity.status(HttpStatus.OK).body(scheduleList);
+  }
+
+  @GetMapping(value = "/schedule/{facility_id}/{year_month}") //2023-05
+  public ResponseEntity monthList(@PathVariable("facility_id") Long facilityId, @PathVariable("year_month") String yearMonth) throws Exception {
+    List<ScheduleListDTO> scheduleList;
+
+    scheduleList = scheduleService.monthlyList(facilityId, yearMonth);
+
+    return ResponseEntity.status(HttpStatus.OK).body(scheduleList);
+  }
 }

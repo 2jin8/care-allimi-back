@@ -22,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -33,6 +35,7 @@ public class ScheduleService {
   private final ScheduleRepository scheduleRepository;
   private final UserRepository userRepository;
   private final NHResidentRepository nhResidentRepository;
+  private final FacilityRepository facilityRepository;
 
   public Long write(ScheduleWriteDTO writeDTO) throws Exception {
     NHResident writer = nhResidentRepository.findById(writeDTO.getWriter_id())
@@ -78,40 +81,49 @@ public class ScheduleService {
 
     scheduleRepository.delete(schedule);
   }
-////내림차순으로 받아오는게 좋은듯
-//    public List<ScheduleListDTO> scheduleList(Long facility_id) throws Exception {
-//        Facility facility = facilityRepository.findById(facility_id)
-//                .orElseThrow(() -> new FacilityException("해당 시설을 찾을 수 없습니다."));
-//
-//        List<Schedule> schedules = scheduleRepository.findAllByFacility(facility)
-//                .orElse(new ArrayList<>());
-//
-//        List<ScheduleListDTO> listDTOS = new ArrayList<>();
-//
-//        for (Schedule schedule : schedules) {
-//            listDTOS.add(ScheduleListDTO.builder()
-//                    .schedule_id(schedule.getId())
-//                    .date(schedule.getDates())
-//                    .texts(schedule.getTexts()).build());
-//        }
-//
-//        return listDTOS;
-//    }
-//
-//    public List<ScheduleListDTO> monthlyList(Long facility_id, String yearMonth) {
-//
-//      List<Schedule> schedules = scheduleRepository.findAllByMonth(facility_id, yearMonth)
-//              .orElse(new ArrayList<>());
-//
-//      List<ScheduleListDTO> listDTOS = new ArrayList<>();
-//
-//      for (Schedule schedule : schedules) {
-//        listDTOS.add(ScheduleListDTO.builder()
-//                .schedule_id(schedule.getId())
-//                .date(schedule.getDates())
-//                .texts(schedule.getTexts()).build());
-//      }
-//
-//      return listDTOS;
-//    }
+
+  // 잘 안쓸듯 클라이언트에서는
+  public List<ScheduleListDTO> scheduleList(Long facility_id) throws Exception {
+    Facility facility = facilityRepository.findById(facility_id)
+      .orElseThrow(() -> new NoSuchElementException("해당 시설을 찾을 수 없습니다."));
+
+    List<Schedule> schedules = scheduleRepository.findAllByFacility(facility)
+      .orElse(new ArrayList<>());
+
+    List<ScheduleListDTO> listDTOS = new ArrayList<>();
+
+    for (Schedule schedule : schedules) {
+      listDTOS.add(ScheduleListDTO.builder()
+        .schedule_id(schedule.getId())
+        .date(schedule.getDates())
+        .texts(schedule.getTexts()).build());
+    }
+
+    return listDTOS;
+  }
+
+  public List<ScheduleListDTO> monthlyList(Long facility_id, String yearMonth) {
+//    List<Schedule> schedules2 = scheduleRepository.findAllByMonth(facility_id, yearMonth)
+//      .orElse(new ArrayList<>());
+
+    Facility facility = facilityRepository.findById(facility_id)
+      .orElseThrow(() -> new NoSuchElementException("해당하는 시설이 없습니다"));
+
+    LocalDate startDate = LocalDate.parse(yearMonth + "-01", DateTimeFormatter.ISO_DATE);
+    LocalDate lastDate = LocalDate.parse(yearMonth + "-31", DateTimeFormatter.ISO_DATE);
+
+    List<Schedule> schedules = scheduleRepository.findAllByMonth(facility, startDate, lastDate)
+      .orElse(new ArrayList<>());
+
+    List<ScheduleListDTO> listDTOS = new ArrayList<>();
+
+    for (Schedule schedule : schedules) {
+      listDTOS.add(ScheduleListDTO.builder()
+        .schedule_id(schedule.getId())
+        .date(schedule.getDates())
+        .texts(schedule.getTexts()).build());
+    }
+
+    return listDTOS;
+  }
 }
