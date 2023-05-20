@@ -13,20 +13,16 @@ public class VisitListDTO {
     @NotNull(message = "visit_id가 널이어서는 안됩니다")
     private Long visit_id;
 
-    @NotNull(message = "user_id가 널이어서는 안됩니다")
-    private Long user_id;
-
-    @NotNull(message = "resident_id가 널이어서는 안됩니다")
-    private Long resident_id;
+    @NotNull(message = "보호자 id가 널이어서는 안됩니다")
+    private Long protector_id;
 
     private LocalDateTime create_date;
     private LocalDateTime want_date;
-    private String texts;
-    private String phoneNum;
     private String residentName;
     private String visitorName;
-    private String rejReason;
     private VisitState state;
+    private String rejReason;
+    private String texts;
 }
 
 //  private VisitState state = VisitState.WAITING;
