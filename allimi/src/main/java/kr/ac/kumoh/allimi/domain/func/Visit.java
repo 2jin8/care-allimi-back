@@ -7,7 +7,9 @@ import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.User;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,30 +18,19 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Visit {
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name= "visit_id")
   private Long id;
 
   @ManyToOne
-  @JoinColumn(name = "user_id")
-  private User user;
+  @JoinColumn(name = "protector_id", referencedColumnName = "nhr_id")
+  private NHResident protector; //면회신청을 한 사람
 
-  @NotNull
-  @JoinColumn(name = "nhr_id")
-  @ManyToOne
-  private NHResident nhResident;
-
-  @NotNull
-  @ManyToOne
-  @JoinColumn(name = "facility_id")
-  private Facility facility;
-
-  @Column(name = "create_date")
+  @Column(name = "created_date")
   @Builder.Default
   @CreationTimestamp
-  private LocalDateTime createDate = LocalDateTime.now();
+  private LocalDateTime createdDate = LocalDateTime.now();
 
   @Column(length = 1024)
   private String texts;
@@ -48,13 +39,6 @@ public class Visit {
   @NotNull
   private LocalDateTime wantDate;
 
-  @Column(name = "phone_num")
-  private String phoneNum;
-
-  @NotNull
-  @Column(name = "visitor_name")
-  private String visitorName;
-
   @Column(name = "rej_reason")
   private String rejReason;
 
@@ -62,25 +46,18 @@ public class Visit {
   @Enumerated(EnumType.STRING) //대기중, 거절, 승인, 완료
   private VisitState state = VisitState.WAITING;
 
-
-  public static Visit newVisit(@NotNull User user, @NotNull NHResident nhResident, @NotNull Facility facility, @NotNull String visitorName,
-                               String texts, LocalDateTime dateTime) {
-
+  public static Visit newVisit(@NotNull NHResident protector, String texts, LocalDateTime wantDateTime) {
     Visit visit = Visit.builder()
-            .user(user)
-            .nhResident(nhResident)
-            .facility(facility)
-            .visitorName(visitorName)
+            .protector(protector)
             .texts(texts)
-            .wantDate(dateTime)
-            .state(VisitState.WAITING)
+            .wantDate(wantDateTime)
             .build();
     return visit;
   }
 
-  public void editVisit(String texts, LocalDateTime dateTime) {
+  public void editVisit(String texts, LocalDateTime wantDateTime) {
     this.texts = texts;
-    this.wantDate = dateTime;
+    this.wantDate = wantDateTime;
   }
 
   public void approvalVisit(VisitState state, String rejReason) {
@@ -88,5 +65,4 @@ public class Visit {
     if (state == VisitState.REJECTED)
       this.rejReason = rejReason;
   }
-
 }

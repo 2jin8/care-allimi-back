@@ -23,6 +23,7 @@ public class Invitation {
 
   @NotNull
   @Column(name = "user_role")
+  @Enumerated(EnumType.STRING)
   private UserRole userRole;
 
   @NotNull
@@ -37,7 +38,7 @@ public class Invitation {
 
   @CreatedDate
   @CreationTimestamp
-  @Column(name = "create_date")
+  @Column(name = "created_date")
   private LocalDate createdDate = LocalDate.now();
 
   public static Invitation makeInvitation(User user, Facility facility, UserRole userRole) {

@@ -31,8 +31,9 @@ public class NHResident {
   @Enumerated(EnumType.STRING)
   private UserRole userRole;
 
-  @Column(name = "worker_id") //nhresidnet!id
-  private Long workers;
+  @OneToOne
+  @JoinColumn(name = "worker_id", referencedColumnName = "nhr_id") //nhresidnet!id
+  private NHResident workers;
 
   @Column(name = "health_info", length = 20000)
   @Lob
@@ -41,19 +42,20 @@ public class NHResident {
   private String birth;
 
   public static NHResident newNHResident(User user, Facility facility, String name, UserRole userRole, String birth, String healthInfo) {
-      NHResident nhResident = NHResident.builder()
-              .name(name)
-              .user(user)
-              .facility(facility)
-              .userRole(userRole)
-              .birth(birth)
-              .healthInfo(healthInfo)
-              .build();
+    NHResident nhResident = NHResident.builder()
+      .name(name)
+      .user(user)
+      .facility(facility)
+      .userRole(userRole)
+      .birth(birth)
+      .healthInfo(healthInfo)
+      .build();
 
-      nhResident.id = null;
+    nhResident.id = null;
+    nhResident.user.addNHResident(nhResident);
+    nhResident.user.changeCurrNHResident(nhResident);
 
-      user.addNHResident(nhResident);
-      return nhResident;
+    return nhResident;
   }
 
   public void edit(String residentName, String birth, String healthInfo) {
@@ -65,8 +67,8 @@ public class NHResident {
       this.healthInfo = healthInfo;
   }
 
-  public void setWorker(Long workerId) {
-    this.workers = workerId;
+  public void setWorker(NHResident worker) {
+    this.workers = worker;
   }
 
   @Override

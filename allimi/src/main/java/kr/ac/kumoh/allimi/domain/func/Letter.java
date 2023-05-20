@@ -10,6 +10,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -25,45 +26,32 @@ public class Letter {
   private Long letterId;
 
   @ManyToOne
-  @JoinColumn(name = "user_id")
-  private User user;
-
-  @NotNull
-  @JoinColumn(name = "nhr_id")
-  @ManyToOne
-  private NHResident nhResident;
-
-  @NotNull
-  @ManyToOne
-  @JoinColumn(name = "facility_id")
-  private Facility facility;
+  @JoinColumn(name = "protector_id")
+  private NHResident protector; //글 쓴 보호자
 
   @Lob
   @Column(length = 50000)
   private String contents;
 
-  @Column(name = "create_date")
+  @Column(name = "created_date")
   @Builder.Default
   @CreationTimestamp
-  private LocalDateTime createDate = LocalDateTime.now();
+  private LocalDateTime createdDate = LocalDateTime.now();
 
   @Builder.Default
   @Column(name = "is_read", nullable = false) //false로 초기화
   private boolean isRead = false;
 
-  public static Letter newLetter(@NotNull User user, @NotNull NHResident nhResident, @NotNull Facility facility, String contents) {
+  public static Letter newLetter(@NotNull NHResident protector, String contents) {
     Letter letter = Letter.builder()
-            .user(user)
-            .nhResident(nhResident)
-            .facility(facility)
+            .protector(protector)
             .contents(contents)
             .build();
 
     return letter;
   }
 
-  public void edit(NHResident resident, String contents) {
-    this.nhResident = resident;
+  public void edit(String contents) {
     this.contents = contents;
   }
 

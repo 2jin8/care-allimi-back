@@ -3,6 +3,7 @@ package kr.ac.kumoh.allimi.domain.func;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.domain.Facility;
+import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.User;
 import lombok.*;
 
@@ -21,13 +22,8 @@ public class Schedule {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facility_id")
-    private Facility facility;
+    @JoinColumn(name = "writer_id")
+    private NHResident writer;
 
     @NotNull
     private LocalDate dates;
@@ -35,20 +31,18 @@ public class Schedule {
     @NotNull
     private String texts;
 
-    public static Schedule newSchedule(@NotNull User user, @NotNull Facility facility, @NotNull LocalDate date, @NotNull String texts) {
+    public static Schedule newSchedule(@NotNull NHResident writer, @NotNull LocalDate date, @NotNull String texts) {
+      Schedule schedule = Schedule.builder()
+              .writer(writer)
+              .dates(date)
+              .texts(texts)
+              .build();
 
-        Schedule schedule = Schedule.builder()
-                .user(user)
-                .facility(facility)
-                .dates(date)
-                .texts(texts)
-                .build();
-
-        return schedule;
+      return schedule;
     }
 
-    public void editSchedule(@NotNull User user, @NotNull LocalDate date, @NotNull String texts) {
-        this.user = user;
+    public void editSchedule(@NotNull NHResident writer, @NotNull LocalDate date, @NotNull String texts) {
+        this.writer = writer;
         this.dates = date;
         this.texts = texts;
     }
