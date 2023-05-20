@@ -49,7 +49,7 @@ public class UserControllerTest {
     // when
     final ResultActions actions =
       mvc.perform(
-        post("/users")
+        post("/v4/users")
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("UTF-8")
@@ -76,7 +76,7 @@ public class UserControllerTest {
     // when
     final ResultActions actions =
       mvc.perform(
-        post("/users")
+        post("/v4/users")
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
           .characterEncoding("UTF-8")
@@ -91,26 +91,26 @@ public class UserControllerTest {
   }
 
   @Test
-  @DisplayName("회원가입 중복된 아이디 테스트")
-  void loginIdDuplicateTest() throws Exception { //409뜨고 conflict뜨면 정상
+  @DisplayName("회원가입 중복된 아이디 테스트")//409뜨고 conflict뜨면 정상
+  void loginIdDuplicateTest() throws Exception {
     // given
     given(userService.addUser(any())).willThrow(UserIdDuplicateException.class);
 
     // when
-      mvc.perform(
-        post("/users")
-        .contentType(MediaType.APPLICATION_JSON)
+    mvc.perform(
+        post("/v4/users")
+          .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON)
-        .characterEncoding("UTF-8")
-        .content(
-          "{"
-            + "  \"login_id\" : \"id1234\","
-            + "  \"password\" : \"password1234\","
-            + "  \"name\" : \"주효림\","
-            + "  \"phone_num\" : \"01000000000\""
-            + "}")
-        )
-        .andExpect(status().isConflict());
+          .characterEncoding("UTF-8")
+          .content(
+            "{"
+              + "  \"login_id\" : \"id1234\","
+              + "  \"password\" : \"password1234\","
+              + "  \"name\" : \"주효림\","
+              + "  \"phone_num\" : \"01000000000\""
+              + "}")
+      )
+      .andExpect(status().isConflict());
 
     // then
   }
