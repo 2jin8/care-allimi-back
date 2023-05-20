@@ -14,9 +14,6 @@ public class NoticeEditDto {
     @NotNull(message = "타겟 id가 널이어서는 안됩니다")
     private Long target_id;
 
-//    @NotNull(message = "resident_id가 널이어서는 안됩니다")
-//    private Long resident_id;
-
     private String content;
     private String sub_content;
 }

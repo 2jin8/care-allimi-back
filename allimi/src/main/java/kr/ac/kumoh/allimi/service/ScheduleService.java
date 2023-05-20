@@ -37,7 +37,7 @@ public class ScheduleService {
   private final NHResidentRepository nhResidentRepository;
   private final FacilityRepository facilityRepository;
 
-  public Long write(ScheduleWriteDTO writeDTO) throws Exception {
+  public Long write(ScheduleWriteDTO writeDTO) throws Exception { //writer_id, date, texts
     NHResident writer = nhResidentRepository.findById(writeDTO.getWriter_id())
       .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
 
@@ -67,14 +67,14 @@ public class ScheduleService {
     schedule.editSchedule(writer, editDTO.getDate(), editDTO.getTexts());
   }
 
-  public void delete(ScheduleDeleteDTO deleteDTO) throws Exception { // schedule_id, user_id;
+  public void delete(ScheduleDeleteDTO deleteDTO) throws Exception { // schedule_id, nhr_id;
     Schedule schedule = scheduleRepository.findById(deleteDTO.getSchedule_id())
       .orElseThrow(() -> new NoSuchElementException("해당 일정을 찾을 수 없습니다."));
 
-    User user = userRepository.findUserByUserId(deleteDTO.getUser_id())
+    NHResident nhResident = nhResidentRepository.findById(deleteDTO.getNhr_id())
       .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
 
-    UserRole userRole = user.getUserRole();
+    UserRole userRole = nhResident.getUserRole();
 
     if (userRole == UserRole.PROTECTOR)
       throw new UserAuthException("권한이 없는 사용자입니다.");
@@ -103,14 +103,13 @@ public class ScheduleService {
   }
 
   public List<ScheduleListDTO> monthlyList(Long facility_id, String yearMonth) {
-//    List<Schedule> schedules2 = scheduleRepository.findAllByMonth(facility_id, yearMonth)
-//      .orElse(new ArrayList<>());
-
     Facility facility = facilityRepository.findById(facility_id)
       .orElseThrow(() -> new NoSuchElementException("해당하는 시설이 없습니다"));
 
-    LocalDate startDate = LocalDate.parse(yearMonth + "-01", DateTimeFormatter.ISO_DATE);
-    LocalDate lastDate = LocalDate.parse(yearMonth + "-31", DateTimeFormatter.ISO_DATE);
+    //첫 째 날, 마지막 날 구하고 넣어주기
+    LocalDate date = LocalDate.parse(yearMonth + "-01", DateTimeFormatter.ISO_DATE);
+    LocalDate startDate = date.withDayOfMonth(1);
+    LocalDate lastDate = date.withDayOfMonth(date.lengthOfMonth());
 
     List<Schedule> schedules = scheduleRepository.findAllByMonth(facility, startDate, lastDate)
       .orElse(new ArrayList<>());

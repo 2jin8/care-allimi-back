@@ -33,8 +33,7 @@ public class NoticeService {
   private final ImageRepository imageRepository;
   private final S3Service s3Service;
 
-  public Long write(NoticeWriteDto dto, List<MultipartFile> files) throws Exception {  // notice{user_id, nhresident_id, facility_id, contents, sub_contents}, file{}
-
+  public Long write(NoticeWriteDto dto, List<MultipartFile> files) throws Exception {  // notice{writer_id, target_id, contents, sub_contents}, file{}
     NHResident writer = nhResidentRepository.findById(dto.getWriter_id())
             .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - writer_id에 해당하는 입소자 없음"));
 
@@ -143,7 +142,7 @@ public class NoticeService {
             .build();
   }
 
-  public Long edit(NoticeEditDto editDto, List<MultipartFile> files) throws Exception {
+  public Long edit(NoticeEditDto editDto, List<MultipartFile> files) throws Exception { // 알림장 수정: notice_id, writer_id, target_id, content, sub_content
     Notice notice = noticeRepository.findNoticeByNoticeId(editDto.getNotice_id())
             .orElseThrow(() -> new NoticeException("알림장 찾기 실패 - 해당 알림장이 존재하지 않음"));
 

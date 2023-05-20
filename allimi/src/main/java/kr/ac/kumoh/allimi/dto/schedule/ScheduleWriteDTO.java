@@ -8,7 +8,7 @@ import java.time.LocalDate;
 @Getter
 public class ScheduleWriteDTO {
   @NotNull(message = "writer_id가 널이어서는 안됩니다")
-  private Long writer_id;
+  private Long writer_id; //nhr
 
   @NotNull(message = "date가 널이어서는 안됩니다")
   private LocalDate date;

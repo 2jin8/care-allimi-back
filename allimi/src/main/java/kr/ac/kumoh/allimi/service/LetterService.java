@@ -32,17 +32,17 @@ public class LetterService {
   private final FacilityRepository facilityRepository;
   private final NHResidentRepository nhResidentRepository;
 
-  public Long write(LetterWriteDto dto) throws Exception {  // user_id, nhresident_id, facility_id, contents
-    User user = userRepository.findUserByUserId(dto.getUser_id())
-            .orElseThrow(() -> new NoSuchElementException("글쓰는 사람(user) not found"));
+  public Long write(LetterWriteDto dto) throws Exception {  // nhresident_id, contents
+    NHResident writer = nhResidentRepository.findById(dto.getResident_id())
+            .orElseThrow(() -> new NoSuchElementException("글쓰는 사람(nhResident) not found"));
 
     //권한체크
-    UserRole userRole = user.getCurrentNhresident().getUserRole();
+    UserRole userRole = writer.getUserRole();
     if (userRole != UserRole.PROTECTOR)
       throw new UserAuthException("권한이 없는 사용자입니다.");
 
     //한마디 작성
-    Letter letter = Letter.newLetter(user.getCurrentNhresident(), dto.getContents());
+    Letter letter = Letter.newLetter(writer, dto.getContents());
     Letter savedLetter = letterRepository.save(letter);
 
     if (savedLetter == null)
@@ -127,14 +127,14 @@ public class LetterService {
     return deleted;
   }
 
-  public void readCheck(Long userId, Long letterId) throws Exception {
+  public void readCheck(Long residentId, Long letterId) throws Exception {
     Letter letter = letterRepository.findById(letterId)
-            .orElseThrow(() -> new LetterException("해당하는 한마디가 없음"));
+            .orElseThrow(() -> new NoSuchElementException("해당하는 한마디가 없음"));
 
-    User user = userRepository.findUserByUserId(userId)
-            .orElseThrow(() -> new UserException("해당하는 user가 없습니다"));
+    NHResident reader = nhResidentRepository.findById(residentId)
+            .orElseThrow(() -> new NoSuchElementException("한마디를 읽을 nhresident가 없습니다"));
 
-    UserRole userRole = user.getCurrentNhresident().getUserRole();
+    UserRole userRole = reader.getUserRole();
 
     if (userRole != UserRole.MANAGER && userRole != UserRole.WORKER && userRole != UserRole.DEVELOPER) {
       throw new UserAuthException("권한이 없는 사용자입니다.");

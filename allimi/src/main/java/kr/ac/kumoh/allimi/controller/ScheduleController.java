@@ -28,7 +28,7 @@ public class ScheduleController {
   private final ScheduleService scheduleService;
 
   //일정 등록
-  @PostMapping(value = "/schedule")
+  @PostMapping(value = "/schedule")   //writer_id, date, texts
   public ResponseEntity write(@Valid @RequestBody ScheduleWriteDTO writeDTO) throws Exception {
     Long scheduleId = scheduleService.write(writeDTO);
 
@@ -46,8 +46,9 @@ public class ScheduleController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
+  //일정 삭제
   @DeleteMapping(value = "/schedule")
-  public ResponseEntity delete(@Valid @RequestBody ScheduleDeleteDTO deleteDTO) throws Exception { // schedule_id, user_id;
+  public ResponseEntity delete(@Valid @RequestBody ScheduleDeleteDTO deleteDTO) throws Exception { // schedule_id, nhr_id;
     scheduleService.delete(deleteDTO);
 
     return ResponseEntity.status(HttpStatus.OK).build();

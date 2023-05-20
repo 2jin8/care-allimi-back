@@ -98,8 +98,7 @@ public class VisitService {
     }
 
     // 면회 신청
-    public void write(VisitWriteDTO writeDTO) throws Exception {
-
+    public void write(VisitWriteDTO writeDTO) throws Exception {   // protector_id, dateTime, texts;
         NHResident nhResident = nhResidentRepository.findById(writeDTO.getProtector_id())
                 .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - protector_id에 해당하는 입소자 없음"));
         if (nhResident.getUserRole() != UserRole.PROTECTOR)
@@ -114,7 +113,7 @@ public class VisitService {
     }
 
     // 면회 수정
-    public void edit(VisitEditDTO editDTO) throws Exception {
+    public void edit(VisitEditDTO editDTO) throws Exception {  // visit_id, protector_id, dateTime, texts;
         Visit visit = visitRepository.findById(editDTO.getVisit_id())
                 .orElseThrow(() -> new VisitException("면회 찾기 실패 - 해당 면회가 존재하지 않음"));
 

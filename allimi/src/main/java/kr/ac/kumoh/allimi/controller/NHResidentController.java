@@ -118,9 +118,9 @@ public class NHResidentController {
   // 시설에 포함된 모든 직원 출력
   @GetMapping("/nhResidents/workers/{facility_id}")
   public ResponseEntity workerList(@PathVariable("facility_id") Long facilityId) throws Exception {
-    List<ResponseResident> facilitys = nhResidentService.findWorkerByFacility(facilityId);
+    List<ResponseResident> facilities = nhResidentService.findWorkerByFacility(facilityId);
 
-    return ResponseEntity.status(HttpStatus.OK).body(facilitys);
+    return ResponseEntity.status(HttpStatus.OK).body(facilities);
   }
 
   // 시설 포함된 모든 입소자 출력 - 관리자용
@@ -144,13 +144,9 @@ public class NHResidentController {
   }
 
   // 요양보호사가 관리하는 입소자 목록
-  @GetMapping("/nhResidents/manage")
-  public ResponseEntity manageNHResidentList(@RequestBody Map<String, Long> resident) throws Exception {
-    Long user_id = resident.get("user_id");
-    if (user_id == null)
-      throw new InputException("NHResidentController 요양보호사가 관리하는 입소자 목록: user_id or facility_id가 null로 들어옴");
-
-    List<NHResidentResponse> responseList = nhResidentService.workerList(user_id);
+  @GetMapping("/nhResidents/manage/{user_id}")
+  public ResponseEntity manageNHResidentList(@PathVariable("user_id") Long userId) throws Exception {
+    List<NHResidentResponse> responseList = nhResidentService.workerList(userId);
 
     return ResponseEntity.status(HttpStatus.OK).body(responseList);
   }

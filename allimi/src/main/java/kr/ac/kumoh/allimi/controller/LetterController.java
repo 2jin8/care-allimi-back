@@ -27,7 +27,7 @@ public class LetterController {
   private final LetterService letterService;
 
   // 한마디 작성
-  @PostMapping(value = "/letters")  // user_id(글 쓰는 사람), facility_id, contents
+  @PostMapping(value = "/letters")  // resident_id(글 쓰는 사람), contents
   public ResponseEntity letterWrite(@Valid @RequestBody LetterWriteDto dto) throws Exception {
     Long letterId = letterService.write(dto);
 
@@ -39,13 +39,13 @@ public class LetterController {
 
   // 읽음 표시
   @PostMapping("/letters/read")
-  public ResponseEntity readCheck(@RequestBody Map<String, Long> info) throws Exception { // user_id, letter_id
-    Long userId = info.get("user_id");
+  public ResponseEntity readCheck(@RequestBody Map<String, Long> info) throws Exception { // resident_id, letter_id
+    Long residentId = info.get("resident_id");
     Long letterId = info.get("letter_id");
-    if (userId == null || letterId == null)
-      throw new LetterException("LetterController 한마디 읽기: user_id 또는 letter_id가 null. 사용자의 잘못된 입력");
+    if (residentId == null || letterId == null)
+      throw new InputException("LetterController 한마디 읽기: user_id 또는 letter_id가 null. 사용자의 잘못된 입력");
 
-    letterService.readCheck(userId, letterId);
+    letterService.readCheck(residentId, letterId);
 
     Map<String, Long> map = new HashMap<>();
     map.put("letter_id", letterId);
@@ -54,8 +54,8 @@ public class LetterController {
   }
 
   // 한마디 수정
-  @PatchMapping(value = "/letters")
-  public ResponseEntity letterEdit(@Valid @RequestBody LetterEditDto dto) throws Exception {  // letter_id, writer_id, contents
+  @PatchMapping(value = "/letters") // letter_id, writer_id(nhr), contents
+  public ResponseEntity letterEdit(@Valid @RequestBody LetterEditDto dto) throws Exception {
     letterService.edit(dto);
 
     Map<String, Long> map = new HashMap<>();

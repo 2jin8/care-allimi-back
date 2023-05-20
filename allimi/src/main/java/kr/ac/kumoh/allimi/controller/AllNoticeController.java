@@ -35,7 +35,7 @@ public class AllNoticeController {
     }
 
     // 전체공지 목록
-    @GetMapping("/all-notices/{facility_id}")
+    @GetMapping("/all-notices/facilities/{facility_id}")
     public ResponseEntity allNoticeList(@PathVariable("facility_id") Long facilityId) throws Exception {
         List<AllNoticeListDTO> allNoticeList= allNoticeService.allNoticeList(facilityId);
 
@@ -55,7 +55,6 @@ public class AllNoticeController {
     // 공지사항 삭제
     @DeleteMapping("/all-notices")
     public ResponseEntity noticeDelete(@RequestBody Map<String, Long> allNotice) { //allnotice_id
-
         Long allNoticeId = allNotice.get("allnotice_id");
         if (allNoticeId == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

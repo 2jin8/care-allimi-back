@@ -111,13 +111,19 @@ public class NHResidentService {
     List<ResponseResident> list = new ArrayList<>();
 
     for (NHResident r : residents) {
+      NHResident worker = r.getWorkers();
+      Long workerId = null;
+      if (worker != null) {
+        workerId = worker.getId();
+      }
+
       list.add(ResponseResident
               .builder()
               .id(r.getId())
               .user_id(r.getUser().getUserId())
               .name(r.getName())
               .user_role(r.getUserRole())
-              .worker_id(r.getWorkers().getId())
+              .worker_id(workerId)
               .build());
     }
 
@@ -134,14 +140,17 @@ public class NHResidentService {
 
     List<ResponseResident> list = new ArrayList<>();
 
+
     for (NHResident r : residents) {
+      User user = r.getUser();
+
       list.add(ResponseResident
         .builder()
         .id(r.getId())
         .user_id(r.getUser().getUserId())
-        .name(r.getName())
+        .name(user.getName())
         .user_role(r.getUserRole())
-        .worker_id(r.getWorkers().getId())
+        .worker_id(null)
         .build());
     }
 
