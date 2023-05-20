@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Page</title>
+
+    <!-- 부트스트랩 스타일 시트 링크 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div th:replace="fragments/navHeader :: navHeader" />
+
+    <div class="container">
+        <h1>Welcome to the Admin Page</h1>
+
+        <h2>User List</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>resident_id</th>
+                <th>facility_id</th>
+                <th>facility_name</th>
+                <th>resident_name</th>
+                <th>user_role</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr th:each="resident : ${residents}">
+                    <td th:text="${resident.resident_id}"></td>
+                    <td th:text="${resident.facility_id}"></td>
+                    <td th:text="${resident.facility_name}"></td>
+                    <td th:text="${resident.resident_name}"></td>
+                    <td th:text="${resident.user_role}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>
