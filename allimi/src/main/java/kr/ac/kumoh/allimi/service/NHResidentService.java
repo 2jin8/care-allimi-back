@@ -12,6 +12,7 @@ import kr.ac.kumoh.allimi.dto.nhresident.NHResidentEditDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
 import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
+import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -181,31 +182,25 @@ public class NHResidentService {
     return list;
   }
 
-  public void setWorker(NHResidentUFDTO setDTO) throws Exception {
-    NHResident nhResident = nhResidentRepository.findById(setDTO.getNhresident_id())
+  public void setWorker(NHResidentUFDTO setDTO) throws Exception {  // resdient_id, worker_id, facility_id;
+    NHResident nhResident = nhResidentRepository.findById(setDTO.getResdient_id())
             .orElseThrow(() -> new NoSuchElementException("입소자 찾기 실패"));
 
-    User user = userRepository.findUserByUserId(setDTO.getUser_id())
-            .orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없음"));
+    NHResident worker =  nhResidentRepository.findById(setDTO.getWorker_id())
+            .orElseThrow(() -> new NoSuchElementException("직원을 찾을 수 없음"));
 
-    NHResident worker = user.getCurrentNhresident();
     UserRole userRole = worker.getUserRole();
 
     //user가 요양보호사가 아니거나 resident가 보호자가 아니라면
     if (nhResident.getUserRole() != UserRole.PROTECTOR || userRole == UserRole.PROTECTOR) {
       log.info("" + nhResident.getUserRole() + "/ " + userRole);
-      throw new UserException("역할이 올바르지 않음");
+      throw new UserAuthException("역할이 올바르지 않음");
     }
 
     nhResident.setWorker(worker);
   }
 
-  public List<NHResidentResponse> workerList(Long userId) throws Exception {
-    User user = userRepository.findUserByUserId(userId)
-            .orElseThrow(() -> new NoSuchElementException("해당하는 user가 없음"));
-
-    Long workerId = user.getCurrentNhresident().getId();
-
+  public List<NHResidentResponse> workerList(Long workerId) throws Exception {
     List<NHResident> nhResidents = nhResidentRepository.findByWorkerId(workerId)
             .orElseGet(() -> new ArrayList<>());
 

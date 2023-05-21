@@ -20,6 +20,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,10 +36,10 @@ public class NoticeService {
 
   public Long write(NoticeWriteDto dto, List<MultipartFile> files) throws Exception {  // notice{writer_id, target_id, contents, sub_contents}, file{}
     NHResident writer = nhResidentRepository.findById(dto.getWriter_id())
-            .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - writer_id에 해당하는 입소자 없음"));
+            .orElseThrow(() -> new NoSuchElementException("입소자 찾기 실패 - writer_id에 해당하는 입소자 없음"));
 
     NHResident target = nhResidentRepository.findById(dto.getTarget_id())
-            .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - target_id에 해당하는 입소자 없음"));
+            .orElseThrow(() -> new NoSuchElementException("입소자 찾기 실패 - target_id에 해당하는 입소자 없음"));
 
     if (writer.getUserRole() != UserRole.MANAGER && writer.getUserRole() != UserRole.WORKER)
       throw new UserAuthException("알림장 작성 실패 - 권한이 없는 사용자");
@@ -180,7 +181,7 @@ public class NoticeService {
 
   public void delete(Long notice_id) {
     Notice notice = noticeRepository.findById(notice_id).
-            orElseThrow(() -> new NoticeException("알림장 찾기 실패 - 해당 알림장이 존재하지 않음"));
+            orElseThrow(() -> new NoSuchElementException("알림장 찾기 실패 - 해당 알림장이 존재하지 않음"));
 
     List<Image> images = imageRepository.findAllByNotice(notice).orElse(new ArrayList<>());
     for (Image image : images) {

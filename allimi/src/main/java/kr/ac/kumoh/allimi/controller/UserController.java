@@ -58,7 +58,7 @@ public class UserController {
 
   //회원 탈퇴
   @DeleteMapping("/users")
-  public ResponseEntity deleteUser(@RequestBody @NotNull Map<String, Long> user) throws Exception { //user_id // TODO: 오류 수정
+  public ResponseEntity deleteUser(@RequestBody @NotNull Map<String, Long> user) throws Exception{ //user_id // TODO: 오류 수정
     Long userId = user.get("user_id");
     userService.deleteUser(userId);
 

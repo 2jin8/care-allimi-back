@@ -76,7 +76,6 @@ public class FacilityService {
   public void deleteFacility(Long facility_id) throws Exception { // 회원탈퇴
 //    Facility facility = facilityRepository.findById(facility_id)
 //            .orElseThrow(() -> new FacilityException("시설을 찾을 수 없음"));
-
 //    //딸린 한마디 삭제
 //    List<Letter> letters = letterRepository.findAllByFacility(facility)
 //            .orElseGet(() -> new ArrayList<>());

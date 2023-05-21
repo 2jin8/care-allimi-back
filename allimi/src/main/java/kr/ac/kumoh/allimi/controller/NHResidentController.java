@@ -1,6 +1,7 @@
 package kr.ac.kumoh.allimi.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.controller.response.NHResidentDetailResponse;
 import kr.ac.kumoh.allimi.controller.response.ResponseResident;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentUFDTO;
@@ -66,8 +67,8 @@ public class NHResidentController {
   }
 
   //입소자 수정
-  @PatchMapping("/nhResidents") //resident_id
-  public ResponseEntity nhresidentEdit(@Valid @RequestBody NHResidentEditDTO editDTO) throws Exception { //resident_id, resident_name, birth, health_info
+  @PatchMapping("/nhResidents") //resident_id, resident_name, birth, health_info
+  public ResponseEntity nhresidentEdit(@Valid @RequestBody NHResidentEditDTO editDTO) throws Exception {
     nhResidentService.editNHResident(editDTO);
 
     Map<String, Long> map = new HashMap<>();
@@ -137,16 +138,16 @@ public class NHResidentController {
 
   // worker_id 설정 (요양보호사가 관리하는 입소자 등록)
   @PostMapping("/nhResidents/manage")
-  public ResponseEntity setWorker(@Valid @RequestBody NHResidentUFDTO setDTO) throws Exception {  // nhresident_id, user_id, facility_id
+  public ResponseEntity setWorker(@Valid @RequestBody NHResidentUFDTO setDTO) throws Exception {  // resdient_id, worker_id, facility_id;
     nhResidentService.setWorker(setDTO);
 
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
   // 요양보호사가 관리하는 입소자 목록
-  @GetMapping("/nhResidents/manage/{user_id}")
-  public ResponseEntity manageNHResidentList(@PathVariable("user_id") Long userId) throws Exception {
-    List<NHResidentResponse> responseList = nhResidentService.workerList(userId);
+  @GetMapping("/nhResidents/manage/{worker_id}")
+  public ResponseEntity manageNHResidentList(@PathVariable("worker_id") Long workerId) throws Exception {
+    List<NHResidentResponse> responseList = nhResidentService.workerList(workerId);
 
     return ResponseEntity.status(HttpStatus.OK).body(responseList);
   }

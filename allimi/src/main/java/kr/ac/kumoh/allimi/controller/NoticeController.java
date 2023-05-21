@@ -6,6 +6,7 @@ import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
+import kr.ac.kumoh.allimi.exception.InputException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.exception.NoticeException;
 import kr.ac.kumoh.allimi.service.NoticeService;
@@ -70,7 +71,7 @@ public class NoticeController {
   public ResponseEntity noticeDelete(@RequestBody Map<String, Long> notice) {
     Long noticeId = notice.get("notice_id");
     if (noticeId == null)
-      throw new NoticeException("NoticeController 알림장 삭제: notice_id가 null. 잘못된 입력");
+      throw new InputException("NoticeController 알림장 삭제: notice_id가 null. 잘못된 입력");
 
     noticeService.delete(noticeId);
 
