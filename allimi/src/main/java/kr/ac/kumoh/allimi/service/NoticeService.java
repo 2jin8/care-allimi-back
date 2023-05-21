@@ -84,7 +84,7 @@ public class NoticeService {
       for (NHResident resident : nhResidents) {
         managerNoticeList.addAll(noticeRepository.findAllByTarget(resident).orElse(new ArrayList<>()));
       }
-      managerNoticeList.stream().sorted(Comparator.comparing(Notice::getCreatedDate).reversed()).collect(Collectors.toList());
+      managerNoticeList = managerNoticeList.stream().sorted(Comparator.comparing(Notice::getCreatedDate).reversed()).collect(Collectors.toList());
       notices = noticeList(managerNoticeList);
     } else if (userRole == UserRole.PROTECTOR) { // 보호자인 경우: 개별 알림장만 확인 가능
       List<Notice> userNoticeList = noticeRepository.findAllByTarget(nhResident).orElse(new ArrayList<>());

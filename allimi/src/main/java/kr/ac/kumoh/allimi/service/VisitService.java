@@ -56,7 +56,7 @@ public class VisitService {
             for (NHResident resident : nhResidents) {
                 managerVisitList.addAll(visitRepository.findAllByProtector(resident).orElse(new ArrayList<>()));
             }
-            managerVisitList.stream().sorted(Comparator.comparing(Visit::getCreatedDate).reversed()).collect(Collectors.toList());
+            managerVisitList = managerVisitList.stream().sorted(Comparator.comparing(Visit::getCreatedDate).reversed()).collect(Collectors.toList());
             visitList = parseVisitList(managerVisitList);
         } else if (userRole == UserRole.PROTECTOR) { // 보호자인 경우: 개별 면회만 확인 가능
             List<Visit> userNoticeList = visitRepository.findAllByProtector(nhResident)

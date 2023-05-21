@@ -28,8 +28,11 @@ public interface NHResidentRepository extends JpaRepository<NHResident, Long> {
     @Query(value = "select * from nhresident where facility_id = ?1 and user_role = 'PROTECTOR'", nativeQuery = true)
     Optional<List<NHResident>> findProtectorByFacilityId(Long facilityId);
 
-  @Query(value = "select * from nhresident where facility_id = ?1 and user_role = 'WORKER'", nativeQuery = true)
-  Optional<List<NHResident>> findWorkerByFacilityId(Long facilityId);
+    @Query(value = "select * from nhresident where facility_id = ?1 and user_role = 'WORKER'", nativeQuery = true)
+    Optional<List<NHResident>> findWorkerByFacilityId(Long facilityId);
+
+    @Query(value = "select * from nhresident where facility_id = ?1 and (user_role = 'MANAGER' or user_role = 'WORKER')", nativeQuery = true)
+    Optional<List<NHResident>> findWorkerAndManagerByFacilityId(Long facilityId);
 
     @Query(value = "select * from nhresident where worker_id = ?1", nativeQuery = true)
     Optional<List<NHResident>> findByWorkerId(Long workerId);

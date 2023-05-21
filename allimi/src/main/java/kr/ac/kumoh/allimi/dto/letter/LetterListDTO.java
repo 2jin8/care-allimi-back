@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 @Builder
 public class LetterListDTO {
   @NotNull(message = "letter_id가 널이어서는 안됩니다")
-  Long letter_id;
+  private Long letter_id;
 
   @NotNull(message = "nhresident_id가 널이어서는 안됩니다")
-  Long nhreaident_id;
+  private Long nhresident_id;
 
-  String user_name;
-  String nhr_name;
-  String content;
-  Boolean is_read;
-  LocalDateTime created_date;
+  private String user_name;
+  private String nhr_name;
+  private String content;
+  private Boolean is_read;
+  private LocalDateTime created_date;
 }

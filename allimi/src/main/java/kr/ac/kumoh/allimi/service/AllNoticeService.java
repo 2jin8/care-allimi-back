@@ -20,7 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -65,11 +67,17 @@ public class AllNoticeService {
     Facility facility = facilityRepository.findById(facilityId)
             .orElseThrow(() -> new FacilityException("시설 찾기 실패 - 해당 시설이 존재하지 않음"));
 
-    List<AllNotice> allNoitces = allNoticeRepository.findByFacility(facility)
-            .orElse(new ArrayList<>());
+    List<NHResident> nhResidents = nhResidentRepository.findWorkerAndManagerByFacilityId(facilityId)
+            .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - 해당하는 입소자 없음"));
+
+    List<AllNotice> allNoitces = new ArrayList<>();
+    for (NHResident nhResident : nhResidents) {
+      allNoitces.addAll(allNoticeRepository.findAllByWriter(nhResident).orElse(new ArrayList<>()));
+    }
+
+    allNoitces = allNoitces.stream().sorted(Comparator.comparing(AllNotice::getCreatedDate).reversed()).collect(Collectors.toList());
 
     List<AllNoticeListDTO> dtos = new ArrayList<>();
-
     for (AllNotice allNotice : allNoitces) {
       List<Image> images = imageRepository.findAllByAllNotice(allNotice).orElse(new ArrayList<>());
       List<String> urls = new ArrayList<>();

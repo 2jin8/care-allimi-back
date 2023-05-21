@@ -1,6 +1,7 @@
 package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.domain.*;
+import kr.ac.kumoh.allimi.domain.func.AllNotice;
 import kr.ac.kumoh.allimi.domain.func.Letter;
 import kr.ac.kumoh.allimi.domain.func.Notice;
 import kr.ac.kumoh.allimi.domain.func.Visit;
@@ -19,8 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -28,12 +31,10 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class LetterService {
   private final LetterRepository letterRepository;
-  private final UserRepository userRepository;
-  private final FacilityRepository facilityRepository;
   private final NHResidentRepository nhResidentRepository;
 
   public Long write(LetterWriteDto dto) throws Exception {  // nhresident_id, contents
-    NHResident writer = nhResidentRepository.findById(dto.getResident_id())
+    NHResident writer = nhResidentRepository.findById(dto.getNhresident_id())
             .orElseThrow(() -> new NoSuchElementException("글쓰는 사람(nhResident) not found"));
 
     //권한체크
@@ -74,8 +75,10 @@ public class LetterService {
 
     List<Letter> letters = new ArrayList<>();
 
-    if (userRole == UserRole.MANAGER || userRole == UserRole.WORKER || userRole == UserRole.DEVELOPER) {
+    if (userRole == UserRole.MANAGER || userRole == UserRole.DEVELOPER) {
       letters = managerLetterList(writer);
+    } else if (userRole == UserRole.WORKER) {
+      letters = workerLetterList(writer);
     } else if (userRole == UserRole.PROTECTOR) {
       letters = userLetterList(writer);
     } else {
@@ -91,7 +94,7 @@ public class LetterService {
 
       LetterListDTO dto = LetterListDTO.builder()
               .letter_id(letter.getLetterId())
-              .nhreaident_id(findNHResident.getId())
+              .nhresident_id(findNHResident.getId())
               .nhr_name(findNHResident.getName())
               .user_name(user.getName())
               .content(letter.getContents())
@@ -109,7 +112,20 @@ public class LetterService {
     Facility facility = writer.getFacility();
     
     // 시설 전체 한마디 목록
-    List<Letter> letters = letterRepository.findAllByFacility(facility).orElse(new ArrayList<Notice>());
+    List<Letter> letters = letterRepository.findAllByFacility(facility).orElse(new ArrayList<Letter>());
+
+    return letters;
+  }
+
+  public List<Letter> workerLetterList(NHResident writer) { // 직원인 경우: worker_id가 본인인 알림장 모두 확인 가능
+    List<NHResident> nhResidents = nhResidentRepository.findByWorkerId(writer.getId())
+            .orElse(new ArrayList<>());
+
+    List<Letter> letters = new ArrayList<>();
+    for (NHResident nhResident : nhResidents) {
+      letters.addAll(letterRepository.findAllByNhResident(nhResident).orElse(new ArrayList()));
+    }
+    letters = letters.stream().sorted(Comparator.comparing(Letter::getCreatedDate).reversed()).collect(Collectors.toList());
 
     return letters;
   }
