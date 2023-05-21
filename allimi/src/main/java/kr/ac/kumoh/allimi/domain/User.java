@@ -30,10 +30,11 @@ public class User {
   private String phoneNum;
 
   @Column(name = "user_name")
-  private String name; //보호자 이름
+  private String name;
 
-  @Column(name = "current_nhresident")
-  private Long currentNHResident;
+  @OneToOne
+  @JoinColumn(name = "current_nhresident", referencedColumnName = "nhr_id")
+  private NHResident currentNhresident;
 
   @OneToMany(mappedBy = "user")
   private List<NHResident> nhResident = new ArrayList<>();
@@ -45,12 +46,16 @@ public class User {
     this.name = name;
   }
 
-  public void changeCurrNHResident(Long residentId) {
-    this.currentNHResident = residentId;
+  public UserRole getUserRole() {
+    return currentNhresident.getUserRole();
+  }
+
+  public void changeCurrNHResident(NHResident nhResident) {
+    this.currentNhresident = nhResident;
   }
 
   public void setResidentNull() {
-    this.currentNHResident = null;
+    this.currentNhresident = null;
   }
 
   public void addNHResident(NHResident nhResident) {

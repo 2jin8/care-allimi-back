@@ -16,22 +16,28 @@ import java.util.NoSuchElementException;
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler({NHRAlreadyExistsException.class})
-  protected ResponseEntity handleNHRAlreadyExistsException(NHRAlreadyExistsException e) {
-    log.info("NHRAlreadyExistsException = {}", e.getMessage());
-    return ResponseEntity.status(HttpStatus.CONFLICT).build();
-  }
+    @ExceptionHandler({DataAlreadyExistsException.class})
+    protected ResponseEntity handleDataAlreadyExistsException(DataAlreadyExistsException e) {
+        log.info("NHRAlreadyExistsException = {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
 
-  @ExceptionHandler({IllegalArgumentException.class})
-  protected ResponseEntity handleIllegalArgumentException(IllegalArgumentException e) {
-    log.info("IllegalArgumentException = {}", e.getMessage());
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-  }
+    @ExceptionHandler({DataAlreadyExistsException2.class})
+    protected ResponseEntity handleDataAlreadyExistsException2(DataAlreadyExistsException2 e) {
+        log.info("NHRAlreadyExistsException2 = {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class})
+    protected ResponseEntity handleIllegalArgumentException(IllegalArgumentException e) {
+        log.info("IllegalArgumentException = {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
 
     @ExceptionHandler({InputException.class})
     protected ResponseEntity handleInputException(InputException e) {
-      log.info("InputException = {}", e.getMessage());
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        log.info("InputException = {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @ExceptionHandler({NoSuchElementException.class})
@@ -104,5 +110,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity handleVisitException(VisitException e) {
         log.info("VisitException={}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @ExceptionHandler({InternalException.class})
+    protected ResponseEntity handleInternalException(InternalException e) {
+        log.info("InternalExcpetion={}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 }

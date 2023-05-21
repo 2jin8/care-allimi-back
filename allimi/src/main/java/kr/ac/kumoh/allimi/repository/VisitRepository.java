@@ -13,9 +13,9 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
 
   Long deleteVisitById(Long visitId);
 
-  @Query("select visit from Visit visit where visit.facility = ?1")
-  Optional<List> findAllByFacility(Facility facility);
+//  @Query("select visit from Visit visit where visit.facility = ?1")
+//  Optional<List> findAllByFacility(Facility facility);
 
-  @Query("select visit from Visit visit where visit.nhResident = ?1 order by visit.createDate desc")
-  Optional<List> findAllByTarget(NHResident target);
+  @Query("select visit from Visit visit where visit.protector = ?1 order by visit.createdDate desc")
+  Optional<List<Visit>> findAllByProtector(NHResident protector);
 }

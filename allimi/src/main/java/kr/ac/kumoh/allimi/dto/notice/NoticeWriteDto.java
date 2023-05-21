@@ -6,12 +6,12 @@ import lombok.Getter;
 @Getter
 @NotNull
 public class NoticeWriteDto {
-  @NotNull(message = "user id는 null이면 안됩니다")
-  private Long user_id;
-  @NotNull(message = "입소자 id가 널이어서는 안됩니다")
-  private Long nhresident_id;
-  @NotNull(message = "시설 id가 널이어서는 안됩니다")
-  private Long facility_id;
+  @NotNull(message = "작성자 id가 널이어서는 안됩니다")
+  private Long writer_id;
+
+  @NotNull(message = "타겟 id가 널이어서는 안됩니다")
+  private Long target_id;
+
   private String contents;
   private String sub_contents;
 }

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,6 +22,7 @@ public class Invitation {
 
   @NotNull
   @Column(name = "user_role")
+  @Enumerated(EnumType.STRING)
   private UserRole userRole;
 
   @NotNull
@@ -37,7 +37,8 @@ public class Invitation {
 
   @CreatedDate
   @CreationTimestamp
-  private LocalDate createDate = LocalDate.now();
+  @Column(name = "created_date")
+  private LocalDate createdDate = LocalDate.now();
 
   public static Invitation makeInvitation(User user, Facility facility, UserRole userRole) {
     return new Invitation(null, userRole, facility, user, null);

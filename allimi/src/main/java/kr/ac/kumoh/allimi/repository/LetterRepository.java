@@ -13,11 +13,11 @@ import java.util.Optional;
 
 public interface LetterRepository extends JpaRepository<Letter, Long> {
 
-    @Query("select letter from Letter letter where letter.facility = ?1 order by letter.createDate desc")
+    @Query("select letter from Letter letter join NHResident nhr where nhr.facility = ?1 order by letter.createdDate desc")
     Optional<List> findAllByFacility(Facility facility);
 
-    @Query("select letter from Letter letter where letter.nhResident = ?1 order by letter.createDate desc")
-    Optional<List> findAllByNhResident(NHResident nhResident);
+    @Query("select letter from Letter letter where letter.protector = ?1 order by letter.createdDate desc")
+    Optional<List> findAllByNhResident(NHResident writer);
 
     Optional<Letter> findByLetterId(Long letterId);
 

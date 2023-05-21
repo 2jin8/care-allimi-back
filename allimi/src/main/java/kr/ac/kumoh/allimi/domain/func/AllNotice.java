@@ -2,16 +2,14 @@ package kr.ac.kumoh.allimi.domain.func;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import kr.ac.kumoh.allimi.domain.Facility;
 
-import kr.ac.kumoh.allimi.domain.User;
+import kr.ac.kumoh.allimi.domain.NHResident;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -25,18 +23,13 @@ public class AllNotice {
   private Long allNoticeId;
 
   @ManyToOne
-  @JoinColumn(name = "user_id")
-  private User user;
+  @JoinColumn(name = "writer_id")
+  private NHResident writer;
 
-  @NotNull
-  @ManyToOne
-  @JoinColumn(name = "facility_id")
-  private Facility facility;
-
-  @Column(name = "create_date")
+  @Column(name = "created_date")
   @Builder.Default
   @CreationTimestamp
-  private LocalDateTime createDate = LocalDateTime.now();
+  private LocalDateTime createdDate = LocalDateTime.now();
 
   @Lob
   @Column(length = 5000)
@@ -55,11 +48,9 @@ public class AllNotice {
   @Column(name = "image_id")
   private List<Image> images = new ArrayList<>();
 
-  public static AllNotice newAllNotice(@NotNull User user, @NotNull Facility facility,
-                             String title, String contents, Boolean important) {
+  public static AllNotice newAllNotice(@NotNull NHResident writer, String title, String contents, Boolean important) {
     AllNotice allNotice = AllNotice.builder()
-            .user(user)
-            .facility(facility)
+            .writer(writer)
             .title(title)
             .contents(contents)
             .build();

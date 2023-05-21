@@ -12,11 +12,8 @@ import java.util.Optional;
 
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
-    @Query("select ntc from Notice ntc where ntc.facility = ?1 order by ntc.createDate desc")
-    Optional<List> findAllByFacility(Facility facility);
-
-    @Query("select ntc from Notice ntc where ntc.nhResident = ?1 order by ntc.createDate desc")
-    Optional<List> findAllByTarget(NHResident target);
+    @Query("select ntc from Notice ntc where ntc.target = ?1 order by ntc.createdDate desc")
+    Optional<List<Notice>> findAllByTarget(NHResident target);
 
     Optional<Notice> findNoticeByNoticeId(Long noticeId);
 

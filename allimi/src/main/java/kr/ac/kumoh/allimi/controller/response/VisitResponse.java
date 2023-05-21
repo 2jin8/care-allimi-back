@@ -7,7 +7,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class VisitResponse {
-
     private VisitState state;
     private String texts;
 }

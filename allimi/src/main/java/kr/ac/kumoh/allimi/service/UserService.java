@@ -9,8 +9,6 @@ import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
 import kr.ac.kumoh.allimi.dto.user.UserEditDTO;
 import kr.ac.kumoh.allimi.dto.user.UserListDTO;
 import kr.ac.kumoh.allimi.exception.InputException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
-import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.exception.user.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;
@@ -33,13 +31,13 @@ public class UserService {
 
   @Transactional
   public Long addUser(SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
-    //전화번호에 숫자만 포함되어야함
-    final String REGEX = "[0-9]+";
+    final String REGEX = "[0-9]+";        //전화번호에 숫자만 포함되어야함
     if(!dto.getPhone_num().matches(REGEX)) {
       throw new InputException("전화번호 포맷이 이상함");
     }
 
-    if (isDuplicateId(dto.getLogin_id()))// ID 중복 체크
+    // ID 중복 체크
+    if (isDuplicateId(dto.getLogin_id()))
       throw new UserIdDuplicateException("중복된 아이디 입니다");
 
     User user = User.newUser(dto.getLogin_id(), dto.getPassword(), dto.getName(), dto.getPhone_num());
@@ -48,15 +46,20 @@ public class UserService {
     return saved.getUserId();
   }
 
+  public Boolean isDuplicateId(String id) {
+    User user = userRepository.findUserByLoginId(id).orElse(null);
+
+    return (user == null) ? false : true;
+  }
+
   public ResponseLogin login(String loginId, String password) throws Exception { // login_id, password
     User user = userRepository.findByLoginIdAndPasswords(loginId, password)
             .orElseThrow(() -> new NoSuchElementException("사용자 찾기 실패"));
 
     UserRole userRole = null;
 
-    if (user.getCurrentNHResident() != null) {            //입소자가 한 명도 없음 -> userRole = null로 반환
-      userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
-              .orElseGet(() -> null);
+    if (user.getCurrentNhresident() != null) {            //입소자가 한 명도 없음 -> userRole = null로 반환
+      userRole = user.getUserRole();
     }
 
     ResponseLogin responseLogin = ResponseLogin.builder()
@@ -69,7 +72,6 @@ public class UserService {
 
     return responseLogin;
   }
-
 
   public List<UserListAdminDTO> getAllUser() throws Exception {
     List<User> users = userRepository.findAll();
@@ -90,7 +92,7 @@ public class UserService {
 
   public List<UserListAdminDTO> getUserByPhoneNum(String phoneNum) throws Exception {
     List<User> users = userRepository.findByPhoneNum(phoneNum)
-            .orElseThrow(() -> new NoSuchElementException("해당 휴대폰번호인 user가 없음"));
+            .orElseGet(() -> new ArrayList<>());
 
     List<UserListAdminDTO> dtos  = new ArrayList<>();
 
@@ -106,42 +108,31 @@ public class UserService {
 
     return dtos;
   }
-  
+
   @Transactional
   public void changeNHResident(Long user_id, Long nhr_id) throws Exception {
     User user = userRepository.findUserByUserId(user_id)
             .orElseThrow(() -> new NoSuchElementException("해당하는 user가 없습니다"));
 
-    NHResident nhr = nhResidentRepository.findById(nhr_id)
-            .orElseThrow(() -> new NoSuchElementException("해당하는 입소자가 없습니다"));
+    NHResident nhResident = nhResidentRepository.findById(nhr_id)
+      .orElseThrow(() -> new NoSuchElementException("해당하는 nhResident가 없습니다"));
 
-    List<NHResident> usersNHR = user.getNhResident();
-    if (!usersNHR.contains(nhr)) {
-      new NoSuchElementException("user에 해당하는 입소자가 없습니다");
+    if (nhResident.getUser().getUserId() != user.getUserId()) {
+      new NoSuchElementException("user에 해당 nhResident가 없습니다");
     }
 
-    user.changeCurrNHResident(nhr_id);
+    user.changeCurrNHResident(nhResident);
   }
-
-  @Transactional
-  public void setNHResidentNull(Long user_id) throws Exception {
-    User user = userRepository.findUserByUserId(user_id)
-            .orElseThrow(() -> new UserException("해당하는 user가 없습니다"));
-
-    user.setResidentNull();
-  }
-
 
   public ResponseResidentDetail getCurrNHResident(Long userId) throws Exception {
     User user = userRepository.findUserByUserId(userId)
             .orElseThrow(() -> new NoSuchElementException("사용자 찾기 실패"));
 
-    if (user.getCurrentNHResident() == null || user.getCurrentNHResident() == 0) {
+    NHResident nhResident = user.getCurrentNhresident();
+
+    if (nhResident == null) {
       return ResponseResidentDetail.builder().build();
     }
-
-    NHResident nhResident = nhResidentRepository.findById(user.getCurrentNHResident())
-            .orElseGet(() -> null);
 
     Facility facility = nhResident.getFacility();
 
@@ -156,11 +147,6 @@ public class UserService {
       return response;
   }
 
-  public Boolean isDuplicateId(String id) {
-    User user = userRepository.findUserByLoginId(id).orElse(null);
-
-    return (user == null) ? false : true;
-  }
 
   public UserListDTO getUserInfo(Long userId) throws Exception {
     User user = userRepository.findUserByUserId(userId)
@@ -191,32 +177,32 @@ public class UserService {
     user.edit(dto.getLogin_id(), dto.getPassword(), dto.getName(), dto.getPhone_num());
   }
 
-  public List<NHResidentResponse> getNHResidentsWithFacility(Long userId) throws Exception {
-    User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new NoSuchElementException("사용자 찾기 실패"));
-    List<NHResident> nhResidents = user.getNhResident();
-
-    List<NHResidentResponse> nhResidentResponses = new ArrayList<>();
-
-    for (NHResident nhr: nhResidents) {
-      Facility facility = nhr.getFacility();
-      String name = "";
-      if (nhr.getUserRole() == UserRole.PROTECTOR) {
-        name = nhr.getName();
-      } else {
-        name = facility.getFmName();
-      }
-
-      nhResidentResponses.add(NHResidentResponse.builder()
-              .resident_id(nhr.getId())
-              .resident_name(name)
-              .user_role(nhr.getUserRole())
-              .facility_id(facility.getId())
-              .facility_name(facility.getName())
-              .build());
-    }
-
-    return nhResidentResponses;
-  }
+//  public List<NHResidentResponse> getNHResidentsWithFacility(Long userId) throws Exception {
+//    User user = userRepository.findUserByUserId(userId).orElseThrow(() -> new NoSuchElementException("사용자 찾기 실패"));
+//    List<NHResident> nhResidents = user.getNhResident();
+//
+//    List<NHResidentResponse> nhResidentResponses = new ArrayList<>();
+//
+//    for (NHResident nhr: nhResidents) {
+//      Facility facility = nhr.getFacility();
+//      String name = "";
+//      if (nhr.getUserRole() == UserRole.PROTECTOR) {
+//        name = nhr.getName();
+//      } else {
+//        name = facility.getFmName();
+//      }
+//
+//      nhResidentResponses.add(NHResidentResponse.builder()
+//              .resident_id(nhr.getId())
+//              .resident_name(name)
+//              .user_role(nhr.getUserRole())
+//              .facility_id(facility.getId())
+//              .facility_name(facility.getName())
+//              .build());
+//    }
+//
+//    return nhResidentResponses;
+//  }
 
   public List<NHResidentResponse> getNHResidents(Long userId) throws Exception {
     User user = userRepository.findUserByUserId(userId)
@@ -239,20 +225,4 @@ public class UserService {
 
     return nhResidentResponses;
   }
-
-
-//
-////    public UserRole getUserRole(Long userId) throws Exception {
-////        User user = userRepository.findUserByUserId(userId)
-////                .orElseThrow(()-> new UserException("해당 user가 없습니다"));
-////
-////        return user.getUserRole();
-////    }
-//
-//    public User findUser(Long user_id) throws Exception {
-//        User user = userRepository.findUserByUserId(user_id)
-//                .orElseThrow(() -> new UserException());
-//
-//        return user;
-//    }
 }

@@ -7,12 +7,12 @@ import java.time.LocalDate;
 
 @Getter
 public class ScheduleWriteDTO {
-    @NotNull(message = "user_id가 널이어서는 안됩니다")
-    private Long user_id;
+  @NotNull(message = "writer_id가 널이어서는 안됩니다")
+  private Long writer_id; //nhr
 
-    @NotNull(message = "facility_id가 널이어서는 안됩니다")
-    private Long facility_id;
+  @NotNull(message = "date가 널이어서는 안됩니다")
+  private LocalDate date;
 
-    private LocalDate date;
-    private String texts;
+  @NotNull(message = "texts가 널이어서는 안됩니다")
+  private String texts;
 }

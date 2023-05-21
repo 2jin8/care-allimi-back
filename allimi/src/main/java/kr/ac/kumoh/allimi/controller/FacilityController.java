@@ -25,7 +25,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/v2")
+@RequestMapping("/v4")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class FacilityController {
   private final FacilityService facilityService;
@@ -82,4 +82,5 @@ public class FacilityController {
 
     return ResponseEntity.status(HttpStatus.OK).body(facilities.getContent());
   }
+
 }

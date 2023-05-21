@@ -18,12 +18,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
+@RequestMapping("/v4")
 @RestController
 public class AllNoticeController {
     private final AllNoticeService allNoticeService;
 
     // 전체 공지사항 작성
-    @PostMapping(value = "/v2/all-notices")  // allnotice{user_id, facility_id, title, contents, important}, file{}
+    @PostMapping("/all-notices")
     public ResponseEntity allNoticeWrite(@Valid @RequestPart(value="allnotice") AllNoticeWriteDto dto,
                                          @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
 
@@ -33,16 +34,15 @@ public class AllNoticeController {
     }
 
     // 전체공지 목록
-    @GetMapping("/v2/all-notices/{facility_id}")
+    @GetMapping("/all-notices/facilities/{facility_id}")
     public ResponseEntity allNoticeList(@PathVariable("facility_id") Long facilityId) throws Exception {
         List<AllNoticeListDTO> allNoticeList= allNoticeService.allNoticeList(facilityId);
 
-        // allNoticeId, create_date, title, content, important,  List<String> imageUrl
         return ResponseEntity.status(HttpStatus.OK).body(allNoticeList);
     }
 
     // 전체공지 수정
-    @PatchMapping("/v2/all-notices")
+    @PatchMapping("/all-notices")
     public ResponseEntity noticeEdit(@Valid @RequestPart(value="allnotice") AllNoticeEditDto dto,
                                      @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
 
@@ -52,37 +52,14 @@ public class AllNoticeController {
     }
 
     // 공지사항 삭제
-    @DeleteMapping("/v2/all-notices")
+    @DeleteMapping("/all-notices")
     public ResponseEntity noticeDelete(@RequestBody Map<String, Long> allNotice) { //allnotice_id
-
         Long allNoticeId = allNotice.get("allnotice_id");
         if (allNoticeId == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-        Long deletedCnt = allNoticeService.delete(allNoticeId);
-
-        if (deletedCnt == 0)
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
-
+        allNoticeService.delete(allNoticeId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-//    //  allNoticeId, user, facility, createDate, title, contents, important, images
-//    @GetMapping("/v2/all-notices/detail/{allnotice_id}") // 전체공지 상세보기
-//    public ResponseEntity allNoticeDetail(@PathVariable("allnotice_id") Long allNoticeId) {
-//        AllNoticeResponse allNoticeResponse;
-//
-//        if (allNoticeId == null)
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//
-//        try {
-//          allNoticeResponse = allNoticeService.getDetail(allNoticeId);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }asdfafasdf
-//
-//        return ResponseEntity.status(HttpStatus.ACCEPTED).body(allNoticeResponse);
-//        // allnotice_id, user_id, create_date, title, content, important, image_url;
-//    }
 
 }
