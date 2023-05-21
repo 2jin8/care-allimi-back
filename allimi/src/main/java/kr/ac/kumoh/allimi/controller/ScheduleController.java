@@ -1,8 +1,6 @@
 package kr.ac.kumoh.allimi.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleDeleteDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleEditDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleListDTO;
@@ -14,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

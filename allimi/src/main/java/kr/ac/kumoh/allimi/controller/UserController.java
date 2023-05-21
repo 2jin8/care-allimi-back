@@ -1,4 +1,5 @@
 package kr.ac.kumoh.allimi.controller;
+
 import jakarta.validation.Valid;
 import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
 import kr.ac.kumoh.allimi.controller.response.ResponseResidentDetail;
@@ -9,7 +10,6 @@ import kr.ac.kumoh.allimi.dto.ids.UserNHResidentDTO;
 import kr.ac.kumoh.allimi.dto.user.UserEditDTO;
 import kr.ac.kumoh.allimi.dto.user.UserListDTO;
 import kr.ac.kumoh.allimi.exception.InputException;
-import kr.ac.kumoh.allimi.exception.user.UserException;
 import lombok.RequiredArgsConstructor;
 import kr.ac.kumoh.allimi.service.UserService;
 import lombok.extern.slf4j.Slf4j;

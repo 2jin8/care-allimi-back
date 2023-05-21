@@ -1,14 +1,11 @@
 package kr.ac.kumoh.allimi.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.InputException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
-import kr.ac.kumoh.allimi.exception.NoticeException;
 import kr.ac.kumoh.allimi.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,5 @@
 package kr.ac.kumoh.allimi.service;
+
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.domain.func.Image;
 import kr.ac.kumoh.allimi.domain.func.Notice;
@@ -8,11 +9,9 @@ import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
 import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
-import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.*;
 import kr.ac.kumoh.allimi.s3.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;

@@ -9,7 +9,6 @@ import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
 import kr.ac.kumoh.allimi.dto.user.UserEditDTO;
 import kr.ac.kumoh.allimi.dto.user.UserListDTO;
 import kr.ac.kumoh.allimi.exception.InputException;
-import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;

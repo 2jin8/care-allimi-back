@@ -1,17 +1,10 @@
 package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.domain.Facility;
-import kr.ac.kumoh.allimi.domain.Invitation;
-import kr.ac.kumoh.allimi.domain.NHResident;
-import kr.ac.kumoh.allimi.domain.func.AllNotice;
-import kr.ac.kumoh.allimi.domain.func.Letter;
-import kr.ac.kumoh.allimi.domain.func.Notice;
-import kr.ac.kumoh.allimi.domain.func.Visit;
 import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
 import kr.ac.kumoh.allimi.dto.facility.EditFacilityDTO;
 import kr.ac.kumoh.allimi.dto.facility.FacilityInfoDto;
 import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,8 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service

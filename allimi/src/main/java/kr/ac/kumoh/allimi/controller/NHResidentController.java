@@ -1,7 +1,6 @@
 package kr.ac.kumoh.allimi.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.controller.response.NHResidentDetailResponse;
 import kr.ac.kumoh.allimi.controller.response.ResponseResident;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentUFDTO;

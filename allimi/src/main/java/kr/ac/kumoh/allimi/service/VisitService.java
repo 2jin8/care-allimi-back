@@ -2,10 +2,7 @@ package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.controller.response.VisitResponse;
 import kr.ac.kumoh.allimi.domain.*;
-import kr.ac.kumoh.allimi.domain.func.Notice;
 import kr.ac.kumoh.allimi.domain.func.Visit;
-import kr.ac.kumoh.allimi.domain.func.VisitState;
-import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.dto.visit.*;
 import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
@@ -15,16 +12,10 @@ import kr.ac.kumoh.allimi.repository.NHResidentRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import kr.ac.kumoh.allimi.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.EnumUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
