@@ -16,29 +16,23 @@ import java.util.List;
 @Builder
 @Entity
 public class Notice {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "notice_id")
   private Long noticeId;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id")
-  private User user;
+  @OneToOne
+  @JoinColumn(name = "target_id", referencedColumnName = "nhr_id")
+  private NHResident target;
 
   @NotNull
-  @JoinColumn(name = "nhr_id")
+  @JoinColumn(name = "writer_id")
   @ManyToOne
-  private NHResident nhResident;
+  private NHResident writer;
 
-  @NotNull
-  @ManyToOne
-  @JoinColumn(name = "facility_id")
-  private Facility facility;
-
-  @Column(name = "create_date")
+  @Column(name = "created_date")
   @Builder.Default
   @CreationTimestamp
-  private LocalDateTime createDate = LocalDateTime.now();
+  private LocalDateTime createdDate = LocalDateTime.now();
 
   @Lob
   @Column(length = 100000)
@@ -50,15 +44,13 @@ public class Notice {
 
   @OneToMany(mappedBy = "imageId")
   @Builder.Default
-  @Column(name = "image_id")
   private List<Image> images = new ArrayList<>();
 
-  public static Notice newNotice(@NotNull User user, @NotNull NHResident target, @NotNull Facility facility,
+  public static Notice newNotice(@NotNull NHResident writer, @NotNull NHResident target,
                                  String contents, String subContents) {
     Notice ntc = Notice.builder()
-            .user(user)
-            .nhResident(target)
-            .facility(facility)
+            .writer(writer)
+            .target(target)
             .contents(contents)
             .subContents(subContents)
             .build();
@@ -66,8 +58,8 @@ public class Notice {
       return ntc;
   }
 
-  public void setNhResident(NHResident nhResident) {
-  this.nhResident = nhResident;
+  public void setNhResident(NHResident target) {
+  this.target = target;
   }
 
     public void addImages(List<Image> images) {

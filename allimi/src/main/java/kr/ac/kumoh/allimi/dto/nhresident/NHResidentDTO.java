@@ -6,14 +6,18 @@ import lombok.Getter;
 
 @Getter
 public class NHResidentDTO {
-    @NotNull(message = "user_id가 널이어서는 안됩니다")
-    private Long user_id;
+  @NotNull(message = "user_id가 널이어서는 안됩니다")
+  private Long user_id;
 
-    @NotNull(message = "facility_id가 널이어서는 안됩니다")
-    private Long facility_id;
+  @NotNull(message = "facility_id가 널이어서는 안됩니다")
+  private Long facility_id;
 
-    private String resident_name;
-    private String birth;
-    private UserRole user_role;
-    private String health_info;
+  private String resident_name;
+
+  private String birth;
+
+  @NotNull(message = "역할이 널이어서는 안됩니다")
+  private UserRole user_role;
+
+  private String health_info;
 }

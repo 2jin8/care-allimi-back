@@ -16,6 +16,7 @@ public class NoticeListDTO {
 
     LocalDateTime create_date;
     String content;
-    String resident_name;
+    String writer_name;
+    String target_name;
     List<String> imageUrl = new ArrayList<>();
 }

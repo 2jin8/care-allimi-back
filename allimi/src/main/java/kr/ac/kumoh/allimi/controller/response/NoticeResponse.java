@@ -1,6 +1,5 @@
 package kr.ac.kumoh.allimi.controller.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,8 +10,8 @@ import java.util.List;
 @Builder
 public class NoticeResponse {
     Long notice_id;
-    Long user_id;
     String writer_name;
+    String target_name;
     LocalDateTime create_date;
     String content;
     String sub_content;

@@ -18,28 +18,29 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/v4")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class VisitController {
     private final VisitService visitService;
 
-    @PostMapping("/visit")
+    @PostMapping("/visit")    // protector_id, dateTime, texts;
     public ResponseEntity write(@Valid @RequestBody VisitWriteDTO writeDTO) throws Exception { // 면회 신청
         visitService.write(writeDTO);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/v2/visit/{user_id}") // 면회신청 목록
-    public ResponseEntity visitList(@PathVariable("user_id") Long userId) throws Exception {
-        if (userId == null)
-            throw new UserException("VisitController 면회신청 목록: user_id가 null. 잘못된 입력");
+    @GetMapping("/visit/{resident_id}") // 면회신청 목록
+    public ResponseEntity visitList(@PathVariable("resident_id") Long residentId) throws Exception {
+        if (residentId == null)
+            throw new UserException("VisitController 면회신청 목록: resident_id가 null. 잘못된 입력");
 
-        List<VisitListDTO> visitList = visitService.visitList(userId);
+        List<VisitListDTO> visitList = visitService.visitList(residentId);
 
         return ResponseEntity.status(HttpStatus.OK).body(visitList);
     }
 
-    @PatchMapping("/visit")
+    @PatchMapping("/visit")         // visit_id, protector_id, dateTime, texts;
     public ResponseEntity edit(@Valid @RequestBody VisitEditDTO editDTO) throws Exception { // 면회 수정
         visitService.edit(editDTO);
 
@@ -52,10 +53,7 @@ public class VisitController {
         if (visitId == null)
             throw new VisitException("VisitController 면회 삭제: visit_id가 null. 잘못된 입력");
 
-        Long deleted = visitService.delete(visitId);
-        if (deleted == 0)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
+        visitService.delete(visitId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

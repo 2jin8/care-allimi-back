@@ -3,14 +3,11 @@ package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.domain.func.Letter;
 import kr.ac.kumoh.allimi.domain.func.Notice;
-import kr.ac.kumoh.allimi.domain.func.Visit;
 import kr.ac.kumoh.allimi.dto.letter.LetterEditDto;
 import kr.ac.kumoh.allimi.dto.letter.LetterListDTO;
 import kr.ac.kumoh.allimi.dto.letter.LetterWriteDto;
-import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
-import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -26,27 +26,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LetterService {
   private final LetterRepository letterRepository;
-  private final UserRepository userRepository;
-  private final FacilityRepository facilityRepository;
   private final NHResidentRepository nhResidentRepository;
 
-  public Long write(LetterWriteDto dto) throws Exception {  // user_id, nhresident_id, facility_id, contents
-    User user = userRepository.findUserByUserId(dto.getUser_id())
-            .orElseThrow(() -> new UserException("user not found"));
+  public Long write(LetterWriteDto dto) throws Exception {  // nhresident_id, contents
+    NHResident writer = nhResidentRepository.findById(dto.getNhresident_id())
+            .orElseThrow(() -> new NoSuchElementException("글쓰는 사람(nhResident) not found"));
 
-    NHResident targetResident = nhResidentRepository.findById(dto.getNhresident_id())
-            .orElseThrow(() -> new NHResidentException("target resident not found"));
-
-    Facility facility = facilityRepository.findById(dto.getFacility_id())
-            .orElseThrow(() -> new FacilityException("facility not found"));
-
-    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
-            .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
-
+    //권한체크
+    UserRole userRole = writer.getUserRole();
     if (userRole != UserRole.PROTECTOR)
       throw new UserAuthException("권한이 없는 사용자입니다.");
 
-    Letter letter = Letter.newLetter(user, targetResident, facility, dto.getContents());
+    //한마디 작성
+    Letter letter = Letter.newLetter(writer, dto.getContents());
     Letter savedLetter = letterRepository.save(letter);
 
     if (savedLetter == null)
@@ -55,42 +47,35 @@ public class LetterService {
     return savedLetter.getLetterId();
   }
 
-  public void edit(LetterEditDto dto) throws Exception {  // // letter_id, user_id, nhresident_id, contents
+  public void edit(LetterEditDto dto) throws Exception {                // letter_id, writer_id, contents
     Letter letter = letterRepository.findByLetterId(dto.getLetter_id())
-            .orElseThrow(() -> new LetterException("letter를 찾을 수 없음"));
+            .orElseThrow(() -> new NoSuchElementException("letter를 찾을 수 없음"));
 
-    User user = letter.getUser();
+    NHResident letterWriter = nhResidentRepository.findById(dto.getWriter_id())
+      .orElseThrow(() -> new NoSuchElementException("해당하는 글쓴이를 찾을 수 없음"));
 
-    if (!letter.getUser().equals(user))
+    if (!letter.getProtector().equals(letterWriter))
       throw new UserAuthException("권한이 없는 사용자입니다.");
 
-    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
-            .orElseThrow(() -> new UserAuthException("권한이 없는 사용자입니다."));
-
-    if (userRole != UserRole.PROTECTOR) {
-      throw new UserAuthException("권한이 없는 사용자입니다.");
-    }
-
-    NHResident resident = nhResidentRepository.findById(dto.getNhresident_id())
-            .orElseThrow(() -> new NHResidentException("resident를 찾을 수 없음"));
-
-    letter.edit(resident, dto.getContents());
+    letter.edit(dto.getContents());
   }
-
 
   //한마디 목록보기
   @Transactional(readOnly = true)
   public List<LetterListDTO> letterList(Long residentId) throws Exception {
-    NHResident nhResident = nhResidentRepository.findById(residentId)
-            .orElseThrow(() -> new NHResidentException("nhResident를 찾을 수 없음"));
+    
+    NHResident writer = nhResidentRepository.findById(residentId)
+      .orElseThrow(() -> new NoSuchElementException("해당하는 입소자가 없습니다"));
+    UserRole userRole = writer.getUserRole();
 
-    List<Letter> letters = null;
-    UserRole userRole = nhResident.getUserRole();
+    List<Letter> letters = new ArrayList<>();
 
-    if (userRole == UserRole.MANAGER || userRole == UserRole.WORKER) {
-      letters = managerLetterList(nhResident);
+    if (userRole == UserRole.MANAGER || userRole == UserRole.DEVELOPER) {
+      letters = managerLetterList(writer);
+    } else if (userRole == UserRole.WORKER) {
+      letters = workerLetterList(writer);
     } else if (userRole == UserRole.PROTECTOR) {
-      letters = userLetterList(nhResident);
+      letters = userLetterList(writer);
     } else {
       throw new NHResidentException("user의 역할이 잘못됨");
     }
@@ -99,18 +84,17 @@ public class LetterService {
     List<LetterListDTO> letterList = new ArrayList<>(); //letter_id, nhreaident_id, user_id, nhrname, username, contents, is_read, createDate
 
     for (Letter letter : letters) {
-      User user = letter.getUser();
-      NHResident findNHResident = letter.getNhResident();
+      NHResident findNHResident = letter.getProtector();
+      User user = findNHResident.getUser();
 
       LetterListDTO dto = LetterListDTO.builder()
               .letter_id(letter.getLetterId())
-              .nhreaident_id(findNHResident.getId())
-              .user_id(user.getUserId())
+              .nhresident_id(findNHResident.getId())
               .nhr_name(findNHResident.getName())
               .user_name(user.getName())
               .content(letter.getContents())
               .is_read(letter.isRead())
-              .create_date(letter.getCreateDate())
+              .created_date(letter.getCreatedDate())
               .build();
 
       letterList.add(dto);
@@ -119,18 +103,32 @@ public class LetterService {
     return letterList;
   }
 
-  public List<Letter> managerLetterList(NHResident nhResident) { // 직원, 시설장인 경우: 시설 알림장 모두 확인 가능
-    Facility facility = nhResident.getFacility();
+  public List<Letter> managerLetterList(NHResident writer) { // 직원, 시설장인 경우: 시설 알림장 모두 확인 가능
+    Facility facility = writer.getFacility();
+    
     // 시설 전체 한마디 목록
-    List<Letter> letters = letterRepository.findAllByFacility(facility).orElse(new ArrayList<Notice>());
+    List<Letter> letters = letterRepository.findAllByFacility(facility).orElse(new ArrayList<Letter>());
 
     return letters;
   }
 
-  public List<Letter> userLetterList(NHResident nhResident) {
-    // 보호자인 경우: 개별 알림장만 확인 가능
-    // 개별 알림장 목록
-    List<Letter> letters = letterRepository.findAllByNhResident(nhResident).orElse(new ArrayList<Notice>());
+  public List<Letter> workerLetterList(NHResident writer) { // 직원인 경우: worker_id가 본인인 알림장 모두 확인 가능
+    List<NHResident> nhResidents = nhResidentRepository.findByWorkerId(writer.getId())
+            .orElse(new ArrayList<>());
+
+    List<Letter> letters = new ArrayList<>();
+    for (NHResident nhResident : nhResidents) {
+      letters.addAll(letterRepository.findAllByNhResident(nhResident).orElse(new ArrayList()));
+    }
+    letters = letters.stream().sorted(Comparator.comparing(Letter::getCreatedDate).reversed()).collect(Collectors.toList());
+
+    return letters;
+  }
+
+  public List<Letter> userLetterList(NHResident writer) {
+    // 보호자인 경우: 자신이 쓴 한마디만 확인 가능
+    // 개별 한마디 목록
+    List<Letter> letters = letterRepository.findAllByNhResident(writer).orElse(new ArrayList<Notice>());
 
     return letters;
   }
@@ -140,17 +138,16 @@ public class LetterService {
     return deleted;
   }
 
-  public void readCheck(Long userId, Long letterId) throws Exception {
+  public void readCheck(Long residentId, Long letterId) throws Exception {
     Letter letter = letterRepository.findById(letterId)
-            .orElseThrow(() -> new LetterException("해당하는 한마디가 없음"));
+            .orElseThrow(() -> new NoSuchElementException("해당하는 한마디가 없음"));
 
-    User user = userRepository.findUserByUserId(userId)
-            .orElseThrow(() -> new UserException("해당하는 user가 없습니다"));
+    NHResident reader = nhResidentRepository.findById(residentId)
+            .orElseThrow(() -> new NoSuchElementException("한마디를 읽을 nhresident가 없습니다"));
 
-    UserRole userRole = userRepository.getUserRole(user.getCurrentNHResident(), user.getUserId())
-            .orElseThrow(() -> new UserException("역할을 찾을 수 없습니다."));
+    UserRole userRole = reader.getUserRole();
 
-    if (userRole != UserRole.MANAGER && userRole != UserRole.WORKER) {
+    if (userRole != UserRole.MANAGER && userRole != UserRole.WORKER && userRole != UserRole.DEVELOPER) {
       throw new UserAuthException("권한이 없는 사용자입니다.");
     }
 
@@ -158,7 +155,7 @@ public class LetterService {
   }
 
 //  public void edit(NoticeEditDto editDto) throws Exception {
-//    Notice notice = noticeRepository.findById(editDto.getNotice_id())
+//    Notice notice = letterRepository.findById(editDto.getNotice_id())
 //            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
 //    User writer = notice.getUser();
 //
@@ -174,7 +171,7 @@ public class LetterService {
 //
 //    notice.editNotice(targetResident, editDto.getContent(), editDto.getSub_content(), editDto.getImage_url());
 //  }
-//
+
 //  public Long delete(Long notice_id) {
 //    Notice notice = noticeRepository.findById(notice_id).
 //            orElseThrow(() -> new NoticeException("해당 Notice가 없습니다"));
