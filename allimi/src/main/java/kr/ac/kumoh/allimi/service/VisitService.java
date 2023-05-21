@@ -7,10 +7,7 @@ import kr.ac.kumoh.allimi.domain.func.Visit;
 import kr.ac.kumoh.allimi.domain.func.VisitState;
 import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
 import kr.ac.kumoh.allimi.dto.visit.*;
-import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.InternalException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
-import kr.ac.kumoh.allimi.exception.VisitException;
+import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
@@ -18,6 +15,7 @@ import kr.ac.kumoh.allimi.repository.NHResidentRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import kr.ac.kumoh.allimi.repository.VisitRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +39,7 @@ public class VisitService {
     public List<VisitListDTO> visitList(Long residentId) throws Exception {
 
         NHResident nhResident = nhResidentRepository.findById(residentId)
-                .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - resident_id에 해당하는 입소자 없음"));
+                .orElseThrow(() -> new NoSuchElementException("입소자 찾기 실패 - resident_id에 해당하는 입소자 없음"));
 
         UserRole userRole = nhResident.getUserRole();
 
@@ -101,6 +100,7 @@ public class VisitService {
     public void write(VisitWriteDTO writeDTO) throws Exception {   // protector_id, dateTime, texts;
         NHResident nhResident = nhResidentRepository.findById(writeDTO.getProtector_id())
                 .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - protector_id에 해당하는 입소자 없음"));
+
         if (nhResident.getUserRole() != UserRole.PROTECTOR)
             throw new UserAuthException("면회 신청 실패 - 권한이 없는 사용자");
 
@@ -115,11 +115,11 @@ public class VisitService {
     // 면회 수정
     public void edit(VisitEditDTO editDTO) throws Exception {  // visit_id, protector_id, dateTime, texts;
         Visit visit = visitRepository.findById(editDTO.getVisit_id())
-                .orElseThrow(() -> new VisitException("면회 찾기 실패 - 해당 면회가 존재하지 않음"));
+                .orElseThrow(() -> new NoSuchElementException("면회 찾기 실패 - 해당 면회가 존재하지 않음"));
 
         NHResident writer = visit.getProtector();
         NHResident editer = nhResidentRepository.findById(editDTO.getProtector_id())
-                .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - protector_id에 해당하는 입소자 없음"));
+                .orElseThrow(() -> new NoSuchElementException("입소자 찾기 실패 - protector_id에 해당하는 입소자 없음"));
 
         if (writer.getId() != editer.getId() || editer.getUserRole() != UserRole.PROTECTOR)
             throw new UserAuthException("면회 수정 실패 - 권한이 없는 사용자");

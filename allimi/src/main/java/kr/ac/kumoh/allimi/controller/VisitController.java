@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.controller.response.VisitResponse;
 import kr.ac.kumoh.allimi.dto.visit.*;
+import kr.ac.kumoh.allimi.exception.InputException;
 import kr.ac.kumoh.allimi.exception.VisitException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.service.VisitService;
@@ -35,7 +36,7 @@ public class VisitController {
     @GetMapping("/visit/{resident_id}") // 면회신청 목록
     public ResponseEntity visitList(@PathVariable("resident_id") Long residentId) throws Exception {
         if (residentId == null)
-            throw new UserException("VisitController 면회신청 목록: resident_id가 null. 잘못된 입력");
+            throw new InputException("VisitController 면회신청 목록: resident_id가 null. 잘못된 입력");
 
         List<VisitListDTO> visitList = visitService.visitList(residentId);
 
