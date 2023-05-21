@@ -69,7 +69,7 @@ public class NoticeService {
   //알림장 목록보기
   public List<NoticeListDTO> noticeList(Long residentId) throws Exception {
     NHResident nhResident = nhResidentRepository.findById(residentId)
-            .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - resident_id에 해당하는 입소자 없음"));
+            .orElseThrow(() -> new NoSuchElementException("입소자 찾기 실패 - resident_id에 해당하는 입소자 없음"));
 
     List<NoticeListDTO> notices = new ArrayList<>();
     UserRole userRole = nhResident.getUserRole();
@@ -86,6 +86,7 @@ public class NoticeService {
       }
       managerNoticeList = managerNoticeList.stream().sorted(Comparator.comparing(Notice::getCreatedDate).reversed()).collect(Collectors.toList());
       notices = noticeList(managerNoticeList);
+
     } else if (userRole == UserRole.PROTECTOR) { // 보호자인 경우: 개별 알림장만 확인 가능
       List<Notice> userNoticeList = noticeRepository.findAllByTarget(nhResident).orElse(new ArrayList<>());
       notices = noticeList(userNoticeList);
@@ -123,7 +124,7 @@ public class NoticeService {
   //알림장 상세보기
   public NoticeResponse getDetail(Long noticeId) throws Exception {
     Notice notice = noticeRepository.findById(noticeId)
-            .orElseThrow(() -> new NoticeException("알림장 찾기 실패 - 해당 알림장이 존재하지 않음"));
+            .orElseThrow(() -> new NoSuchElementException("알림장 찾기 실패 - 해당 알림장이 존재하지 않음"));
 
     List<Image> images = imageRepository.findAllByNotice(notice).orElse(new ArrayList<>());
     List<String> images_url = new ArrayList<>();
@@ -144,7 +145,7 @@ public class NoticeService {
 
   public Long edit(NoticeEditDto editDto, List<MultipartFile> files) throws Exception { // 알림장 수정: notice_id, writer_id, target_id, content, sub_content
     Notice notice = noticeRepository.findNoticeByNoticeId(editDto.getNotice_id())
-            .orElseThrow(() -> new NoticeException("알림장 찾기 실패 - 해당 알림장이 존재하지 않음"));
+            .orElseThrow(() -> new NoSuchElementException("알림장 찾기 실패 - 해당 알림장이 존재하지 않음"));
 
     NHResident writer = notice.getWriter();
     if (writer.getId() != editDto.getWriter_id() || writer.getUserRole() != UserRole.WORKER && writer.getUserRole() != UserRole.MANAGER)

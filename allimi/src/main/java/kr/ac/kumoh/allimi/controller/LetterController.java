@@ -36,7 +36,7 @@ public class LetterController {
     return ResponseEntity.status(HttpStatus.OK).body(map);
   }
 
-  // 읽음 표시
+  // 읽음 표시 - 안씀
   @PostMapping("/letters/read")
   public ResponseEntity readCheck(@RequestBody Map<String, Long> info) throws Exception { // resident_id, letter_id
     Long residentId = info.get("resident_id");
@@ -79,7 +79,7 @@ public class LetterController {
   @GetMapping("/letters/{resident_id}") // 한마디 목록
   public ResponseEntity noticeList(@PathVariable("resident_id") Long residentId) throws Exception {
     if (residentId == null)
-      throw new NHResidentException("LetterController 한마디 목록보기: resident_id가 null. 사용자의 잘못된 입력");
+      throw new InputException("LetterController 한마디 목록보기: resident_id가 null. 사용자의 잘못된 입력");
 
     List<LetterListDTO> letterList = letterService.letterList(residentId);
 

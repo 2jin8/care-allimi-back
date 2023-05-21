@@ -50,7 +50,7 @@ public class NoticeController {
   public ResponseEntity noticeDetail(@PathVariable("notice_id") Long noticeId) throws Exception {
     NoticeResponse noticeResponse = noticeService.getDetail(noticeId);
 
-    return ResponseEntity.status(HttpStatus.ACCEPTED).body(noticeResponse);
+    return ResponseEntity.status(HttpStatus.OK).body(noticeResponse);
   }
 
   @PatchMapping("/notices") // 알림장 수정: notice_id, writer_id, target_id, content, sub_content
