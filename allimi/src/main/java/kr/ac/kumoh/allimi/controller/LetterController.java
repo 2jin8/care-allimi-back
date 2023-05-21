@@ -5,7 +5,6 @@ import kr.ac.kumoh.allimi.dto.letter.LetterEditDto;
 import kr.ac.kumoh.allimi.dto.letter.LetterListDTO;
 import kr.ac.kumoh.allimi.dto.letter.LetterWriteDto;
 import kr.ac.kumoh.allimi.exception.InputException;
-import kr.ac.kumoh.allimi.exception.LetterException;
 import kr.ac.kumoh.allimi.exception.NHResidentException;
 import kr.ac.kumoh.allimi.service.LetterService;
 import lombok.RequiredArgsConstructor;

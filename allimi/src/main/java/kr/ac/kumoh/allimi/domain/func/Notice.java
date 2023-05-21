@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import kr.ac.kumoh.allimi.domain.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

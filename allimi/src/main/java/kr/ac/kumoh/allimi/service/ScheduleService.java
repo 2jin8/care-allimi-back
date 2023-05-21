@@ -1,19 +1,15 @@
 package kr.ac.kumoh.allimi.service;
 
-
 import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.domain.NHResident;
 import kr.ac.kumoh.allimi.domain.func.Schedule;
-import kr.ac.kumoh.allimi.domain.User;
 import kr.ac.kumoh.allimi.domain.UserRole;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleDeleteDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleEditDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleListDTO;
 import kr.ac.kumoh.allimi.dto.schedule.ScheduleWriteDTO;
-import kr.ac.kumoh.allimi.exception.FacilityException;
 import kr.ac.kumoh.allimi.exception.ScheduleException;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
-import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;
 import kr.ac.kumoh.allimi.repository.ScheduleRepository;

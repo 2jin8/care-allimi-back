@@ -1,7 +1,6 @@
 package kr.ac.kumoh.allimi.controller;
 
 import jakarta.validation.Valid;
-import kr.ac.kumoh.allimi.domain.func.AllNotice;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeEditDto;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeListDTO;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeWriteDto;

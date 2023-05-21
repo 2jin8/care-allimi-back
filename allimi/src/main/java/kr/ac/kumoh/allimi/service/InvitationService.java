@@ -1,13 +1,9 @@
 package kr.ac.kumoh.allimi.service;
 
 import kr.ac.kumoh.allimi.controller.response.ResponseInvitation;
-import kr.ac.kumoh.allimi.controller.response.ResponseResident;
 import kr.ac.kumoh.allimi.domain.*;
-import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
-import kr.ac.kumoh.allimi.dto.facility.EditFacilityDTO;
 import kr.ac.kumoh.allimi.dto.invitation.SendInvitationDto;
 import kr.ac.kumoh.allimi.exception.*;
-import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.InvitationRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;
@@ -15,14 +11,9 @@ import kr.ac.kumoh.allimi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
