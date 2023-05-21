@@ -41,19 +41,22 @@ public class InvitationService {
     Facility facility = facilityRepository.findById(dto.getFacility_id())
             .orElseThrow(() -> new NoSuchElementException("해당하는 시설이 없습니다"));
 
-    //중복초대 방지
-    boolean hasData = facilityAndUserAndRoleExists(dto.getFacility_id(), dto.getUser_id(), UserRole.valueOf(dto.getUser_role()));
-    if (hasData) {
-      log.info("NoticeController 초대보내기: 중복된 초대장");
-      throw new DataAlreadyExistsException("이미 있는 초대장");
-    }
-
-    //이미 존재하는 사람 초대 방지
-    List<NHResident> data = nhResidentRepository.findByFacilityAndUserAndUserRole(dto.getFacility_id(), dto.getUser_id(), dto.getUser_role())
-      .orElseGet(() -> new ArrayList<>());
-    if (data.size() != 0) {
-      log.info("NoticeController 초대보내기: 이미 존재하는 사람");
-      throw new DataAlreadyExistsException2("이미 있는 사람");
+    // 직원 + 직원 -> X, 나머지는 O
+    UserRole userRole = UserRole.valueOf(dto.getUser_role());
+    if (userRole == UserRole.WORKER) {
+        // 초대장 확인
+        boolean roleExists = facilityAndUserAndRoleExists(dto.getFacility_id(), dto.getUser_id(), dto.getUser_role());
+        if (roleExists) {
+            log.info("NoticeController 초대 보내기: 중복된 초대장");
+            throw new DataAlreadyExistsException("이미 존재하는 초대장");
+        }
+        // 직원으로 등록되어 있는지 확인
+        List<NHResident> nhResidents = nhResidentRepository.findByFacilityAndUserAndUserRole(dto.getFacility_id(), dto.getUser_id(), "WORKER")
+                .orElse(new ArrayList<>());
+        if (nhResidents.size() != 0) {
+            log.info("한 시설에 직원 여러 번 등록 불가능");
+            throw new DataAlreadyExistsException2("이미 존재하는 사람");
+        }
     }
 
     Invitation invitation = Invitation.makeInvitation(user, facility, UserRole.valueOf(dto.getUser_role()));
@@ -99,8 +102,8 @@ public class InvitationService {
     invitationRepository.deleteById(inviteId);
   }
 
-  public boolean facilityAndUserAndRoleExists(Long facilityId, Long userId, UserRole userRole) {
-    List<Invitation> invitations = invitationRepository.findByFacilityAndUserAndRole(facilityId, userId, userRole.toString())
+  public boolean facilityAndUserAndRoleExists(Long facilityId, Long userId, String userRole) {
+    List<Invitation> invitations = invitationRepository.findByFacilityAndUserAndRole(facilityId, userId, userRole)
             .orElseGet(() -> new ArrayList<>());
 
     if (invitations.size() > 0)
@@ -135,21 +138,5 @@ public class InvitationService {
 
     return list;
   }
-
-//  public Long editFacility(EditFacilityDTO dto){ // facility_id, name, address, tel, fm_name
-//    Facility facility = facilityRepository.findById(dto.getFacility_id())
-//                    .orElseThrow(() -> new FacilityException("시설을 찾을 수 없음"));
-//
-//    facility.edit(dto.getName(), dto.getAddress(), dto.getTel(), dto.getFm_name());
-//
-//    return facility.getId();
-//  }
-//
-//  @Transactional(readOnly = true)
-//  public Page<Facility> findAll(Pageable pageable) throws Exception {
-//    Page<Facility> facilities = facilityRepository.findAll(pageable);
-//
-//    return facilities;
-//  }
 
 }

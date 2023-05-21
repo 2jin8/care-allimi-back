@@ -38,12 +38,15 @@ public class NHResidentController {
   //새 입소자 추가 or 직원, 시설장 등록
   @PostMapping("/nhResidents")
   public ResponseEntity addNHResident(@Valid @RequestBody NHResidentDTO dto) throws Exception { // user_id, facility_id, resident_name, birth, user_role, health_info;
-    boolean hasData = nhResidentService.findByFacilityAndUserAndUserRoleExists(dto.getFacility_id(), dto.getUser_id(), dto.getUser_role());
-    //입소자 중복 추가 방지용 - 해당시설에 해당 user가 해당 역할로 등록되어있는지 확인
-    if (hasData) {
-      log.info("NHResident 추가: 중복된 요청. 이미 있는 입소자임");
-      throw new DataAlreadyExistsException("이미 존재하는 입소자");
-    }
+    // 이미 직원 등록 -> 더이상 등록 X
+    // 이미 입소자 등록 -> 추가 입소자 등록 O
+
+//    boolean hasData = nhResidentService.findByFacilityAndUserAndUserRoleExists(dto.getFacility_id(), dto.getUser_id(), dto.getUser_role());
+//    입소자 중복 추가 방지용 - 해당시설에 해당 user가 해당 역할로 등록되어있는지 확인
+//    if (hasData) {
+//      log.info("NHResident 추가: 중복된 요청. 이미 있는 입소자임");
+//      throw new DataAlreadyExistsException("이미 존재하는 입소자");
+//    }
 
     Long residentId = nhResidentService.addNHResident(dto);
 
