@@ -6,10 +6,7 @@ import kr.ac.kumoh.allimi.domain.func.Image;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeEditDto;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeListDTO;
 import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeWriteDto;
-import kr.ac.kumoh.allimi.exception.AllNoticeException;
-import kr.ac.kumoh.allimi.exception.FacilityException;
-import kr.ac.kumoh.allimi.exception.InternalException;
-import kr.ac.kumoh.allimi.exception.NHResidentException;
+import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.repository.*;
 import kr.ac.kumoh.allimi.s3.S3Service;
@@ -46,6 +43,9 @@ public class AllNoticeService {
 
     List<Image> images = new ArrayList<>();
     if (files != null) {
+      if (files.size() > 10)
+        throw new FileCountExceedException("사진의 최대 업로드 수는 10장입니다.");
+
       for (MultipartFile file : files) {
         if (!file.isEmpty()) {
           String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
