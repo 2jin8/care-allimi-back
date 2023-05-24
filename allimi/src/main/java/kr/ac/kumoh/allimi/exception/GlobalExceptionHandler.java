@@ -4,6 +4,7 @@ import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.exception.user.UserException;
 import kr.ac.kumoh.allimi.exception.user.UserIdDuplicateException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -115,6 +116,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({InternalException.class})
     protected ResponseEntity handleInternalException(InternalException e) {
         log.info("InternalExcpetion={}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500
     }
+
+    @ExceptionHandler({FileSizeLimitExceededException.class, FileCountExceedException.class})
+    protected ResponseEntity handleExceededException(Exception e) {
+        log.info("ExceededException={}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).build(); // 413
+    }
+
 }

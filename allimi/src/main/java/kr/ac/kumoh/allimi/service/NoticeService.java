@@ -47,6 +47,9 @@ public class NoticeService {
 
     List<Image> images = new ArrayList<>();
     if (files != null) {
+      if (files.size() > 10)
+        throw new FileCountExceedException("사진의 최대 업로드 수는 10장입니다.");
+
       for (MultipartFile file : files) {
         if (!file.isEmpty()) {
           String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
