@@ -19,6 +19,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
   @Query(value = "select * from schedules where facility_id = ?1 and dates like ?2%", nativeQuery = true)
   Optional<List<Schedule>> findAllByMonth2(Long facility_id, String yearMonth);
 
-  @Query(value = "select sc from Schedule sc join NHResident nhr where nhr.facility = ?1 and sc.dates between ?2 AND ?3")
+  @Query(value = "select sc from Schedule sc join sc.writer nhr join sc.writer.facility f where f = ?1 and sc.dates between ?2 AND ?3 order by sc.dates desc")
   Optional<List<Schedule>> findAllByMonth(Facility facility, LocalDate startDate, LocalDate lastDate);
 }
