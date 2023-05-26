@@ -154,7 +154,7 @@ public class LetterService {
     letter.readCheck();
   }
 
-//  public void edit(NoticeEditDto editDto) throws Exception {
+//  public void edit(NoticeDTO.Edit editDto) throws Exception {
 //    Notice notice = letterRepository.findById(editDto.getNotice_id())
 //            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
 //    User writer = notice.getUser();

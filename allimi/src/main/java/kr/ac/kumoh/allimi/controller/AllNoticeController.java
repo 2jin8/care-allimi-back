@@ -1,9 +1,7 @@
 package kr.ac.kumoh.allimi.controller;
 
 import jakarta.validation.Valid;
-import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeEditDto;
-import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeListDTO;
-import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeWriteDto;
+import kr.ac.kumoh.allimi.dto.AllNoticeDTO;
 import kr.ac.kumoh.allimi.service.AllNoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +23,7 @@ public class AllNoticeController {
 
     // 전체 공지사항 작성
     @PostMapping("/all-notices")
-    public ResponseEntity allNoticeWrite(@Valid @RequestPart(value="allnotice") AllNoticeWriteDto dto,
+    public ResponseEntity allNoticeWrite(@Valid @RequestPart(value="allnotice") AllNoticeDTO.Write dto,
                                          @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
 
         allNoticeService.write(dto, files);
@@ -36,14 +34,14 @@ public class AllNoticeController {
     // 전체공지 목록
     @GetMapping("/all-notices/facilities/{facility_id}")
     public ResponseEntity allNoticeList(@PathVariable("facility_id") Long facilityId) throws Exception {
-        List<AllNoticeListDTO> allNoticeList= allNoticeService.allNoticeList(facilityId);
+        List<AllNoticeDTO.ListAll> allNoticeList= allNoticeService.allNoticeList(facilityId);
 
         return ResponseEntity.status(HttpStatus.OK).body(allNoticeList);
     }
 
     // 전체공지 수정
     @PatchMapping("/all-notices")
-    public ResponseEntity noticeEdit(@Valid @RequestPart(value="allnotice") AllNoticeEditDto dto,
+    public ResponseEntity noticeEdit(@Valid @RequestPart(value="allnotice") AllNoticeDTO.Edit dto,
                                      @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
 
         allNoticeService.edit(dto, files);

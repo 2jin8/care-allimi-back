@@ -1,4 +1,4 @@
-package kr.ac.kumoh.allimi.dto.user;
+package kr.ac.kumoh.allimi.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotNull;

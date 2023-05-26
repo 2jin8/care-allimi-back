@@ -3,9 +3,7 @@ package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.domain.func.AllNotice;
 import kr.ac.kumoh.allimi.domain.func.Image;
-import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeEditDto;
-import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeListDTO;
-import kr.ac.kumoh.allimi.dto.allNotice.AllNoticeWriteDto;
+import kr.ac.kumoh.allimi.dto.AllNoticeDTO;
 import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.repository.*;
@@ -32,7 +30,7 @@ public class AllNoticeService {
   private final S3Service s3Service;
 
   // 공지사항 작성
-  public void write(AllNoticeWriteDto dto, List<MultipartFile> files) throws Exception {
+  public void write(AllNoticeDTO.Write dto, List<MultipartFile> files) throws Exception {
     NHResident writer = nhResidentRepository.findById(dto.getWriter_id())
             .orElseThrow(() -> new NHResidentException("입소자 찾기 실패 - writer_id에 해당하는 입소자 없음"));
 
@@ -63,7 +61,7 @@ public class AllNoticeService {
   }
 
   // 공지사항 목록보기
-  public List<AllNoticeListDTO> allNoticeList(Long facilityId) throws Exception {
+  public List<AllNoticeDTO.ListAll> allNoticeList(Long facilityId) throws Exception {
     Facility facility = facilityRepository.findById(facilityId)
             .orElseThrow(() -> new FacilityException("시설 찾기 실패 - 해당 시설이 존재하지 않음"));
 
@@ -77,7 +75,7 @@ public class AllNoticeService {
 
     allNoitces = allNoitces.stream().sorted(Comparator.comparing(AllNotice::getCreatedDate).reversed()).collect(Collectors.toList());
 
-    List<AllNoticeListDTO> dtos = new ArrayList<>();
+    List<AllNoticeDTO.ListAll> dtos = new ArrayList<>();
     for (AllNotice allNotice : allNoitces) {
       List<Image> images = imageRepository.findAllByAllNotice(allNotice).orElse(new ArrayList<>());
       List<String> urls = new ArrayList<>();
@@ -85,7 +83,7 @@ public class AllNoticeService {
         urls.add(image.getImageUrl());
       }
 
-      dtos.add(AllNoticeListDTO.builder()
+      dtos.add(AllNoticeDTO.ListAll.builder()
               .allNoticeId(allNotice.getAllNoticeId())
               .create_date(allNotice.getCreatedDate())
               .title(allNotice.getTitle())
@@ -98,7 +96,7 @@ public class AllNoticeService {
   }
 
   // 공지사항 수정
-  public void edit(AllNoticeEditDto editDto, List<MultipartFile> files) throws Exception {
+  public void edit(AllNoticeDTO.Edit editDto, List<MultipartFile> files) throws Exception {
     AllNotice allNotice = allNoticeRepository.findById(editDto.getAllnotice_id())
             .orElseThrow(() -> new AllNoticeException("공지사항 찾기 실패 - 해당 공지사항이 존재하지 않음"));
 

@@ -1,10 +1,8 @@
 package kr.ac.kumoh.allimi.controller;
 
 import jakarta.validation.Valid;
-import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
-import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
+import kr.ac.kumoh.allimi.dto.NoticeDTO;
 import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
-import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.InputException;
 import kr.ac.kumoh.allimi.service.NoticeService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +26,7 @@ public class NoticeController {
 
   // 알림장 작성
   @PostMapping(value = "/notices")  // notice{writer_id, target_id, contents, sub_contents}, file{}
-  public ResponseEntity noticeWrite(@Valid @RequestPart(value="notice") NoticeWriteDto dto,
+  public ResponseEntity noticeWrite(@Valid @RequestPart(value="notice") NoticeDTO.Write dto,
                                     @RequestPart(value="file", required = false) List<MultipartFile> files) throws Exception {
 
     Long noticeId = noticeService.write(dto, files);
@@ -41,7 +39,7 @@ public class NoticeController {
 
   @GetMapping("/notices/{resident_id}") // 알림장 목록
   public ResponseEntity noticeList(@PathVariable("resident_id") Long residentId) throws Exception {
-    List<NoticeListDTO> noticeList = noticeService.noticeList(residentId);
+    List<NoticeDTO.ListAll> noticeList = noticeService.noticeList(residentId);
 
     return ResponseEntity.status(HttpStatus.OK).body(noticeList);
   }
@@ -54,7 +52,7 @@ public class NoticeController {
   }
 
   @PatchMapping("/notices") // 알림장 수정: notice_id, writer_id, target_id, content, sub_content
-  public ResponseEntity noticeEdit(@Valid @RequestPart(value = "notice") NoticeEditDto dto,
+  public ResponseEntity noticeEdit(@Valid @RequestPart(value = "notice") NoticeDTO.Edit dto,
                                    @RequestPart(value = "file", required = false) List<MultipartFile> files) throws Exception {
     Long noticeId = noticeService.edit(dto, files);
 

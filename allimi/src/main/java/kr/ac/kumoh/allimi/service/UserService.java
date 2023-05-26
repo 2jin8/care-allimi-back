@@ -5,7 +5,7 @@ import kr.ac.kumoh.allimi.controller.response.ResponseResidentDetail;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.admin.UserListAdminDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
-import kr.ac.kumoh.allimi.dto.user.UserDTO;
+import kr.ac.kumoh.allimi.dto.UserDTO;
 import kr.ac.kumoh.allimi.exception.InputException;
 import kr.ac.kumoh.allimi.exception.user.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;

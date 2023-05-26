@@ -3,7 +3,7 @@ package kr.ac.kumoh.allimi.controller;
 import kr.ac.kumoh.allimi.controller.response.ResponseInvitation;
 import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
 import kr.ac.kumoh.allimi.dto.invitation.SendInvitationDto;
-import kr.ac.kumoh.allimi.dto.user.UserDTO;
+import kr.ac.kumoh.allimi.dto.UserDTO;
 import kr.ac.kumoh.allimi.service.FacilityService;
 import kr.ac.kumoh.allimi.service.InvitationService;
 import kr.ac.kumoh.allimi.service.UserService;
