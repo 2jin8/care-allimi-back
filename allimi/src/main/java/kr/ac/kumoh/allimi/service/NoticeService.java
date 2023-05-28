@@ -3,10 +3,8 @@ package kr.ac.kumoh.allimi.service;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.domain.func.Image;
 import kr.ac.kumoh.allimi.domain.func.Notice;
-import kr.ac.kumoh.allimi.dto.notice.NoticeEditDto;
-import kr.ac.kumoh.allimi.dto.notice.NoticeListDTO;
+import kr.ac.kumoh.allimi.dto.NoticeDTO;
 import kr.ac.kumoh.allimi.controller.response.NoticeResponse;
-import kr.ac.kumoh.allimi.dto.notice.NoticeWriteDto;
 import kr.ac.kumoh.allimi.exception.*;
 import kr.ac.kumoh.allimi.exception.user.UserAuthException;
 import kr.ac.kumoh.allimi.repository.*;
@@ -33,7 +31,7 @@ public class NoticeService {
   private final ImageRepository imageRepository;
   private final S3Service s3Service;
 
-  public Long write(NoticeWriteDto dto, List<MultipartFile> files) throws Exception {  // notice{writer_id, target_id, contents, sub_contents}, file{}
+  public Long write(NoticeDTO.Write dto, List<MultipartFile> files) throws Exception {  // notice{writer_id, target_id, contents, sub_contents}, file{}
     NHResident writer = nhResidentRepository.findById(dto.getWriter_id())
             .orElseThrow(() -> new NoSuchElementException("입소자 찾기 실패 - writer_id에 해당하는 입소자 없음"));
 
@@ -50,13 +48,17 @@ public class NoticeService {
       if (files.size() > 10)
         throw new FileCountExceedException("사진의 최대 업로드 수는 10장입니다.");
 
-      for (MultipartFile file : files) {
-        if (!file.isEmpty()) {
-          String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
-          Image image = Image.newNoticeImage(notice, url);
-          images.add(image);
-          imageRepository.save(image);
+      try {
+        for (MultipartFile file : files) {
+          if (!file.isEmpty()) {
+            String url = URLDecoder.decode(s3Service.upload(file), "utf-8");
+            Image image = Image.newNoticeImage(notice, url);
+            images.add(image);
+            imageRepository.save(image);
+          }
         }
+      } catch(Exception e) {
+        throw new Exception();
       }
     }
 
@@ -70,11 +72,11 @@ public class NoticeService {
   }
 
   //알림장 목록보기
-  public List<NoticeListDTO> noticeList(Long residentId) throws Exception {
+  public List<NoticeDTO.ListAll> noticeList(Long residentId) throws Exception {
     NHResident nhResident = nhResidentRepository.findById(residentId)
             .orElseThrow(() -> new NoSuchElementException("입소자 찾기 실패 - resident_id에 해당하는 입소자 없음"));
 
-    List<NoticeListDTO> notices = new ArrayList<>();
+    List<NoticeDTO.ListAll> notices = new ArrayList<>();
     UserRole userRole = nhResident.getUserRole();
 
     if (userRole == UserRole.MANAGER || userRole == UserRole.WORKER) { // 직원, 시설장인 경우: 시설 알림장 모두 확인 가능
@@ -100,8 +102,8 @@ public class NoticeService {
     return notices;
   }
 
-  public List<NoticeListDTO> noticeList(List<Notice> notices) {
-    List<NoticeListDTO> noticeList = new ArrayList<>();
+  public List<NoticeDTO.ListAll> noticeList(List<Notice> notices) {
+    List<NoticeDTO.ListAll> noticeList = new ArrayList<>();
 
     for (Notice notice : notices) {
       List<Image> images = imageRepository.findAllByNotice(notice).orElse(new ArrayList<>());
@@ -110,7 +112,7 @@ public class NoticeService {
         urls.add(image.getImageUrl());
       }
 
-      NoticeListDTO dto = NoticeListDTO.builder()
+      NoticeDTO.ListAll dto = NoticeDTO.ListAll.builder()
               .noticeId(notice.getNoticeId())
               .create_date(notice.getCreatedDate())
               .content(notice.getContents())
@@ -146,7 +148,7 @@ public class NoticeService {
             .build();
   }
 
-  public Long edit(NoticeEditDto editDto, List<MultipartFile> files) throws Exception { // 알림장 수정: notice_id, writer_id, target_id, content, sub_content
+  public Long edit(NoticeDTO.Edit editDto, List<MultipartFile> files) throws Exception { // 알림장 수정: notice_id, writer_id, target_id, content, sub_content
     Notice notice = noticeRepository.findNoticeByNoticeId(editDto.getNotice_id())
             .orElseThrow(() -> new NoSuchElementException("알림장 찾기 실패 - 해당 알림장이 존재하지 않음"));
 

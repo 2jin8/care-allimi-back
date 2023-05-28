@@ -85,13 +85,21 @@ public class LetterService {
 
     for (Letter letter : letters) {
       NHResident findNHResident = letter.getProtector();
-      User user = findNHResident.getUser();
+      String userName = null;
+      Long findResidentId = null;
+      String findResidentName = null;
+
+      if (findNHResident != null) {
+        userName = findNHResident.getUser().getName();
+        findResidentId = findNHResident.getId();
+        findResidentName = findNHResident.getName();
+      }
 
       LetterListDTO dto = LetterListDTO.builder()
               .letter_id(letter.getLetterId())
-              .nhresident_id(findNHResident.getId())
-              .nhr_name(findNHResident.getName())
-              .user_name(user.getName())
+              .nhresident_id(findResidentId)
+              .nhr_name(findResidentName)
+              .user_name(userName)
               .content(letter.getContents())
               .is_read(letter.isRead())
               .created_date(letter.getCreatedDate())
@@ -154,7 +162,7 @@ public class LetterService {
     letter.readCheck();
   }
 
-//  public void edit(NoticeEditDto editDto) throws Exception {
+//  public void edit(NoticeDTO.Edit editDto) throws Exception {
 //    Notice notice = letterRepository.findById(editDto.getNotice_id())
 //            .orElseThrow(() -> new NoticeException("해당 notice가 없습니다"));
 //    User writer = notice.getUser();

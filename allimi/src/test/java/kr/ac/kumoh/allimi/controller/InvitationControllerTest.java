@@ -3,7 +3,7 @@ package kr.ac.kumoh.allimi.controller;
 import kr.ac.kumoh.allimi.controller.response.ResponseInvitation;
 import kr.ac.kumoh.allimi.dto.facility.AddFacilityDTO;
 import kr.ac.kumoh.allimi.dto.invitation.SendInvitationDto;
-import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
+import kr.ac.kumoh.allimi.dto.UserDTO;
 import kr.ac.kumoh.allimi.service.FacilityService;
 import kr.ac.kumoh.allimi.service.InvitationService;
 import kr.ac.kumoh.allimi.service.UserService;
@@ -37,7 +37,7 @@ class InvitationControllerTest {
   public void sendInvitation() {
     log.info("@@초대장 보내기 테스트");
 
-    SignUpDTO signupDto = SignUpDTO.builder()
+    UserDTO.SignUp signupDto = UserDTO.SignUp.builder()
             .login_id("invitationTestId")
             .password("1234")
             .name("쿠로미")
@@ -111,7 +111,7 @@ class InvitationControllerTest {
   public void approveInvitation() {
     log.info("@@초대장 보내기 테스트");
 
-    SignUpDTO signupDto = SignUpDTO.builder()
+    UserDTO.SignUp signupDto = UserDTO.SignUp.builder()
             .login_id("invitationTestId")
             .password("1234")
             .name("쿠로미")

@@ -5,9 +5,7 @@ import kr.ac.kumoh.allimi.controller.response.ResponseResidentDetail;
 import kr.ac.kumoh.allimi.domain.*;
 import kr.ac.kumoh.allimi.dto.admin.UserListAdminDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
-import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
-import kr.ac.kumoh.allimi.dto.user.UserEditDTO;
-import kr.ac.kumoh.allimi.dto.user.UserListDTO;
+import kr.ac.kumoh.allimi.dto.UserDTO;
 import kr.ac.kumoh.allimi.exception.InputException;
 import kr.ac.kumoh.allimi.exception.user.UserIdDuplicateException;
 import kr.ac.kumoh.allimi.repository.FacilityRepository;
@@ -30,7 +28,7 @@ public class UserService {
     private final NHResidentRepository nhResidentRepository;
 
   @Transactional
-  public Long addUser(SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
+  public Long addUser(UserDTO.SignUp dto) throws Exception { // login_id, password, name, phone_num;
     final String REGEX = "[0-9]+";        //전화번호에 숫자만 포함되어야함
     if(!dto.getPhone_num().matches(REGEX)) {
       throw new InputException("전화번호 포맷이 이상함");
@@ -148,11 +146,11 @@ public class UserService {
   }
 
 
-  public UserListDTO getUserInfo(Long userId) throws Exception {
+  public UserDTO.List getUserInfo(Long userId) throws Exception {
     User user = userRepository.findUserByUserId(userId)
             .orElseThrow(() -> new NoSuchElementException("해당 user가 없습니다"));
 
-    UserListDTO userListDTO = UserListDTO.builder()
+    UserDTO.List userListDTO = UserDTO.List.builder()
             .user_name(user.getName())
             .phone_num(user.getPhoneNum())
             .login_id(user.getLoginId())
@@ -167,7 +165,7 @@ public class UserService {
   }
 
   @Transactional
-  public void edit(UserEditDTO dto) throws Exception {
+  public void edit(UserDTO.Edit dto) throws Exception {
     if (isDuplicateId(dto.getLogin_id()))// ID 중복 체크
       throw new UserIdDuplicateException("중복된 아이디 입니다");
 

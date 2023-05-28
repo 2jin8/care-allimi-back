@@ -4,11 +4,8 @@ import jakarta.validation.Valid;
 import kr.ac.kumoh.allimi.controller.response.ResponseLogin;
 import kr.ac.kumoh.allimi.controller.response.ResponseResidentDetail;
 import kr.ac.kumoh.allimi.dto.admin.UserListAdminDTO;
-import kr.ac.kumoh.allimi.dto.user.LoginDTO;
-import kr.ac.kumoh.allimi.dto.user.SignUpDTO;
 import kr.ac.kumoh.allimi.dto.ids.UserNHResidentDTO;
-import kr.ac.kumoh.allimi.dto.user.UserEditDTO;
-import kr.ac.kumoh.allimi.dto.user.UserListDTO;
+import kr.ac.kumoh.allimi.dto.UserDTO;
 import kr.ac.kumoh.allimi.exception.InputException;
 import lombok.RequiredArgsConstructor;
 import kr.ac.kumoh.allimi.service.UserService;
@@ -32,7 +29,7 @@ public class UserController {
 
   //회원가입
   @PostMapping("/users")
-  public ResponseEntity addUser(@RequestBody @Valid SignUpDTO dto) throws Exception { // login_id, password, name, phone_num;
+  public ResponseEntity addUser(@RequestBody @Valid UserDTO.SignUp dto) throws Exception { // login_id, password, name, phone_num;
     Long userId = userService.addUser(dto);
 
     Map<String, Long> map = new HashMap<>();
@@ -42,7 +39,7 @@ public class UserController {
   }
 
   @PostMapping("/login") // 로그인
-  public ResponseEntity login(@RequestBody @Valid LoginDTO dto) throws Exception {  // login_id, password
+  public ResponseEntity login(@RequestBody @Valid UserDTO.Login dto) throws Exception {  // login_id, password
     ResponseLogin responseLogin = userService.login(dto.getLogin_id(), dto.getPassword());
 
     return ResponseEntity.status(HttpStatus.OK).body(responseLogin);  // user_id, user_role, user_name, phone_num, login_id;
@@ -66,7 +63,7 @@ public class UserController {
   }
 
   @PatchMapping("/users")
-  public ResponseEntity editUser(@RequestBody @Valid UserEditDTO dto) throws Exception { // user_id, login_id, password, name, phone_num;
+  public ResponseEntity editUser(@RequestBody @Valid UserDTO.Edit dto) throws Exception { // user_id, login_id, password, name, phone_num;
     userService.edit(dto);
 
     return ResponseEntity.status(HttpStatus.OK).build();
@@ -77,7 +74,7 @@ public class UserController {
     if (userId == null)
       throw new InputException("UserController 사용자 정보조회: user_id가 null로 들어옴. 잘못된 요청");
 
-    UserListDTO userListDTO = userService.getUserInfo(userId);
+    UserDTO.List userListDTO = userService.getUserInfo(userId);
 
     return ResponseEntity.status(HttpStatus.OK).body(userListDTO); // user_name, phone_num, login_id;
   }
