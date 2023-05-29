@@ -10,7 +10,8 @@ import java.util.List;
 @Builder
 public class NoticeResponse {
     Long notice_id;
-    String writer_name;
+  Long target_id;
+  Long writer_id;
     String target_name;
     LocalDateTime create_date;
     String content;

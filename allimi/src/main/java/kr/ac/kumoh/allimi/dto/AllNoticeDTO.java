@@ -42,7 +42,7 @@ public class AllNoticeDTO {
     String title;
     String content;
     Boolean important;
-
+    Long writer_id;
     //@Builder.Default
     java.util.List<String> imageUrl;  // = new ArrayList<String>();
   }

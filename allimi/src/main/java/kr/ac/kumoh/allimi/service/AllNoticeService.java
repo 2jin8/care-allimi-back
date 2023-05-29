@@ -87,6 +87,7 @@ public class AllNoticeService {
               .allNoticeId(allNotice.getAllNoticeId())
               .create_date(allNotice.getCreatedDate())
               .title(allNotice.getTitle())
+          .writer_id(allNotice.getWriter().getId())
               .content(allNotice.getContents())
               .important(allNotice.isImportant())
               .imageUrl(urls).build());

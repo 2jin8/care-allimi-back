@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -59,6 +60,13 @@ public class FacilityService {
   @Transactional(readOnly = true)
   public Page<Facility> findAll(Pageable pageable) throws Exception {
     Page<Facility> facilities = facilityRepository.findAll(pageable);
+
+    return facilities;
+  }
+
+  @Transactional(readOnly = true)
+  public List<Facility> findAllAdmin() throws Exception {
+    List<Facility> facilities = facilityRepository.findAll();
 
     return facilities;
   }

@@ -1,11 +1,15 @@
 package kr.ac.kumoh.allimi.controller;
 
+import kr.ac.kumoh.allimi.domain.Facility;
 import kr.ac.kumoh.allimi.dto.admin.UserListAdminDTO;
 import kr.ac.kumoh.allimi.dto.nhresident.NHResidentResponse;
 import kr.ac.kumoh.allimi.exception.user.UserException;
+import kr.ac.kumoh.allimi.service.FacilityService;
 import kr.ac.kumoh.allimi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminHomeController {
   private final UserService userService;
+  private final FacilityService facilityService;
 
   @GetMapping("/admin")
   public String home() {
@@ -36,7 +41,7 @@ public class AdminHomeController {
 
     model.addAttribute("users", dtos);
 
-    return "bootTest2";
+    return "userList";
   }
 
   @GetMapping("/admin/users/{user_id}")
@@ -49,6 +54,16 @@ public class AdminHomeController {
     model.addAttribute("residents", nhResidentResponses);
 
     return "userDetail";
+  }
+
+  @GetMapping("/admin/facilities")
+  public String facilities(Model model) throws Exception {
+    log.info("access AdminHomeController");
+    List<Facility> dtos = facilityService.findAllAdmin();
+
+    model.addAttribute("facilities", dtos);
+
+    return "facilityList";
   }
 
 //  @DeleteMapping("/admin/users")

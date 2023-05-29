@@ -1,0 +1,47 @@
+
+<!doctype html>
+<html lang="en" data-bs-theme="auto" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Page</title>
+
+    <!-- 부트스트랩 스타일 시트 링크 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div th:replace="fragments/navHeader :: navHeader" />
+    <div class="container">
+        <h1>Welcome to the Admin Page</h1>
+
+        <h2>시설 리스트</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>시설이름</th>
+                <th>주소</th>
+                <th>전화번호</th>
+                <th>시설장이름</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr th:each="facility : ${facilities}">
+                    <td th:text="${facility.id}"></td>
+                    <td th:text="${facility.name}"></td>
+                    <td th:text="${facility.address}"></td>
+                    <td th:text="${facility.tel}"></td>
+                    <td th:text="${facility.fmName}"></td>
+                    <td><a th:href="@{/admin/facilities/{facilityId}(facilityId=${facility.id})}">상세보기</a></td>
+                    <td><a th:href="@{/admin/facilities/{facilityId}(facilityId=${facility.id})}">삭제</a></td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bootstrap JavaScript -->
+    <script th:src="@{/webjars/bootstrap/4.6.0/js/bootstrap.min.js}"></script>
+
+</body>
+</html>

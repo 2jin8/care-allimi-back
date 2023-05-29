@@ -139,9 +139,10 @@ public class NoticeService {
 
     return NoticeResponse.builder()
             .notice_id(notice.getNoticeId())
-            .writer_name(notice.getWriter().getName())
+      .writer_id(notice.getWriter().getId())
             .target_name(notice.getTarget().getName())
             .create_date(notice.getCreatedDate())
+      .target_id(notice.getTarget().getId())
             .content(notice.getContents())
             .sub_content(notice.getSubContents())
             .image_url(images_url)
