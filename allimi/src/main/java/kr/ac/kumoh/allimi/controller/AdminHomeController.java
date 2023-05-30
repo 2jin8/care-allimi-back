@@ -42,23 +42,20 @@ public class AdminHomeController {
     log.info("access AdminHomeController");
 
     model.addAttribute("users", userService.getAllUser(pageable));
-    model.addAttribute("currentPage", "user");
+    model.addAttribute("urls", "/admin/users");
     return "userList";
   }
-
 
   @GetMapping("/admin/users/{user_id}")
   public String users(Model model, @PathVariable("user_id") Long userId) throws Exception {
     if (userId == null)
       throw new UserException("AdminHomeController 입소자 리스트 출력: user_id가 null. 사용자의 잘못된 입력");
 
-    List<NHResidentResponse> nhResidentResponses = userService.getNHResidents(userId);
-
-    model.addAttribute("residents", nhResidentResponses);
+    model.addAttribute("residents", userService.getNHResidents(userId));
 
     return "userDetail";
   }
-
+  
   @GetMapping("/admin/users/search")
   public String usersSearch(String searchKeyword,
                             @PageableDefault(size = 10, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
@@ -66,6 +63,7 @@ public class AdminHomeController {
 
     model.addAttribute("users", userService.getSearchUser(searchKeyword, pageable));
     model.addAttribute("searchKeyword", searchKeyword);
+    model.addAttribute("urls", "/admin/users/search");
 
     return "userList";
   }
@@ -85,6 +83,8 @@ public class AdminHomeController {
     log.info("access AdminHomeController");
 
     model.addAttribute("facilities", facilityService.findAllAdmin(pageable));
+    model.addAttribute("urls", "/admin/facilities");
+
     return "facilityList";
   }
 
@@ -93,9 +93,7 @@ public class AdminHomeController {
     if (facilityId == null)
       throw new FacilityException("AdminHomeController 시설 정보 출력: facility_id가 null");
 
-    FacilityInfoDto dto = facilityService.getInfo(facilityId);
-
-    model.addAttribute("facility", dto);
+    model.addAttribute("facility", facilityService.getInfo(facilityId));
 
     return "facilityDetail";
   }
@@ -107,6 +105,8 @@ public class AdminHomeController {
 
     model.addAttribute("facilities", facilityService.getSearchFacility(searchKeyword, pageable));
     model.addAttribute("searchKeyword", searchKeyword);
+    model.addAttribute("urls", "/admin/facilities/search");
+
     return "facilityList";
   }
 

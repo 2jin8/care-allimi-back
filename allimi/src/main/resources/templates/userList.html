@@ -54,17 +54,17 @@
                         th:with="start=${T(java.lang.Math).floor(users.number/10)*10 + 1},
                     last=(${start + 9 < users.totalPages ? start + 9 : (users.totalPages == 0? 1 : users.totalPages)})">
                         <li class="page-item" th:classappend="${users.first} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/users(page=${users.number})}" aria-label="Previous">
+                            <a class="page-link" th:href="@{${urls}(searchKeyword=${searchKeyword}, page=${users.number})}" aria-label="Previous">
                                 <span aria-hidden="true">이전</span>
                             </a>
                         </li>
 
                         <li class="page-item" th:each="page: ${#numbers.sequence(start, last)}" th:classappend="${page == users.number + 1} ? 'active'">
-                            <a class="page-link" th:text="${page}" th:href="@{/admin/users(page=${page})}"></a>
+                            <a class="page-link" th:text="${page}" th:href="@{${urls}(searchKeyword=${searchKeyword}, page=${page})}"></a>
                         </li>
 
                         <li class="page-item" th:classappend="${users.last} ? 'disabled'">
-                            <a class="page-link" th:href="@{/admin/users(page=${users.number + 2})}" aria-label="Next">
+                            <a class="page-link" th:href="@{${urls}(searchKeyword=${searchKeyword}, page=${users.number + 2})}" aria-label="Next">
                                 <span aria-hidden="true">다음</span>
                             </a>
                         </li>
