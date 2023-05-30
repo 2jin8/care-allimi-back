@@ -12,6 +12,9 @@ import kr.ac.kumoh.allimi.repository.FacilityRepository;
 import kr.ac.kumoh.allimi.repository.NHResidentRepository;
 import kr.ac.kumoh.allimi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,22 +73,22 @@ public class UserService {
 
     return responseLogin;
   }
+  public Page<User> getAllUser(Pageable pageable) throws Exception {
+    int page = (pageable.getPageNumber() == 0) ? 0 : (pageable.getPageNumber() - 1);
+    pageable = PageRequest.of(page, 10);
+    Page<User> users = userRepository.findAll(pageable);
 
-  public List<UserListAdminDTO> getAllUser() throws Exception {
-    List<User> users = userRepository.findAll();
-    List<UserListAdminDTO> dtos  = new ArrayList<>();
 
-    for (User user : users) {
-      dtos.add(UserListAdminDTO.builder()
-              .user_id(user.getUserId())
-              .user_name(user.getName())
-              .phone_num(user.getPhoneNum())
-              .login_id(user.getLoginId())
-              .build()
-      );
-    }
+    return users;
+  }
 
-    return dtos;
+  public Page<User> getSearchUser(String searchKeyword, Pageable pageable) throws Exception {
+    int page = (pageable.getPageNumber() == 0) ? 0 : (pageable.getPageNumber() - 1);
+    pageable = PageRequest.of(page, 10);
+
+    Page<User> users = userRepository.findByNameContaining(searchKeyword, pageable).orElse(null);
+
+    return users;
   }
 
   public List<UserListAdminDTO> getUserByPhoneNum(String phoneNum) throws Exception {
@@ -223,4 +226,5 @@ public class UserService {
 
     return nhResidentResponses;
   }
+
 }

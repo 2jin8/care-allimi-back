@@ -6,14 +6,25 @@
     <title>Admin Page</title>
 
     <!-- 부트스트랩 스타일 시트 링크 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
 </head>
 <body>
     <div th:replace="fragments/navHeader :: navHeader" />
     <div class="container">
-        <h1>Welcome to the Admin Page</h1>
+        <p/>
+        <h2>요양원 목록</h2>
+        <form th:action="@{/admin/facilities/search}" method="get">
 
-        <h2>시설 리스트</h2>
+            <div class="col-">
+                <div class="input-group">
+                    <input type="text" name="searchKeyword" class="form-control" placeholder="요양원 이름 검색" th:value="${searchKeyword}">
+                    <button type="submit" class="btn btn-dark">검색</button>
+                </div>
+            </div>
+        </form>
+        <br>
         <table class="table">
             <thead>
             <tr>
@@ -22,7 +33,7 @@
                 <th>주소</th>
                 <th>전화번호</th>
                 <th>시설장이름</th>
-                <th></th>
+                <th></th><th></th>
             </tr>
             </thead>
             <tbody>
@@ -33,11 +44,38 @@
                     <td th:text="${facility.tel}"></td>
                     <td th:text="${facility.fmName}"></td>
                     <td><a th:href="@{/admin/facilities/{facilityId}(facilityId=${facility.id})}">상세보기</a></td>
-                    <td><a th:href="@{/admin/facilities/{facilityId}(facilityId=${facility.id})}">삭제</a></td>
+                    <td><a th:href="@{/admin/facilities/{facilityId}/delete(facilityId=${facility.id})}">삭제</a></td>
                 </tr>
 
             </tbody>
         </table>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <nav style="text-align: center;">
+                    <ul class="pagination justify-content-center"
+                        th:with="start=${T(java.lang.Math).floor(facilities.number/10)*10 + 1},
+                    last=(${start + 9 < facilities.totalPages ? start + 9 : (facilities.totalPages == 0? 1 : facilities.totalPages)})">
+                        <li class="page-item" th:classappend="${facilities.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/facilities(page=${facilities.number})}" aria-label="Previous">
+                                <span aria-hidden="true">이전</span>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:each="page: ${#numbers.sequence(start, last)}" th:classappend="${page == facilities.number + 1} ? 'active'">
+                            <a class="page-link" th:text="${page}" th:href="@{/admin/facilities(page=${page})}"></a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${facilities.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/facilities(page=${facilities.number + 2})}" aria-label="Next">
+                                <span aria-hidden="true">다음</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JavaScript -->

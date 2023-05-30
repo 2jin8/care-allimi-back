@@ -45,17 +45,17 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(responseLogin);  // user_id, user_role, user_name, phone_num, login_id;
   }
 
-  //전체 user조회 - 관리자용
-  @GetMapping("/users")
-  public ResponseEntity getAllUser() throws Exception {
-    List<UserListAdminDTO> dtos = userService.getAllUser();
-
-    return ResponseEntity.status(HttpStatus.OK).body(dtos);
-  }
+//  //전체 user조회 - 관리자용
+//  @GetMapping("/users")
+//  public ResponseEntity getAllUser() throws Exception {
+//    List<UserListAdminDTO> dtos = userService.getAllUser();
+//
+//    return ResponseEntity.status(HttpStatus.OK).body(dtos);
+//  }
 
   //회원 탈퇴
   @DeleteMapping("/users")
-  public ResponseEntity deleteUser(@RequestBody @NotNull Map<String, Long> user) throws Exception{ //user_id // TODO: 오류 수정
+  public ResponseEntity deleteUser(@RequestBody @NotNull Map<String, Long> user) throws Exception{ //user_id
     Long userId = user.get("user_id");
     userService.deleteUser(userId);
 

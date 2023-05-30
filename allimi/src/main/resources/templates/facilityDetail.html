@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Page</title>
+
+    <!-- 부트스트랩 스타일 시트 링크 -->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+</head>
+<body>
+<div th:replace="fragments/navHeader :: navHeader" />
+
+<div class="container">
+    <p/>
+    <h2>요양원 정보</h2>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>facility_name</th>
+            <th>facility_address</th>
+            <th>facility_tel</th>
+            <th>facility_fmName</th>
+        </tr>
+        </thead>
+        <tbody>
+            <td th:text="${facility.name}"></td>
+            <td th:text="${facility.address}"></td>
+            <td th:text="${facility.tel}"></td>
+            <td th:text="${facility.fm_name}"></td>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
